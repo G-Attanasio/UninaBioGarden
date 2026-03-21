@@ -19,6 +19,7 @@ public  class Utente {
 	private ArrayList<Attività> attivitaAssegnate;
 	
 	public Utente(String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
+		this.idUtente=0;
 		this.nome=nome;
 		this.cognome=cognome;
 		this.username=username;
@@ -64,7 +65,7 @@ public  class Utente {
 	    return java.time.Period.between(this.dataNascita, java.time.LocalDate.now()).getYears();
 	}
 
-	public boolean isEtàCoerente() {
+	public boolean isEtaCoerente() {
 	    int eta = calcolaEta();
 	    return eta >= 0 && eta <= 120;
 	}
@@ -79,15 +80,15 @@ public  class Utente {
 	}
 
 	public void addLotto(LottoColtivabile l) {
-	    if (!this.lottiPosseduti.contains(l)) this.lottiPosseduti.add(l);
+	    if (l != null &&!this.lottiPosseduti.contains(l)) this.lottiPosseduti.add(l);
 	}
 
 	public void addAttivita(Attività a) {
-	    if (!this.attivitaAssegnate.contains(a)) this.attivitaAssegnate.add(a);
+	    if (a != null && !this.attivitaAssegnate.contains(a)) this.attivitaAssegnate.add(a);
 	}
 
 	public void addProgettoAssegnato(ProgettoStagionale ps) {
-	    if (!this.progettiAssegnati.contains(ps)) {
+	    if (ps!=null && !this.progettiAssegnati.contains(ps)) {
 	        this.progettiAssegnati.add(ps);
 	    }
 	}
@@ -180,11 +181,11 @@ public  class Utente {
 		this.progettiAssegnati = progettiAssegnati;
 	}
 
-	public ArrayList<Attività> getAttivitàAssegnate() {
+	public ArrayList<Attività> getAttivitaAssegnate() {
 		return attivitaAssegnate;
 	}
 
-	public void setAttivitàAssegnate(ArrayList<Attività> attivitàAssegnate) {
+	public void setAttivitaAssegnate(ArrayList<Attività> attivitàAssegnate) {
 		this.attivitaAssegnate = attivitàAssegnate;
 	}
 	

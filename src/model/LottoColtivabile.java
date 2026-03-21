@@ -17,7 +17,7 @@ public class LottoColtivabile {
 	private Utente proprietario;
 	private ArrayList<ProgettoStagionale> progettiAssegnati;
 	
-	public LottoColtivabile (TipoTessitura tessitura, int dimensioni, double ph, TipoMorfologia morfologia, int altitudine, String località, String comune, String provincia) {
+	public LottoColtivabile (TipoTessitura tessitura, int dimensioni, double ph, TipoMorfologia morfologia, int altitudine, String località, String comune, String provincia, Utente proprietario) {
 		this.codLotto=0;
 		this.tessitura=tessitura;
 		this.dimensioni=dimensioni;
@@ -29,23 +29,36 @@ public class LottoColtivabile {
 		this.provincia=provincia;
 		this.attivo=true;
 		this.progettiAssegnati=new ArrayList<>();
+		this.proprietario=proprietario;
 	}
+	
+	public LottoColtivabile(int codLotto, TipoTessitura tessitura, int dimensioni, double ph, TipoMorfologia morfologia,int altitudine,String localita, String comune, String provincia,Utente proprietario, boolean attivo) {
+		 	this.tessitura = tessitura;
+		    this.dimensioni = dimensioni;
+		    this.ph = ph;
+		    this.morfologia = morfologia;
+		    this.altitudine = altitudine;
+		    this.localita = localita;
+		    this.comune = comune;
+		    this.provincia = provincia;
+		    this.proprietario = proprietario;
+		    this.codLotto = codLotto;
+		    this.attivo = attivo;
+		    this.progettiAssegnati = new ArrayList<>(); 
+    }
 	
 	public void addProprietario(Utente u) {
 		this.setProprietario(u);
 	}
 	
 	public void addProgetto(ProgettoStagionale ps) {
-		if(!this.progettiAssegnati.contains(ps)) {
+		if(ps!=null && !this.progettiAssegnati.contains(ps)) {
 			progettiAssegnati.add(ps);
+		if(ps.getLottoImpegnato()==null) {
+			ps.setLottoImpegnato(this);
+			}
 		}
 	}
-	
-	public LottoColtivabile(int codLotto, TipoTessitura tessitura, int dimensioni, double ph, TipoMorfologia morfologia,int altitudine,String localita, String comune, String provincia, boolean attivo) {
-        this(tessitura,dimensioni,ph,morfologia,altitudine,localita,comune,provincia); 
-        this.codLotto = codLotto;
-        this.attivo = attivo;
-    }
 	
 	public boolean isValidPh(double ph) {
 		if (ph <4.0 || ph>9.0) return false;
