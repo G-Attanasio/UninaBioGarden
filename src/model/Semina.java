@@ -1,50 +1,49 @@
 package model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class  Semina extends Attivita {
 	
-	private double quantitaSemi;
+	private TipoSemina metodoSemina;
+	private ArrayList<SeminaColtura> listaSemine;
 
-	public Semina(LocalDate dataInizio, LocalDate dataFine, Utente coltivatore,ProgettoStagionale progetto, double quantitaSemi) {
+	public Semina(LocalDate dataInizio, LocalDate dataFine, Utente coltivatore,ProgettoStagionale progetto, TipoSemina metodoSemina) {
 		super(dataInizio, dataFine, coltivatore, progetto);
-		this.quantitaSemi=quantitaSemi;
+		this.metodoSemina=metodoSemina;
+		this.listaSemine= new ArrayList<SeminaColtura>();
 		
 	}
 	
-	public Semina(int codAttivita, Stato statoEsecuzione, LocalDate dataInizio, LocalDate dataFine, Utente coltivatore, ProgettoStagionale progetto, double quantitaSemi) {
+	public Semina(int codAttivita, Stato statoEsecuzione, LocalDate dataInizio, LocalDate dataFine, Utente coltivatore, ProgettoStagionale progetto, TipoSemina metodoSemina) {
 	    super(codAttivita, statoEsecuzione, dataInizio, dataFine, coltivatore, progetto); 
-	    this.quantitaSemi = quantitaSemi;
-	}
-
-	public boolean isQuantitaSemiValida(double numero) {
-		if( numero < 0) {
-			return false;
-		}
-		return true;
-	}
-
-	public boolean isSoloCifre(String testo ) {
-		if (testo == null || testo.isEmpty()) return false;
-	    int contatorePunti = 0;
-	    for (int i = 0; i < testo.length(); i++) {
-	        char c = testo.charAt(i);
-	        if (c == '.') {
-	            contatorePunti++;
-	        } else if (!Character.isDigit(c)) {
-	            return false;
-	        }
-	        if (contatorePunti > 1) return false;
-	    }
-	    return !testo.equals(".");
+	    this.metodoSemina=metodoSemina;
+	    this.listaSemine= new ArrayList<SeminaColtura>();
 	}
 	
-	public double getQuantitaSemi() {
-		return quantitaSemi;
+	public void addSemina(SeminaColtura sc) {
+		if(sc != null && !listaSemine.contains(sc)) {
+			listaSemine.add(sc);
+			if(sc.getSemina()==null) {
+				sc.setSemina(this);
+			}
+		}
 	}
 
-	public void setQuantitaSemi(double quantitaSemi) {
-		this.quantitaSemi = quantitaSemi;
+	public TipoSemina getMetodoSemina() {
+		return metodoSemina;
+	}
+
+	public void setMetodoSemina(TipoSemina metodoSemina) {
+		this.metodoSemina = metodoSemina;
+	}
+
+	public ArrayList<SeminaColtura> getListaSemine() {
+		return listaSemine;
+	}
+
+	public void setListaSemine(ArrayList<SeminaColtura> listaSemine) {
+		this.listaSemine = listaSemine;
 	}
 	
 }
