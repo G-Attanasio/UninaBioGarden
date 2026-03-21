@@ -17,6 +17,8 @@ public  class Utente {
 	private ArrayList<ProgettoStagionale> progettiCreati;
 	private ArrayList<ProgettoStagionale> progettiAssegnati;
 	private ArrayList<Attivita> attivitaAssegnate;
+	private ArrayList<NotificaDestinatario> listaNotificheRicevute;
+	private ArrayList<Notifica> listaNotificheInviate;
 	
 	public Utente(String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
 		this.idUtente=0;
@@ -31,6 +33,8 @@ public  class Utente {
 		this.progettiCreati= new ArrayList<ProgettoStagionale>();
 		this.progettiAssegnati= new ArrayList<ProgettoStagionale>();
 		this.attivitaAssegnate= new ArrayList<Attivita>();
+		this.listaNotificheInviate= new ArrayList<Notifica>();
+		this.listaNotificheRicevute= new ArrayList<NotificaDestinatario>();
 	}
 	
 	public Utente(int idUtente, String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
@@ -97,6 +101,24 @@ public  class Utente {
 	    if (ps!=null && !this.progettiAssegnati.contains(ps)) {
 	        this.progettiAssegnati.add(ps);
 	    }
+	}
+	
+	public void addNotificaInviata(Notifica n) {
+		if( n!= null && !listaNotificheInviate.contains(n)) {
+			listaNotificheInviate.add(n);
+			if(n.getCreatore()==null) {
+				n.setCreatore(this);
+			}
+		}
+	}
+	
+	public void addNotificaRicevuta(NotificaDestinatario nd) {
+		if(nd != null && !listaNotificheRicevute.contains(nd)) {
+			listaNotificheRicevute.add(nd);
+			if(nd.getDestinatario()==null) {
+				nd.setDestinatario(this);
+			}
+		}
 	}
 	
 	public int getIdUtente() {
@@ -194,5 +216,16 @@ public  class Utente {
 	public void setAttivitaAssegnate(ArrayList<Attivita> attivitàAssegnate) {
 		this.attivitaAssegnate = attivitàAssegnate;
 	}
-	
+	public ArrayList<NotificaDestinatario> getListaNotificheRicevute(){
+		return listaNotificheRicevute;
+	}
+	public void setListaNotifiche(ArrayList<NotificaDestinatario> listaNotificheRicevute) {
+		this.listaNotificheRicevute=listaNotificheRicevute;
+	}
+	public ArrayList<Notifica> getListaNotificheInviate(){
+		return listaNotificheInviate;
+	}
+	public void setListaNotificheInviate(ArrayList<Notifica> listaNotificheInviate) {
+		this.listaNotificheInviate=listaNotificheInviate;
+	}
 }

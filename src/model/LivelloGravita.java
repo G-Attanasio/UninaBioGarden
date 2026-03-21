@@ -1,6 +1,6 @@
 package model;
 
-public enum LivelloGravità {
+public enum LivelloGravita {
 
 	BASSO,
 	MEDIO,
