@@ -16,7 +16,7 @@ public  class Utente {
 	private ArrayList<LottoColtivabile> lottiPosseduti;
 	private ArrayList<ProgettoStagionale> progettiCreati;
 	private ArrayList<ProgettoStagionale> progettiAssegnati;
-	private ArrayList<Attività> attivitaAssegnate;
+	private ArrayList<Attivita> attivitaAssegnate;
 	
 	public Utente(String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
 		this.idUtente=0;
@@ -30,7 +30,7 @@ public  class Utente {
 		this.lottiPosseduti= new ArrayList<LottoColtivabile>();
 		this.progettiCreati= new ArrayList<ProgettoStagionale>();
 		this.progettiAssegnati= new ArrayList<ProgettoStagionale>();
-		this.attivitaAssegnate= new ArrayList<Attività>();
+		this.attivitaAssegnate= new ArrayList<Attivita>();
 	}
 	
 	public Utente(int idUtente, String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
@@ -67,7 +67,7 @@ public  class Utente {
 
 	public boolean isEtaCoerente() {
 	    int eta = calcolaEta();
-	    return eta >= 0 && eta <= 120;
+	    return eta >= 18 && eta <= 120;
 	}
 	
 	public void addProgettoCreato(ProgettoStagionale ps) {
@@ -81,10 +81,16 @@ public  class Utente {
 
 	public void addLotto(LottoColtivabile l) {
 	    if (l != null &&!this.lottiPosseduti.contains(l)) this.lottiPosseduti.add(l);
+	    if(l.getProprietario()== null) {
+	    	l.setProprietario(this);
+	    }
 	}
 
-	public void addAttivita(Attività a) {
+	public void addAttivita(Attivita a) {
 	    if (a != null && !this.attivitaAssegnate.contains(a)) this.attivitaAssegnate.add(a);
+	    if(a.getColtivatore()==null) {
+	    	a.setColtivatore(this);
+	    }
 	}
 
 	public void addProgettoAssegnato(ProgettoStagionale ps) {
@@ -181,11 +187,11 @@ public  class Utente {
 		this.progettiAssegnati = progettiAssegnati;
 	}
 
-	public ArrayList<Attività> getAttivitaAssegnate() {
+	public ArrayList<Attivita> getAttivitaAssegnate() {
 		return attivitaAssegnate;
 	}
 
-	public void setAttivitaAssegnate(ArrayList<Attività> attivitàAssegnate) {
+	public void setAttivitaAssegnate(ArrayList<Attivita> attivitàAssegnate) {
 		this.attivitaAssegnate = attivitàAssegnate;
 	}
 	

@@ -47,10 +47,6 @@ public class LottoColtivabile {
 		    this.progettiAssegnati = new ArrayList<>(); 
     }
 	
-	public void addProprietario(Utente u) {
-		this.setProprietario(u);
-	}
-	
 	public void addProgetto(ProgettoStagionale ps) {
 		if(ps!=null && !this.progettiAssegnati.contains(ps)) {
 			progettiAssegnati.add(ps);
@@ -60,7 +56,7 @@ public class LottoColtivabile {
 		}
 	}
 	
-	public boolean isValidPh(double ph) {
+	public boolean isPhValidoMioDominio(double ph) {
 		if (ph <4.0 || ph>9.0) return false;
 		return true;
 	}

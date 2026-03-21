@@ -15,6 +15,7 @@ public class ProgettoStagionale {
 	private Utente creatore;
 	private ArrayList<Utente> coltivatoriAssegnati;
 	private LottoColtivabile lottoImpegnato;
+	private ArrayList<Attivita> attivitaSvolte;
 	
 	public ProgettoStagionale(String nomeProgetto, Stagione stagioneDiRiferimento, int durata, LocalDate dataInizio,Utente creatore,LottoColtivabile lottoImpegnato) {
 		this.codProgetto=0;
@@ -22,21 +23,32 @@ public class ProgettoStagionale {
 		this.stagioneDiRiferimento=stagioneDiRiferimento;
 		this.durata=durata;
 		this.dataInizio=dataInizio;
-		statoEsecuzione=Stato.PIANIFICATO;
+		this.statoEsecuzione=Stato.PIANIFICATO;
 		this.creatore=creatore;
 		this.lottoImpegnato=lottoImpegnato;
 		this.coltivatoriAssegnati=new ArrayList<Utente>();
+		this.attivitaSvolte=new ArrayList<Attivita>();
 	}
 	
-	public ProgettoStagionale(int codProgetto,String nomeProgetto, Stagione stagioneDiRiferimento, int durata, LocalDate dataInizio,LocalDate dataFine,Utente creatore,LottoColtivabile lottoImpegnato) {
+	public ProgettoStagionale(int codProgetto,String nomeProgetto, Stagione stagioneDiRiferimento, int durata, LocalDate dataInizio,LocalDate dataFine,Stato statoEsecuzione,Utente creatore,LottoColtivabile lottoImpegnato) {
 		this(nomeProgetto,stagioneDiRiferimento,durata,dataInizio,creatore, lottoImpegnato);
 		this.codProgetto=codProgetto;
 		this.dataFine=dataFine;
+		this.statoEsecuzione=statoEsecuzione;
 	}
 	
 	public void addColtivatore(Utente u) {
 		if(u != null && !coltivatoriAssegnati.contains(u)) {
 			coltivatoriAssegnati.add(u);
+		}
+	}
+	
+	public void addAttivita(Attivita a) {
+		if(a != null && !attivitaSvolte.contains(a)) {
+			attivitaSvolte.add(a);
+		}
+		if(a.getProgetto()==null) {
+			a.setProgetto(this);
 		}
 	}
 	
@@ -47,6 +59,21 @@ public class ProgettoStagionale {
 	
 	public boolean isDurataValida(int durata) {
 		if(durata <1 || durata >180) return false;
+		return true;
+	}
+	
+	public boolean isDataInizioValida(LocalDate inizio) {
+	    if (inizio == null) return false;
+	    return !inizio.isBefore(LocalDate.now());
+	}
+	
+	public boolean isNumerico(String numero) {
+		for (int i=0; i<numero.length(); i++) {
+			char c= numero.charAt(i);
+			if(!Character.isDigit(c) && !Character.isWhitespace(c)) {
+				return false;
+			}
+		}
 		return true;
 	}
 	
@@ -125,6 +152,14 @@ public class ProgettoStagionale {
 
 	public void setLottoImpegnato(LottoColtivabile lottoImpegnato) {
 		this.lottoImpegnato = lottoImpegnato;
+	}
+
+	public ArrayList<Attivita> getAttivitaSvolte() {
+		return attivitaSvolte;
+	}
+
+	public void setAttivitaSvolte(ArrayList<Attivita> attivitaSvolte) {
+		this.attivitaSvolte = attivitaSvolte;
 	}
 	
 }
