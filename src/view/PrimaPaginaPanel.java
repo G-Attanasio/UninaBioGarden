@@ -1,8 +1,5 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -39,7 +36,7 @@ public class PrimaPaginaPanel extends JPanel {
 		lblTitolo.setAlignmentX(CENTER_ALIGNMENT);
 		
 		btnAccedi.addActionListener(e->{
-			controller.mostraPanel("login");
+			controller.mostraLogin();
 		});
 		
 	}
