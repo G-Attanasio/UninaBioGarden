@@ -14,6 +14,8 @@ public class CardPanel extends JPanel {
 	private FinestraLogin finestraLogin;
 	private PrimaPaginaPanel primaPagina;
 	private FinestraProprietario finestraProprietario;
+	private FinestraColtivatore finestraColtivatore;
+	private FinestraProprietarioColtivatore finestraProprietarioColtivatore;
 	
 	public CardPanel(Controller controller) {
 		this.controller=controller;
@@ -21,9 +23,14 @@ public class CardPanel extends JPanel {
 		this.primaPagina= new PrimaPaginaPanel(controller);
 		this.finestraLogin= new FinestraLogin(controller);
 		this.finestraProprietario= new FinestraProprietario(controller);
+		this.finestraColtivatore= new FinestraColtivatore(controller);
+		this.finestraProprietarioColtivatore= new FinestraProprietarioColtivatore(controller);
 		setLayout(this.cardLayout);
 		add( primaPagina,"prima pagina");
 		add(finestraLogin,"login");
+		add(finestraProprietario,"proprietario");
+		add(finestraColtivatore,"coltivatore");
+		add(finestraProprietarioColtivatore,"proprietario-coltivatore");
 	}
 	
 	public void mostraPanel(String nome) {

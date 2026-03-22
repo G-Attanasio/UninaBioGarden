@@ -36,7 +36,7 @@ public class PrimaPaginaPanel extends JPanel {
 		lblTitolo.setAlignmentX(CENTER_ALIGNMENT);
 		
 		btnAccedi.addActionListener(e->{
-			controller.mostraLogin();
+			controller.mostraPanel("login");
 		});
 		
 	}

@@ -30,7 +30,15 @@ public class Controller {
     	
     	if(u != null) {
     		setUtenteLoggato(u);
-    		
+    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
+    			cardPanel.mostraPanel("proprietario");
+    		}
+    		if (u.getRuolo()==TipoRuolo.COLTIVATORE) {
+    			cardPanel.mostraPanel("coltivatore");
+    		}
+    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
+    			cardPanel.mostraPanel("proprietario-coltivatore");
+    		}
     		
     	}
     		else {
@@ -40,7 +48,7 @@ public class Controller {
     	
     
     
-    public void mostraLogin() {
+    public void mostraPanel(String testo) {
     	cardPanel.mostraPanel("login");
     }
 
