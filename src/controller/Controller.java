@@ -2,6 +2,11 @@ package controller;
 
 import model.*;
 import view.*;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 import dao.*;
 
 public class Controller {
@@ -10,7 +15,8 @@ public class Controller {
 	private MainFrame frame;
 	private CardPanel cardPanel;
 	private FinestraLogin finestraLogin;
-	UtenteDao utenteDao;
+	private UtenteDao utenteDao;
+	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 
     public Controller() {
        
@@ -18,33 +24,39 @@ public class Controller {
         this.cardPanel= frame.getCardPanel();
         this.finestraLogin= frame.getCardPanel().getFinestraLogin();
         this.utenteDao= new UtenteDao();
-        
+        this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         
     }
     
-    public void validaLogin() {
+    public void validaLogin()  {
     	String username= finestraLogin.getUsername();
     	String password= new String(finestraLogin.getPassword());
     	
-    	Utente u=utenteDao.preleva(username, password);
+    	Utente u;
+		try {
+			u = utenteDao.preleva(username, password);
+			if(u != null) {
+	    		setUtenteLoggato(u);
+	    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
+	    			cardPanel.mostraPanel("proprietario");
+	    		}
+	    		if (u.getRuolo()==TipoRuolo.COLTIVATORE) {
+	    			cardPanel.mostraPanel("coltivatore");
+	    		}
+	    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
+	    			cardPanel.mostraPanel("proprietario-coltivatore");
+	    		}
+	    		
+	    	}
+	    		
+		} catch (SQLException e) {
+			
+			
+			
+		}
     	
-    	if(u != null) {
-    		setUtenteLoggato(u);
-    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
-    			cardPanel.mostraPanel("proprietario");
-    		}
-    		if (u.getRuolo()==TipoRuolo.COLTIVATORE) {
-    			cardPanel.mostraPanel("coltivatore");
-    		}
-    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
-    			cardPanel.mostraPanel("proprietario-coltivatore");
-    		}
-    		
-    	}
-    		else {
-    			System.out.println("NO");
-    		}
-    	}
+    	
+    }
     	
     
     
@@ -62,6 +74,84 @@ public class Controller {
     	else {
     		cardPanel.mostraPanel("iscrizione proprietario");
     	}
+    }
+    
+    public void validaUtenteIscrittoColtivatore()  {
+    	 String nome = finestraIscrizioneColtivatore.getNomeInviato();
+    	 String cognome = finestraIscrizioneColtivatore.getCognomeInviato();
+    	 String username= finestraIscrizioneColtivatore.getUsernameInviato();
+    	 String email = finestraIscrizioneColtivatore.getEmailInviata();
+    	 String dataNascita= finestraIscrizioneColtivatore.getDataNascitaInviata();
+    	 String password = finestraIscrizioneColtivatore.getPasswordInviata();
+    	 String confermaPassword = finestraIscrizioneColtivatore.getConfermaPasswordInviata();
+    	 
+    	 finestraIscrizioneColtivatore.resetBordi();
+    	 
+    	 
+    	 if(Utente.isSoloLettere(nome)==false) {
+    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpNome(),"Il nome deve essere di sole lettere.");
+    		 return;
+    	 }
+    	 if(Utente.isLunghezzaValida(nome)==false) {
+    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpNome(),"La lunghezza del nome deve essere inferiore alle 30 lettere e superiore ad 1.");
+    		 return;
+    	 }
+    	 if(Utente.isLunghezzaValida(cognome)==false) {
+    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpCognome(), "Il cognome deve essere di sole lettere.");
+    		 return;
+    	 }
+    	 if (Utente.isSoloLettere(cognome)==false) {
+    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpCognome(),"La lunghezza del cognome deve essere inferiore alle 30 lettere e superiore ad 1.");
+    		 return;
+    	 }
+    	 if(Utente.isLunghezzaValida(username)==false) {
+    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpUsername(),"La lunghezza dell'username deve essere inferiore alle 30 lettere e superiore a 1.");
+    		 return;
+    	 }
+    	 if(Utente.isEmailValida(email)==false) {
+    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "L'email deve contenere una @ e un punto al suo interno nell'ordine giusto.");
+    		 return;
+    	 }
+    	 if(Utente.isLunghezzaValida(email)==false) {
+    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(),"La lunghezza dell'email deve essere inferiore di 30 caratteri.");
+    	 }
+ 
+    	 LocalDate dataNascitaParse = null;
+
+    	 try {
+    	     dataNascitaParse = LocalDate.parse(dataNascita); 
+    	     if (!Utente.isEtaCoerente(dataNascitaParse)) {
+    	         finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpDataNascita(), "Devi avere tra 18 e 120 anni!");
+    	         return;
+    	     }
+    	 } catch (DateTimeParseException e) {
+    	     finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpDataNascita(), "Usa il formato YYYY-MM-DD (es. 1995-05-20)");
+    	     return; 
+    	 }
+    	 
+    	 if (password.isEmpty() || password.length() < 8) {
+    		    finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpPassword(), "Minimo 8 caratteri");
+    		    return;
+    		}
+
+    	if (!password.equals(confermaPassword)) {
+    		    finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpConfermaPassword(), "Le password non coincidono!");
+    		    return;
+    		}
+    	
+    	Utente u = new Utente(nome, cognome, username, password, email, dataNascitaParse, TipoRuolo.COLTIVATORE);
+    	try{
+    		boolean salvato=utenteDao.salva(u);
+    		if(salvato) {
+    			cardPanel.mostraPanel("coltivatore");
+    			setUtenteLoggato(u);
+    		}
+    		
+    	}
+    	catch(SQLException e) {
+    		finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "Email già esistente.");
+    	}
+    	
     }
 
 	public static Utente getUtenteLoggato() {

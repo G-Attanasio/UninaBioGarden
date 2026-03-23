@@ -77,5 +77,25 @@ public class CardPanel extends JPanel {
 	public void setFinestraProprietario(FinestraProprietario finestraProprietario) {
 		this.finestraProprietario = finestraProprietario;
 	}
+	public FinestraProprietarioColtivatore getFinestraProprietarioColtivatore() {
+		return finestraProprietarioColtivatore;
+	}
+
+	public FinestraSceltaRuolo getFinestraRuolo() {
+		return finestraRuolo;
+	}
+
+	public FinestraIscrizioneProprietario getFinestraIscrizioneProprietario() {
+		return finestraIscrizioneProprietario;
+	}
+
+	public void setFinestraIscrizioneColtivatore(FinestraIscrizioneColtivatore finestraIscrizioneColtivatore) {
+		this.finestraIscrizioneColtivatore = finestraIscrizioneColtivatore;
+	}
+
+	public FinestraIscrizioneColtivatore getFinestraIscrizioneColtivatore() {
+		return finestraIscrizioneColtivatore;
+	}
+	
 	
 }

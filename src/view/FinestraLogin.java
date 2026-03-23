@@ -33,6 +33,7 @@ public class FinestraLogin extends JPanel {
 		JPanel pnlUsername= new JPanel();
 		JPanel pnlPassword= new JPanel();
 		JButton btnAccedi= new JButton("Accedi");
+		JButton btnIndietro= new JButton("Indietro");
 		Font fontGrande= new Font("Arial",Font.PLAIN,20);
 		inserisciUsername.setFont(fontGrande);
 		inserisciPassword.setFont(fontGrande);
@@ -54,12 +55,19 @@ public class FinestraLogin extends JPanel {
 		add(pnlPassword);
 		add(Box.createVerticalStrut(50));
 		add(btnAccedi);
+		add(Box.createVerticalStrut(30));
+		add(btnIndietro);
 		add(Box.createVerticalGlue());
 		btnAccedi.setAlignmentX(CENTER_ALIGNMENT);
+		btnIndietro.setAlignmentX(CENTER_ALIGNMENT);
 		
 		btnAccedi.addActionListener(e->{
 			controller.validaLogin();
 		});
+		btnIndietro.addActionListener(e->{
+			controller.mostraPanel("prima pagina");
+		});
+		
 		
 		
 		

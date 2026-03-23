@@ -12,6 +12,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	
 	public FinestraIscrizioneProprietario(Controller controller) {
 		this.setController(controller);
+		
 	}
 
 	public Controller getController() {

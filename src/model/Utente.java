@@ -43,7 +43,7 @@ public  class Utente {
 	}
 	
 	
-	public boolean isSoloLettere(String testo) {
+	public static boolean isSoloLettere(String testo) {
 	    for (int i = 0; i < testo.length(); i++) {
 	        char c = testo.charAt(i);
 	        if (!Character.isLetter(c) && !Character.isWhitespace(c) && c != '\'') {
@@ -53,24 +53,24 @@ public  class Utente {
 	    return true;
 	}
 	
-	public boolean isLunghezzaValida(String testo) {
-		if(testo == null || testo.length()>=50 || testo.isEmpty()) return false;
+	public static boolean isLunghezzaValida(String testo) {
+		if(testo == null || testo.length()>=30 || testo.isEmpty()) return false;
 		return true;
 	}
 
-	public boolean isEmailValida(String email) {
+	public static boolean isEmailValida(String email) {
 	    if (email == null) return false;
-	    if(email.contains("@") && !email.startsWith("@") && !email.endsWith("@") && email.contains(".")) return true;
+	    if(email.contains("@") && !email.startsWith("@") && !email.endsWith("@") && email.contains(".") && email.lastIndexOf(".") > email.indexOf("@")) return true;
 	    return false;
 	}
 	
-	public int calcolaEta() {
-	    if (this.dataNascita == null) return 0;
-	    return java.time.Period.between(this.dataNascita, java.time.LocalDate.now()).getYears();
+	public static int calcolaEta(LocalDate dataNascita) {
+	    if (dataNascita == null) return 0;
+	    return java.time.Period.between(dataNascita, java.time.LocalDate.now()).getYears();
 	}
 
-	public boolean isEtaCoerente() {
-	    int eta = calcolaEta();
+	public static boolean isEtaCoerente(LocalDate dataNascita) {
+	    int eta = calcolaEta(dataNascita);
 	    return eta >= 18 && eta <= 120;
 	}
 	

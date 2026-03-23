@@ -13,8 +13,8 @@ import model.Utente;
 
 public class UtenteDao {
 
-	public boolean salva(Utente u) {
-		String sql= "INSERT INTO UTENTE (NOME,COGNOME,USERNAME,PASSWORD,EMAIL,DATANASCITA,RUOLO) VALUES(?,?,?,?,?,?,?) ";
+	public boolean salva(Utente u) throws SQLException {
+		String sql= "INSERT INTO UTENTE (NOME,COGNOME,USERNAME,PASSWORD,EMAIL,DATANASCITA,RUOLO) VALUES(?,?,?,?,?,?,?::TipoRuolo) ";
 		
 		try (Connection conn = DBConnection.getConnection();
 				 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -46,7 +46,7 @@ public class UtenteDao {
 			
 
 	
-	public Utente preleva(String username, String password) {
+	public Utente preleva(String username, String password) throws SQLException {
 	    String sql = "SELECT * FROM UTENTE WHERE USERNAME = ? AND PASSWORD = ?";
 	    
 	    try (Connection conn = DBConnection.getConnection();
