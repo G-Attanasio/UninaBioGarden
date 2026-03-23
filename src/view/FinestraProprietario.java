@@ -77,12 +77,27 @@ public class FinestraProprietario extends JPanel {
 		pnlCard.add(new FinestraVisualizzaLotti(controller),"visualizza lotti");
 		pnlCard.add(new FinestraVisualizzaProgetti(controller),"visualizza progetti");
 		pnlCard.add(new FinestraCreaNotifica(controller),"crea notifica");
+		pnlCard.add(new FinestraReport(controller),"visualizza report");
 		add(pnlCard,BorderLayout.CENTER);
 		
 		creaProgetto.addActionListener(e->{
 			layoutInterno.show(pnlCard, "crea progetto");
 		});
-		
+		visualizzaProgetti.addActionListener(e->{
+			layoutInterno.show(pnlCard, "visualizza progetti");
+		});
+		visualizzaLotti.addActionListener(e->{
+			layoutInterno.show(pnlCard,"visualizza lotti");
+		});
+		creaNotifiche.addActionListener(e->{
+			layoutInterno.show(pnlCard, "crea notifica");
+		});
+		visualizzaReport.addActionListener(e->{
+			layoutInterno.show(pnlCard, "visualizza report");
+		});
+		esci.addActionListener(e->{
+			controller.mostraPanel("prima pagina");
+		});
 		
 		
 		

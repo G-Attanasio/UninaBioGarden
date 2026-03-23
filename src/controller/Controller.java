@@ -49,7 +49,19 @@ public class Controller {
     
     
     public void mostraPanel(String testo) {
-    	cardPanel.mostraPanel("login");
+    	cardPanel.mostraPanel(testo);
+    }
+    
+    public void gestisciSceltaRuolo(String ruolo) {
+    	if(ruolo=="PROPRIETARIO") {
+    		cardPanel.mostraPanel("iscrizione proprietario");
+    	}
+    	else if(ruolo=="COLTIVATORE") {
+    		cardPanel.mostraPanel("iscrizione coltivatore");
+    	}
+    	else {
+    		cardPanel.mostraPanel("iscrizione proprietario");
+    	}
     }
 
 	public static Utente getUtenteLoggato() {

@@ -38,7 +38,9 @@ public class PrimaPaginaPanel extends JPanel {
 		btnAccedi.addActionListener(e->{
 			controller.mostraPanel("login");
 		});
-		
+		btnRegistrati.addActionListener(e->{
+			controller.mostraPanel("scelta ruolo");
+		});
 	}
 	
 	

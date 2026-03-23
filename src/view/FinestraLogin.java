@@ -62,6 +62,7 @@ public class FinestraLogin extends JPanel {
 		});
 		
 		
+		
 	}
 	
 	public String getUsername() {

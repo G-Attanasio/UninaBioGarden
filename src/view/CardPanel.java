@@ -16,6 +16,9 @@ public class CardPanel extends JPanel {
 	private FinestraProprietario finestraProprietario;
 	private FinestraColtivatore finestraColtivatore;
 	private FinestraProprietarioColtivatore finestraProprietarioColtivatore;
+	private FinestraSceltaRuolo finestraRuolo;
+	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
+	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	
 	public CardPanel(Controller controller) {
 		this.controller=controller;
@@ -25,12 +28,18 @@ public class CardPanel extends JPanel {
 		this.finestraProprietario= new FinestraProprietario(controller);
 		this.finestraColtivatore= new FinestraColtivatore(controller);
 		this.finestraProprietarioColtivatore= new FinestraProprietarioColtivatore(controller);
+		this.finestraRuolo= new FinestraSceltaRuolo(controller);
+		this.finestraIscrizioneProprietario= new FinestraIscrizioneProprietario(controller);
+		this.finestraIscrizioneColtivatore= new FinestraIscrizioneColtivatore(controller);
 		setLayout(this.cardLayout);
-		add( primaPagina,"prima pagina");
+		add(primaPagina,"prima pagina");
 		add(finestraLogin,"login");
 		add(finestraProprietario,"proprietario");
 		add(finestraColtivatore,"coltivatore");
 		add(finestraProprietarioColtivatore,"proprietario-coltivatore");
+		add(finestraRuolo,"scelta ruolo");
+		add(finestraIscrizioneProprietario,"iscrizione proprietario");
+		add(finestraIscrizioneColtivatore,"iscrizione coltivatore");
 	}
 	
 	public void mostraPanel(String nome) {

@@ -13,4 +13,12 @@ public class FinestraVisualizzaLotti extends JPanel {
 	public FinestraVisualizzaLotti (Controller controller) {
 		
 	}
+
+	public Controller getController() {
+		return controller;
+	}
+
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
 }
