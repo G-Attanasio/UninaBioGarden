@@ -19,6 +19,7 @@ public class CardPanel extends JPanel {
 	private FinestraSceltaRuolo finestraRuolo;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
+	private FinestraIscriviLotto finestraCreaLotto;
 	
 	public CardPanel(Controller controller) {
 		this.controller=controller;
@@ -31,6 +32,7 @@ public class CardPanel extends JPanel {
 		this.finestraRuolo= new FinestraSceltaRuolo(controller);
 		this.finestraIscrizioneProprietario= new FinestraIscrizioneProprietario(controller);
 		this.finestraIscrizioneColtivatore= new FinestraIscrizioneColtivatore(controller);
+		this.finestraCreaLotto= new FinestraIscriviLotto(controller);
 		setLayout(this.cardLayout);
 		add(primaPagina,"prima pagina");
 		add(finestraLogin,"login");
@@ -40,6 +42,7 @@ public class CardPanel extends JPanel {
 		add(finestraRuolo,"scelta ruolo");
 		add(finestraIscrizioneProprietario,"iscrizione proprietario");
 		add(finestraIscrizioneColtivatore,"iscrizione coltivatore");
+		add(finestraCreaLotto,"crea lotto");
 	}
 	
 	public void mostraPanel(String nome) {
@@ -95,6 +98,14 @@ public class CardPanel extends JPanel {
 
 	public FinestraIscrizioneColtivatore getFinestraIscrizioneColtivatore() {
 		return finestraIscrizioneColtivatore;
+	}
+
+	public FinestraIscriviLotto getFinestraCreaLotto() {
+		return finestraCreaLotto;
+	}
+
+	public void setFinestraCreaLotto(FinestraIscriviLotto finestraCreaLotto) {
+		this.finestraCreaLotto = finestraCreaLotto;
 	}
 	
 	
