@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 
 import database.DBConnection;
+import model.LottoColtivabile;
 import model.TipoRuolo;
 import model.Utente;
 
@@ -75,6 +76,58 @@ public class UtenteDao {
 	    }
 	    return null; 
 	}
+	
+	public boolean salvaConLotto(Utente u, LottoColtivabile lc) {
+		 Connection conn = null;
+		    try {
+		        conn = DBConnection.getConnection();
+		        conn.setAutoCommit(false); 
+
+		       
+		        String sql = "INSERT INTO UTENTE (NOME, COGNOME, USERNAME, PASSWORD, EMAIL, DATANASCITA, RUOLO) VALUES (?,?,?,?,?,?,?::TipoRuolo)";
+		        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+		            ps.setString(1, u.getNome());
+		            ps.setString(2, u.getCognome());
+		            ps.setString(3, u.getUsername());
+		            ps.setString(4, u.getPassword());
+		            ps.setString(5, u.getEmail());
+		            ps.setObject(6, u.getDataNascita());
+		            ps.setString(7, u.getRuolo().toString());
+		            
+		            ps.executeUpdate();
+		            try (ResultSet rs = ps.getGeneratedKeys()) {
+		                if (rs.next()) {
+		                    u.setIdUtente(rs.getInt(1)); 
+		                }
+		            }
+		        }
+
+		       
+		        LottoDao lottoDao = new LottoDao();
+		       
+		        lc.getProprietario().setIdUtente(u.getIdUtente()); 
+		        
+		        lottoDao.salvaInTransazione(lc, conn);
+
+		       
+		        conn.commit();
+		        return true;
+
+		    } catch (SQLException e) {
+		        try {
+		            if (conn != null) conn.rollback(); 
+		        } catch (SQLException ex) { ex.printStackTrace(); }
+		        e.printStackTrace();
+		        return false;
+		    } finally {
+		        try {
+		            if (conn != null) {
+		                conn.setAutoCommit(true);
+		                conn.close();
+		            }
+		        } catch (SQLException e) { e.printStackTrace(); }
+		    }
+		}
 
 	
 }

@@ -62,7 +62,7 @@ public class LottoColtivabile {
 	}
 	
 	public boolean isValidDimensioni(int dimensione) {
-		if(dimensioni <100 || dimensioni >  1000000) return false;
+		if(dimensioni <1000 || dimensioni >  1000000) return false;
 		return true;
 	}
 	
@@ -113,7 +113,7 @@ public class LottoColtivabile {
 	public void setTessitura(TipoTessitura tessitura) {
 		this.tessitura = tessitura;
 	}
-	public double getDimensioni() {
+	public int getDimensioni() {
 		return dimensioni;
 	}
 	public void setDimensioni(int dimensioni) {

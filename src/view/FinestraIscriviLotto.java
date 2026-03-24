@@ -144,6 +144,63 @@ public class FinestraIscriviLotto extends JPanel {
 		pnlCenter.add(pnlBottoni);
 		pnlCenter.add(Box.createVerticalGlue());
 		
+		indietro.addActionListener(e->{
+			controller.mostraPanel("iscrizione proprietario");
+		});
 	}
+	
+
+	public Controller getController() {
+		return controller;
+	}
+
+	public String[] getTessiture() {
+		return tessiture;
+	}
+
+	public JComboBox<String> getTipoTessitura() {
+		return tipoTessitura;
+	}
+
+	public String[] getMorfologie() {
+		return morfologie;
+	}
+
+	public JComboBox<String> getTipoMorfologia() {
+		return tipoMorfologia;
+	}
+
+	public JTextField getCmpDimensioni() {
+		return cmpDimensioni;
+	}
+
+	public JTextField getCmpPh() {
+		return cmpPh;
+	}
+
+	public JTextField getCmpAltitudine() {
+		return cmpAltitudine;
+	}
+
+	public JTextField getCmpLocalità() {
+		return cmpLocalità;
+	}
+
+	public JTextField getCmpComune() {
+		return cmpComune;
+	}
+
+	public JTextField getCmpProvincia() {
+		return cmpProvincia;
+	}
+
+	public JButton getSalva() {
+		return salva;
+	}
+
+	public JButton getIndietro() {
+		return indietro;
+	}
+	
 
 }
