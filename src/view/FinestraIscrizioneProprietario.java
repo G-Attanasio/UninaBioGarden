@@ -1,7 +1,10 @@
 package view;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -32,7 +35,29 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	
 	public FinestraIscrizioneProprietario(Controller controller) {
 		this.controller=controller;
-		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+		setLayout(new BorderLayout());
+		JPanel pnlNord= new JPanel(new FlowLayout());
+		JPanel pnlSud= new JPanel (new FlowLayout());
+		JPanel pnlEst= new JPanel( new FlowLayout());
+		JPanel pnlOvest= new JPanel( new FlowLayout());
+		JPanel pnlCenter= new JPanel();
+		pnlCenter.setLayout(new BoxLayout(pnlCenter,BoxLayout.Y_AXIS));
+		pnlNord.setBackground(Color.GREEN);
+		pnlNord.setPreferredSize(new Dimension(600,100));
+		pnlSud.setBackground(Color.GREEN);
+		pnlSud.setPreferredSize(new Dimension(500,100));
+		pnlEst.setBackground(Color.GREEN);
+		pnlEst.setPreferredSize(new Dimension(100,500));
+		pnlOvest.setBackground(Color.GREEN);
+		pnlOvest.setPreferredSize(new Dimension(100,500));
+		add(pnlNord,BorderLayout.NORTH);
+		add(pnlSud,BorderLayout.SOUTH);
+		add(pnlEst,BorderLayout.EAST);
+		add(pnlOvest,BorderLayout.WEST);
+		add(pnlCenter,BorderLayout.CENTER);
+		Dimension riga= new Dimension(100,30);
+		Font fontGrande= new Font("Arial",Font.PLAIN,20);
+		
 		JPanel pnlNomeCognome = new JPanel(new FlowLayout());
 		JLabel nome= new JLabel("Nome:");
 		JLabel cognome= new JLabel("Cognome:");
@@ -42,63 +67,48 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		pnlNomeCognome.add(cmpNome);
 		pnlNomeCognome.add(cognome);
 		pnlNomeCognome.add(cmpCognome);
-		pnlNomeCognome.setAlignmentX(CENTER_ALIGNMENT);
-		pnlNomeCognome.setMaximumSize(new Dimension(800,400));
+		pnlCenter.add(pnlNomeCognome);
+		
 		JPanel pnlUsername= new JPanel (new FlowLayout());
 		JLabel username= new JLabel ("Username:");
 		cmpUsername= new JTextField(20);
 		pnlUsername.add(username);
 		pnlUsername.add(cmpUsername);
-		pnlUsername.setAlignmentX(CENTER_ALIGNMENT);
-		pnlUsername.setMaximumSize(new Dimension(800,50));
+		pnlCenter.add(pnlUsername);
+		
 		JPanel pnlEmail= new JPanel (new FlowLayout());
 		JLabel email= new JLabel("Email:");
 		cmpEmail= new JTextField(20);
 		pnlEmail.add(email);
 		pnlEmail.add(cmpEmail);
-		pnlEmail.setAlignmentX(CENTER_ALIGNMENT);
-		pnlEmail.setMaximumSize(new Dimension(800,50));
+		pnlCenter.add(pnlEmail);
+		
 		JPanel pnlData= new JPanel (new FlowLayout());
 		JLabel dataNascita= new JLabel ("Data di nascita:");
 		cmpDataNascita= new JTextField(20);
 		pnlData.add(dataNascita);
 		pnlData.add(cmpDataNascita);
-		pnlData.setAlignmentX(CENTER_ALIGNMENT);
-		pnlData.setMaximumSize(new Dimension(800,50));
+		pnlCenter.add(pnlData);
+		
 		JPanel pnlPassword= new JPanel( new FlowLayout());
 		JLabel password= new JLabel("Password:");
 		JLabel confermaPassword= new JLabel("Conferma password:");
 		cmpPassword= new JPasswordField(20);
 		cmpConfermaPassword= new JPasswordField(20);
-		avanti= new JButton("Avanti");
-		avanti.setAlignmentX(CENTER_ALIGNMENT);
-		esci= new JButton("Esci");
-		esci.setAlignmentX(CENTER_ALIGNMENT);
 		pnlPassword.add(password);
 		pnlPassword.add(cmpPassword);
 		pnlPassword.add(confermaPassword);
 		pnlPassword.add(cmpConfermaPassword);
-		pnlPassword.setAlignmentX(CENTER_ALIGNMENT);
-		pnlPassword.setMaximumSize(new Dimension(800,50));
-		JPanel pnlAlmenoUnLotto= new JPanel(new FlowLayout());
-		radioAlmenoUnLotto= new JRadioButton();
-		JLabel almenoUnLotto= new JLabel("Spunta se hai almeno un lotto da dichiarare.");
-		pnlAlmenoUnLotto.add(almenoUnLotto);
-		pnlAlmenoUnLotto.add(radioAlmenoUnLotto);
-		pnlAlmenoUnLotto.setAlignmentX(CENTER_ALIGNMENT);
-		pnlAlmenoUnLotto.setMaximumSize(new Dimension(800,50));
-		add(Box.createVerticalStrut(200));
-		add(pnlNomeCognome);
-		add(Box.createVerticalStrut(10));
-		add(pnlUsername);
-		add(pnlEmail);
-		add(pnlData);
-		add(pnlPassword);
-		add(pnlAlmenoUnLotto);
-		add(avanti);
-		add(Box.createVerticalStrut(50));
-		add(esci);
-		add(Box.createVerticalGlue());
+		pnlCenter.add(pnlPassword);
+		
+		JPanel pnlBottoni= new JPanel(new FlowLayout());
+		avanti= new JButton("Avanti");
+		avanti.setAlignmentX(CENTER_ALIGNMENT);
+		esci= new JButton("Esci");
+		esci.setAlignmentX(CENTER_ALIGNMENT);
+		pnlBottoni.add(avanti);
+		pnlBottoni.add(esci);
+		pnlCenter.add(pnlBottoni);
 		
 		esci.addActionListener(e->{
 			controller.mostraPanel("prima pagina");
@@ -124,7 +134,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	public void setCmpNome(JTextField cmpNome) {
 		this.cmpNome = cmpNome;
 	}
-
+	
 	public JTextField getCmpCognome() {
 		return cmpCognome;
 	}
