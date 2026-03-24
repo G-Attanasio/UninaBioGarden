@@ -113,11 +113,12 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		pnlBottoni.add(esci);
 		pnlCenter.add(pnlBottoni);
 		
+		
+		
 		esci.addActionListener(e->{
 			controller.mostraPanel("prima pagina");
 		});
 		avanti.addActionListener(e->{
-			controller.validaIscrizioneUtenteProprietario();
 			controller.mostraPanel("crea lotto");
 		});
 	}
@@ -143,6 +144,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		cmpPassword.setToolTipText(null);
 		cmpConfermaPassword.setBorder(bordo);
 		cmpConfermaPassword.setToolTipText(null);
+		avanti.setEnabled(true);
 		
 	}
 
@@ -154,7 +156,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.controller = controller;
 	}
 
-	public String getCmpNome() {
+	public String getNome() {
 		return cmpNome.getText().trim();
 	}
 
@@ -162,7 +164,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.cmpNome = cmpNome;
 	}
 	
-	public String getCmpCognome() {
+	public String getCognome() {
 		return cmpCognome.getText().trim();
 	}
 
@@ -170,7 +172,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.cmpCognome = cmpCognome;
 	}
 
-	public String getCmpUsername() {
+	public String getUsername() {
 		return cmpUsername.getText().trim();
 	}
 
@@ -178,7 +180,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.cmpUsername = cmpUsername;
 	}
 
-	public String getCmpEmail() {
+	public String getEmail() {
 		return cmpEmail.getText().trim();
 	}
 
@@ -186,7 +188,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.cmpEmail = cmpEmail;
 	}
 
-	public String getCmpDataNascita() {
+	public String getDataNascita() {
 		return cmpDataNascita.getText().trim();
 	}
 
@@ -194,7 +196,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.cmpDataNascita = cmpDataNascita;
 	}
 
-	public String getCmpPassword() {
+	public String getPassword() {
 		return new String(cmpPassword.getPassword());
 	}
 
@@ -202,7 +204,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.cmpPassword = cmpPassword;
 	}
 
-	public String getCmpConfermaPassword() {
+	public String getConfermaPassword() {
 		return new String(cmpConfermaPassword.getPassword());
 	}
 
@@ -233,4 +235,34 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	public void setRadioAlmenoUnLotto(JRadioButton almenoUnLotto) {
 		this.radioAlmenoUnLotto = almenoUnLotto;
 	}
+
+	public JTextField getCmpUsername() {
+		return cmpUsername;
+	}
+
+	public JTextField getCmpEmail() {
+		return cmpEmail;
+	}
+
+	public JTextField getCmpDataNascita() {
+		return cmpDataNascita;
+	}
+
+	public JPasswordField getCmpPassword() {
+		return cmpPassword;
+	}
+
+	public JPasswordField getCmpConfermaPassword() {
+		return cmpConfermaPassword;
+	}
+
+	public JTextField getCmpNome() {
+		return cmpNome;
+	}
+
+	public JTextField getCmpCognome() {
+		return cmpCognome;
+	}
+	
+	
 }

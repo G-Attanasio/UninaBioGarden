@@ -88,7 +88,7 @@ public class LottoDao {
 	
 	public void salvaInTransazione(LottoColtivabile lc, Connection conn) throws SQLException {
 	    
-	    String sql = "INSERT INTO LOTTOCOLTIVABILE (TESSITURA, DIMENSIONI, PH, MORFOLOGIA, ALTITUDINE, LOCALITA, COMUNE, PROVINCIA, FK_PROPRIETARIO, ATTIVO) "
+	    String sql = "INSERT INTO LOTTOCOLTIVABILE (TESSITURA, DIMENSIONI, PH, MORFOLOGIA, ALTITUDINE, LOCALITA, COMUNE, PROVINCIA, FK_IDPROPRIETARIO, ATTIVO) "
 	                    + "VALUES (?::tipotessitura, ?, ?, ?::tipomorfologia, ?, ?, ?, ?, ?, ?)";
 
 	    try (PreparedStatement psL = conn.prepareStatement(sql)) {

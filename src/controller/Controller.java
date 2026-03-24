@@ -28,6 +28,7 @@ public class Controller {
         this.utenteDao= new UtenteDao();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
+        this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
         
     }
     
@@ -152,50 +153,52 @@ public class Controller {
     		
     	}
     	catch(SQLException e) {
-    		finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "Email già esistente.");
+    		finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "Email o Username già esistenti.");
+    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneColtivatore.getCmpUsername(), "Email o Username già esistenti");
     	}
     	
     }
     
     public void validaIscrizioneUtenteProprietario() {
-    	 String nome = finestraIscrizioneProprietario.getCmpNome();
-    	 String cognome = finestraIscrizioneProprietario.getCmpCognome();
-    	 String username= finestraIscrizioneProprietario.getCmpUsername();
-    	 String email = finestraIscrizioneProprietario.getCmpEmail();
-    	 String dataNascita= finestraIscrizioneProprietario.getCmpDataNascita();
-    	 String password = finestraIscrizioneProprietario.getCmpPassword();
-    	 String confermaPassword = finestraIscrizioneProprietario.getCmpConfermaPassword();
+    	 String nome = finestraIscrizioneProprietario.getNome();
+    	 String cognome = finestraIscrizioneProprietario.getCognome();
+    	 String username= finestraIscrizioneProprietario.getUsername();
+    	 String email = finestraIscrizioneProprietario.getEmail();
+    	 String dataNascita= finestraIscrizioneProprietario.getDataNascita();
+    	 String password = finestraIscrizioneProprietario.getPassword();
+    	 String confermaPassword = finestraIscrizioneProprietario.getConfermaPassword();
     	 
     	 finestraIscrizioneProprietario.resetBordi();
+    	
     	 
     	 
     	 
     	 if(Utente.isSoloLettere(nome)==false) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpNome(),"Il nome deve essere di sole lettere.");
+    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpNome(),"Il nome deve essere di sole lettere.");
     		 return;
     	 }
     	 if(Utente.isLunghezzaValida(nome)==false) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpNome(),"La lunghezza del nome deve essere inferiore alle 30 lettere e superiore ad 1.");
+    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpNome(),"La lunghezza del nome deve essere inferiore alle 30 lettere e superiore ad 1.");
     		 return;
     	 }
     	 if(Utente.isLunghezzaValida(cognome)==false) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpCognome(), "Il cognome deve essere di sole lettere.");
+    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpCognome(), "Il cognome deve essere di sole lettere.");
     		 return;
     	 }
     	 if (Utente.isSoloLettere(cognome)==false) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpCognome(),"La lunghezza del cognome deve essere inferiore alle 30 lettere e superiore ad 1.");
+    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpCognome(),"La lunghezza del cognome deve essere inferiore alle 30 lettere e superiore ad 1.");
     		 return;
     	 }
     	 if(Utente.isLunghezzaValida(username)==false) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpUsername(),"La lunghezza dell'username deve essere inferiore alle 30 lettere e superiore a 1.");
+    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpUsername(),"La lunghezza dell'username deve essere inferiore alle 30 lettere e superiore a 1.");
     		 return;
     	 }
     	 if(Utente.isEmailValida(email)==false) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "L'email deve contenere una @ e un punto al suo interno nell'ordine giusto.");
+    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpEmail(), "L'email deve contenere una @ e un punto al suo interno nell'ordine giusto.");
     		 return;
     	 }
     	 if(Utente.isLunghezzaValida(email)==false) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(),"La lunghezza dell'email deve essere inferiore di 30 caratteri.");
+    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpEmail(),"La lunghezza dell'email deve essere inferiore di 30 caratteri.");
     	 }
  
     	 LocalDate dataNascitaParse = null;
@@ -203,21 +206,21 @@ public class Controller {
     	 try {
     	     dataNascitaParse = LocalDate.parse(dataNascita); 
     	     if (!Utente.isEtaCoerente(dataNascitaParse)) {
-    	         finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpDataNascita(), "Devi avere tra 18 e 120 anni!");
+    	         finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpDataNascita(), "Devi avere tra 18 e 120 anni!");
     	         return;
     	     }
     	 } catch (DateTimeParseException e) {
-    	     finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpDataNascita(), "Usa il formato YYYY-MM-DD (es. 1995-05-20)");
+    	     finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpDataNascita(), "Usa il formato YYYY-MM-DD (es. 1995-05-20)");
     	     return; 
     	 }
     	 
     	 if (password.isEmpty() || password.length() < 4) {
-    		    finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpPassword(), "Minimo 4 caratteri");
+    		    finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpPassword(), "Minimo 4 caratteri");
     		    return;
     		}
 
     	if (!password.equals(confermaPassword)) {
-    		    finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneColtivatore.getCmpConfermaPassword(), "Le password non coincidono!");
+    		    finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpConfermaPassword(), "Le password non coincidono!");
     		    return;
     		}
     	
@@ -236,7 +239,7 @@ public class Controller {
     	try {
     	   
     	    dimensioniInt = Integer.parseInt(finestraIscrizioneLotto.getDimensioni());
-    	    if (LottoColtivabile.isValidDimensioni(dimensioniInt)) {
+    	    if (!LottoColtivabile.isValidDimensioni(dimensioniInt)) {
     	        finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
     	        return; 
     	    }
@@ -248,7 +251,7 @@ public class Controller {
     	double phDouble=0.0;
     	try {
     		phDouble= Double.parseDouble(finestraIscrizioneLotto.getPh());
-    		if(LottoColtivabile.isPhValidoMioDominio(phDouble)) {
+    		if(!LottoColtivabile.isPhValidoMioDominio(phDouble)) {
     			finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
     			return;
     		}
@@ -260,7 +263,7 @@ public class Controller {
     	int altitudineInt=0;
     	try {
     		altitudineInt= Integer.parseInt(finestraIscrizioneLotto.getAltitudine());
-    		if(LottoColtivabile.isAltitudineValida(altitudineInt)) {
+    		if(!LottoColtivabile.isAltitudineValida(altitudineInt)) {
     			finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
     			return;
     		}
@@ -269,27 +272,27 @@ public class Controller {
     		return;
     	}
     	
-    	if(LottoColtivabile.isLunghezzaValida(localita)) {
+    	if(!LottoColtivabile.isLunghezzaValida(localita)) {
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpLocalità(), "Inserire un numero di caratteri compreso tra 1 e 30.");
     		return;
     	}
-    	if(LottoColtivabile.isSoloLettere(localita)) {
+    	if(!LottoColtivabile.isSoloLettere(localita)) {
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpLocalità(), "Inserire solo lettere.");
     		return;
     	}
-    	if(LottoColtivabile.isLunghezzaValida(comune)) {
+    	if(!LottoColtivabile.isLunghezzaValida(comune)) {
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpComune(), "Inserire un numero di caratteri compreso tra 1 e 30.");
     		return;
     	}
-    	if(LottoColtivabile.isSoloLettere(comune)) {
+    	if(!LottoColtivabile.isSoloLettere(comune)) {
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpComune(),"Inserire solo lettere.");
     		return;
     	}
-    	if(LottoColtivabile.isLunghezzaProvinciaValida(provincia)) {
+    	if(!LottoColtivabile.isLunghezzaProvinciaValida(provincia)) {
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpProvincia(), "Inserire 2 caratteri.");
     		return;
     	}
-    	if(LottoColtivabile.isSoloLettere(provincia)) {
+    	if(!LottoColtivabile.isSoloLettere(provincia)) {
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpProvincia(), "Inserire 2 caratteri.");
     	}
     	
@@ -306,7 +309,8 @@ public class Controller {
     			setUtenteLoggato(u);
     		}
     		else {
-    			
+    			finestraIscrizioneLotto.messaggioErroreBottone(finestraIscrizioneLotto.getSalva(), "Salvataggio non riuscito");
+    			return;
     		
     	}
     	

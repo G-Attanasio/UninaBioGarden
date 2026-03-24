@@ -158,6 +158,11 @@ public class FinestraIscriviLotto extends JPanel {
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
 	}
+	
+	public void messaggioErroreBottone(JButton bottone, String messaggio) {
+		bottone.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		bottone.setToolTipText(messaggio);
+	}
 
 	public Controller getController() {
 		return controller;
