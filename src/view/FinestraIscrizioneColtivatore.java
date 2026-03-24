@@ -118,7 +118,7 @@ public class FinestraIscrizioneColtivatore extends JPanel {
 			controller.mostraPanel("prima pagina");
 		});
 		iscriviti.addActionListener(e->{
-			controller.validaUtenteIscrittoColtivatore();
+			controller.validaIscrizioneUtenteProprietario();
 		});
 		
 	}

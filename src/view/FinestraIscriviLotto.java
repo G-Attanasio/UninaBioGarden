@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -147,8 +148,16 @@ public class FinestraIscriviLotto extends JPanel {
 		indietro.addActionListener(e->{
 			controller.mostraPanel("iscrizione proprietario");
 		});
+		salva.addActionListener(e->{
+			controller.validaIscrizioneUtenteProprietario();
+		});
+		
 	}
 	
+	public void messaggioErrore(JTextField campo, String messaggio) {
+		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		campo.setToolTipText(messaggio);
+	}
 
 	public Controller getController() {
 		return controller;
@@ -158,16 +167,48 @@ public class FinestraIscriviLotto extends JPanel {
 		return tessiture;
 	}
 
-	public JComboBox<String> getTipoTessitura() {
-		return tipoTessitura;
+	public String getTipoTessitura() {
+		return tipoTessitura.getSelectedItem().toString();
 	}
 
 	public String[] getMorfologie() {
 		return morfologie;
 	}
 
-	public JComboBox<String> getTipoMorfologia() {
-		return tipoMorfologia;
+	public String getTipoMorfologia() {
+		return tipoMorfologia.getSelectedItem().toString();
+	}
+
+	public String getDimensioni() {
+		return cmpDimensioni.getText();
+	}
+
+	public String getPh() {
+		return cmpPh.getText();
+	}
+
+	public String getAltitudine() {
+		return cmpAltitudine.getText();
+	}
+
+	public String getLocalità() {
+		return cmpLocalità.getText();
+	}
+
+	public String getComune() {
+		return cmpComune.getText();
+	}
+
+	public String getProvincia() {
+		return cmpProvincia.getText();
+	}
+
+	public JButton getSalva() {
+		return salva;
+	}
+
+	public JButton getIndietro() {
+		return indietro;
 	}
 
 	public JTextField getCmpDimensioni() {
@@ -193,14 +234,11 @@ public class FinestraIscriviLotto extends JPanel {
 	public JTextField getCmpProvincia() {
 		return cmpProvincia;
 	}
-
-	public JButton getSalva() {
-		return salva;
+	public JComboBox<String> getCmpTessitura() {
+		return tipoTessitura;
 	}
-
-	public JButton getIndietro() {
-		return indietro;
+	public JComboBox<String> getCmpMorfologia(){
+		return tipoMorfologia;
 	}
-	
 
 }

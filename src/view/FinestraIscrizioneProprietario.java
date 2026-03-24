@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -14,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import controller.Controller;
 
@@ -114,9 +117,33 @@ public class FinestraIscrizioneProprietario extends JPanel{
 			controller.mostraPanel("prima pagina");
 		});
 		avanti.addActionListener(e->{
-			controller.validaUtenteIscrittoColtivatore();
+			controller.validaIscrizioneUtenteProprietario();
 			controller.mostraPanel("crea lotto");
 		});
+	}
+	
+	public void messaggioErrore(JTextField campo, String messaggio) {
+		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		campo.setToolTipText(messaggio);
+	}
+	
+	public void resetBordi() {
+		Border bordo= UIManager.getBorder("TextField.border");
+		cmpNome.setBorder(bordo);
+		cmpNome.setToolTipText(null);
+		cmpCognome.setBorder(bordo);
+		cmpCognome.setToolTipText(null);
+		cmpUsername.setBorder(bordo);
+		cmpUsername.setToolTipText(null);
+		cmpEmail.setBorder(bordo);
+		cmpEmail.setToolTipText(null);
+		cmpDataNascita.setBorder(bordo);
+		cmpDataNascita.setToolTipText(null);
+		cmpPassword.setBorder(bordo);
+		cmpPassword.setToolTipText(null);
+		cmpConfermaPassword.setBorder(bordo);
+		cmpConfermaPassword.setToolTipText(null);
+		
 	}
 
 	public Controller getController() {
@@ -127,56 +154,56 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		this.controller = controller;
 	}
 
-	public JTextField getCmpNome() {
-		return cmpNome;
+	public String getCmpNome() {
+		return cmpNome.getText().trim();
 	}
 
 	public void setCmpNome(JTextField cmpNome) {
 		this.cmpNome = cmpNome;
 	}
 	
-	public JTextField getCmpCognome() {
-		return cmpCognome;
+	public String getCmpCognome() {
+		return cmpCognome.getText().trim();
 	}
 
 	public void setCmpCognome(JTextField cmpCognome) {
 		this.cmpCognome = cmpCognome;
 	}
 
-	public JTextField getCmpUsername() {
-		return cmpUsername;
+	public String getCmpUsername() {
+		return cmpUsername.getText().trim();
 	}
 
 	public void setCmpUsername(JTextField cmpUsername) {
 		this.cmpUsername = cmpUsername;
 	}
 
-	public JTextField getCmpEmail() {
-		return cmpEmail;
+	public String getCmpEmail() {
+		return cmpEmail.getText().trim();
 	}
 
 	public void setCmpEmail(JTextField cmpEmail) {
 		this.cmpEmail = cmpEmail;
 	}
 
-	public JTextField getCmpDataNascita() {
-		return cmpDataNascita;
+	public String getCmpDataNascita() {
+		return cmpDataNascita.getText().trim();
 	}
 
 	public void setCmpDataNascita(JTextField cmpDataNascita) {
 		this.cmpDataNascita = cmpDataNascita;
 	}
 
-	public JPasswordField getCmpPassword() {
-		return cmpPassword;
+	public String getCmpPassword() {
+		return new String(cmpPassword.getPassword());
 	}
 
 	public void setCmpPassword(JPasswordField cmpPassword) {
 		this.cmpPassword = cmpPassword;
 	}
 
-	public JPasswordField getCmpConfermaPassword() {
-		return cmpConfermaPassword;
+	public String getCmpConfermaPassword() {
+		return new String(cmpConfermaPassword.getPassword());
 	}
 
 	public void setCmpConfermaPassword(JPasswordField cmpConfermaPassword) {

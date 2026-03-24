@@ -56,27 +56,32 @@ public class LottoColtivabile {
 		}
 	}
 	
-	public boolean isPhValidoMioDominio(double ph) {
+	public static boolean isPhValidoMioDominio(double ph) {
 		if (ph <4.0 || ph>9.0) return false;
 		return true;
 	}
 	
-	public boolean isValidDimensioni(int dimensione) {
-		if(dimensioni <1000 || dimensioni >  1000000) return false;
+	public static boolean isValidDimensioni(int dimensione) {
+		if(dimensione <1000 || dimensione >  1000000) return false;
 		return true;
 	}
 	
-	public boolean isLunghezzaValida(String stringa) {
-		if (stringa==null || stringa.length()>= 50 || stringa.isEmpty()) return false;
+	public static boolean isLunghezzaValida(String stringa) {
+		if (stringa==null || stringa.length()>= 30 || stringa.isEmpty()) return false;
 		return true;
 	}
 	
-	public boolean isLunghezzaProvinciaValida(String testo) {
+	public static boolean isAltitudineValida(int altitudine) {
+		if(altitudine<-20 || altitudine > 3000) return false;
+		return true;
+	}
+	
+	public static boolean isLunghezzaProvinciaValida(String testo) {
 		if(testo==null || testo.length()!=2 || testo.isEmpty()) return false;
 		return true;
 	}
 
-	public boolean isSoloLettere(String testo) {
+	public static boolean isSoloLettere(String testo) {
 	    for (int i = 0; i < testo.length(); i++) {
 	        char c = testo.charAt(i);
 	        if (!Character.isLetter(c) && !Character.isWhitespace(c) && c != '\'') {
@@ -86,7 +91,18 @@ public class LottoColtivabile {
 	    return true;
 	}
 	
-	public boolean isSoloCifre(String testo ) {
+	public static boolean isSoloCifreSenzaVirgola(String testo) {
+		if(testo==null || testo.isEmpty()) return false;
+		for (int i=0;i<testo.length();i++) {
+			char c= testo.charAt(i);
+					if(!Character.isDigit(c)) {
+						return false;
+					}
+		}
+		return true;
+	}
+	
+	public static boolean isSoloCifreConVirgola(String testo ) {
 		if (testo == null || testo.isEmpty()) return false;
 	    int contatorePunti = 0;
 	    for (int i = 0; i < testo.length(); i++) {
