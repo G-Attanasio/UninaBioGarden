@@ -18,6 +18,7 @@ public class Controller {
 	private FinestraLogin finestraLogin;
 	private UtenteDao utenteDao;
 	private LottoDao lottoDao;
+	private ColturaDao colturaDao;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscriviLotto finestraIscrizioneLotto;
@@ -25,6 +26,7 @@ public class Controller {
 	private FinestraProprietario finestraProprietario;
 	private FinestraVisualizzaLotti finestraVisualizzaLotti;
 	private FinestraCreaLotto finestraCreaLotto;
+	private FinestraVisualizzaColture finestraVisualizzaColture;
 
     public Controller() {
        
@@ -33,6 +35,7 @@ public class Controller {
         this.finestraLogin= frame.getCardPanel().getFinestraLogin();
         this.utenteDao= new UtenteDao();
         this.lottoDao= new LottoDao();
+        this.colturaDao= new ColturaDao();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
         this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
@@ -40,6 +43,7 @@ public class Controller {
         this.finestraProprietario= frame.getCardPanel().getFinestraProprietario();
         this.finestraVisualizzaLotti= finestraProprietario.getFinVisualizzaLotti();
         this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
+        this.finestraVisualizzaColture=finestraProprietario.getFinVisualizzaColture();
         
     }
     
@@ -190,6 +194,28 @@ public class Controller {
     	
     	}catch(SQLException e){
     		System.out.println("errore");
+    	}
+    }
+    public void caricaColture() {
+    	try {
+    		ArrayList<Coltura> listaColture;
+    		finestraVisualizzaColture.svuotaTabella();
+    		listaColture=colturaDao.preleva();
+    		for(Coltura c : listaColture) {
+    			Object[] riga= {
+    					c.getCodColtura(),
+    					c.getNome(),
+    					c.getSpecie(),
+    					c.getFamiglia(),
+    					c.getTempoMaturazione(),
+    					c.getDestinazioneUso(),
+    					c.getPeriodoIdeale()
+    			};
+    			finestraVisualizzaColture.aggiungiRigaTabella(riga);
+    		}
+    		
+    	}catch(SQLException e) {
+    		e.printStackTrace();
     	}
     }
     	

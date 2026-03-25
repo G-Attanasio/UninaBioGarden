@@ -18,8 +18,8 @@ public class FinestraProprietario extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private Controller controller;
-	private JButton creaProgetto;
-	private JButton creaAttivita;
+	//private JButton creaProgetto;
+	private JButton attivitaAssegnate;
 	private JButton visualizzaLotti;
 	private JButton visualizzaProgetti;
 	private JButton visualizzaColture;
@@ -29,7 +29,7 @@ public class FinestraProprietario extends JPanel {
 	private CardLayout layoutInterno;
 	private JPanel pnlCard;
 	private FinestraCreaProgetto finCreaProgetto;
-	private FinestraCreaAttivita finCreaAttivita;
+	private FinestraAttivitaAssegnate finAttivitaAssegnate;
 	//private FinestraVisualizzaAttivita finVisualizzaAttivita;
 	private FinestraVisualizzaLotti finVisualizzaLotti;
 	private FinestraCreaLotto finCreaLotto;
@@ -43,7 +43,7 @@ public class FinestraProprietario extends JPanel {
 		this.setController(controller);
 		// inizializzazione finestre
 		finCreaProgetto= new FinestraCreaProgetto(controller);
-		finCreaAttivita= new FinestraCreaAttivita(controller);
+		finAttivitaAssegnate= new FinestraAttivitaAssegnate(controller);
 		//finVisualizzaAttivita= new FinestraVisualizzaAttivita(controller);
 		finVisualizzaLotti= new FinestraVisualizzaLotti(controller);
 		finCreaLotto= new FinestraCreaLotto(controller);
@@ -61,10 +61,10 @@ public class FinestraProprietario extends JPanel {
 		add(pnlNord, BorderLayout.NORTH);
 		// lato ovest
 		JPanel pnlOvest= new JPanel();
-		creaProgetto= new JButton("Crea progetto");
-		creaProgetto.setAlignmentX(CENTER_ALIGNMENT);
-		creaAttivita= new JButton("Crea attività");
-		creaAttivita.setAlignmentX(CENTER_ALIGNMENT);
+		//creaProgetto= new JButton("Crea progetto");
+		//creaProgetto.setAlignmentX(CENTER_ALIGNMENT);
+		attivitaAssegnate= new JButton("Attività assegnate");
+		attivitaAssegnate.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaLotti= new JButton("I miei lotti");
 		visualizzaLotti.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaProgetti= new JButton("I miei progetti");
@@ -81,9 +81,9 @@ public class FinestraProprietario extends JPanel {
 		pnlOvest.setLayout(new BoxLayout(pnlOvest,BoxLayout.Y_AXIS));
 		pnlOvest.setPreferredSize(new Dimension(250,0));
 		pnlOvest.add(Box.createVerticalGlue());
-		pnlOvest.add(creaProgetto);
-		pnlOvest.add(Box.createVerticalStrut(40));
-		pnlOvest.add(creaAttivita);
+		//pnlOvest.add(creaProgetto);
+		//pnlOvest.add(Box.createVerticalStrut(40));
+		pnlOvest.add(attivitaAssegnate);
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaLotti);
 		pnlOvest.add(Box.createVerticalStrut(40));
@@ -105,7 +105,7 @@ public class FinestraProprietario extends JPanel {
 		pnlBianco.setBackground(Color.WHITE);
 		pnlCard.add(pnlBianco,"prima carta");
 		pnlCard.add(finCreaProgetto,"crea progetto");
-		pnlCard.add(finCreaAttivita,"crea attivita");
+		pnlCard.add(finAttivitaAssegnate,"attivita assegnate");
 		pnlCard.add(finVisualizzaLotti,"visualizza lotti");
 		pnlCard.add(finCreaLotto,"crea lotto");
 		pnlCard.add(finVisualizzaProgetti,"visualizza progetti");
@@ -114,10 +114,10 @@ public class FinestraProprietario extends JPanel {
 		pnlCard.add(finCreaNotifica,"crea notifica");
 		add(pnlCard,BorderLayout.CENTER);
 		
-		creaProgetto.addActionListener(e->{
-			controller.mostraPanelInterno("crea progetto");
-		});
-		creaAttivita.addActionListener(e->{
+		//creaProgetto.addActionListener(e->{
+		//	controller.mostraPanelInterno("crea progetto");
+		//});
+		attivitaAssegnate.addActionListener(e->{
 			controller.mostraPanelInterno("crea attivita");
 		});
 		visualizzaLotti.addActionListener(e->{
@@ -128,6 +128,7 @@ public class FinestraProprietario extends JPanel {
 			controller.mostraPanelInterno("visualizza progetti");
 		});
 		visualizzaColture.addActionListener(e->{
+			controller.caricaColture();
 			controller.mostraPanelInterno("lista colture");
 		});
 		visualizzaReport.addActionListener(e->{
@@ -160,20 +161,20 @@ public class FinestraProprietario extends JPanel {
 		this.controller = controller;
 	}
 
-	public JButton getCreaProgetto() {
+	/*public JButton getCreaProgetto() {
 		return creaProgetto;
 	}
 
 	public void setCreaProgetto(JButton creaProgetto) {
 		this.creaProgetto = creaProgetto;
-	}
+	}*/
 
 	public FinestraCreaProgetto getFinCreaProgetto() {
 		return finCreaProgetto;
 	}
 
-	public FinestraCreaAttivita getFinCreaAttivita() {
-		return finCreaAttivita;
+	public FinestraAttivitaAssegnate getFinAttivitaAssegnate() {
+		return finAttivitaAssegnate;
 	}
 
 	public FinestraCreaLotto getFinCreaLotto() {

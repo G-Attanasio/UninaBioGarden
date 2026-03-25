@@ -4,13 +4,13 @@ import javax.swing.JPanel;
 
 import controller.Controller;
 
-public class FinestraCreaAttivita extends JPanel {
+public class FinestraAttivitaAssegnate extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private Controller controller;
 	
-	public FinestraCreaAttivita(Controller controller) {
+	public FinestraAttivitaAssegnate(Controller controller) {
 		this.controller=controller;
 	}
 	

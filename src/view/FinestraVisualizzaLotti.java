@@ -19,6 +19,7 @@ public class FinestraVisualizzaLotti extends JPanel {
 	private Controller controller;
 	private JButton cancella;
 	private JButton aggiungi;
+	private JButton creaProgetto;
 	private JScrollPane scroll;
 	private JTable tabella;
 	private String[] titoli= {"Codice","Tessitura","Dimensioni","Ph","Morfologia","Altitudine","Località","Comune","Provincia"};
@@ -32,8 +33,10 @@ public class FinestraVisualizzaLotti extends JPanel {
 		JPanel pnlSud= new JPanel ( new FlowLayout(FlowLayout.LEFT));
 		cancella= new JButton("Cancella");
 		aggiungi= new JButton("Aggiungi un lotto");
+		creaProgetto= new JButton("Crea un progetto stagionale");
 		pnlSud.add(cancella);
 		pnlSud.add(aggiungi);
+		pnlSud.add(creaProgetto);
 		add(pnlSud,BorderLayout.SOUTH);
 		
 		modello= new DefaultTableModel(titoli, 0){
@@ -71,6 +74,9 @@ public class FinestraVisualizzaLotti extends JPanel {
 		
 		aggiungi.addActionListener(e->{
 			controller.mostraPanelInterno("crea lotto");
+		});
+		creaProgetto.addActionListener(e->{
+			controller.mostraPanelInterno("crea progetto");
 		});
 
 		

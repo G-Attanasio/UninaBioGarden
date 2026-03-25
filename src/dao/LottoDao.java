@@ -19,7 +19,7 @@ public class LottoDao {
 	public boolean salva(LottoColtivabile lc) throws SQLException {
 		String sql="INSERT INTO LOTTOCOLTIVABILE (TESSITURA,DIMENSIONI,PH,MORFOLOGIA,ALTITUDINE,LOCALITA,COMUNE,PROVINCIA,FK_IDPROPRIETARIO) VALUES (?::tipotessitura,?,?,?::tipomorfologia,?,?,?,?,?)";
 		try (Connection conn= DBConnection.getConnection();
-				PreparedStatement ps= conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			PreparedStatement ps= conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			
 			
 			ps.setString(1, lc.getTessitura().toString());
@@ -110,7 +110,7 @@ public class LottoDao {
 	public ArrayList<LottoColtivabile> prelevaLottiPerProprietario(int idUtente) throws SQLException {
 	    ArrayList<LottoColtivabile> lista = new ArrayList<>();
 	   
-	    String sql = "SELECT * FROM LOTTOCOLTIVABILE WHERE FK_IDPROPRIETARIO = ? AND ATTIVO = true";
+	    String sql = "SELECT * FROM LOTTOCOLTIVABILE WHERE FK_IDPROPRIETARIO = ? AND ATTIVO = TRUE";
 	    
 	    Connection conn = DBConnection.getConnection();
 	    PreparedStatement ps = conn.prepareStatement(sql); 
