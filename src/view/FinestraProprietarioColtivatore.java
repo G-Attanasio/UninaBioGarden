@@ -19,6 +19,7 @@ public class FinestraProprietarioColtivatore extends JPanel{
 	
 	private Controller controller;
 	private JButton creaProgetto;
+	private JButton creaAttivita;
 	private JButton visualizzaLotti;
 	private JButton visualizzaProgetti;
 	private JButton creaNotifiche;
@@ -40,6 +41,8 @@ public class FinestraProprietarioColtivatore extends JPanel{
 		JPanel pnlOvest= new JPanel();
 		creaProgetto= new JButton("Crea progetto");
 		creaProgetto.setAlignmentX(CENTER_ALIGNMENT);
+		creaAttivita= new JButton("Crea attività");
+		creaAttivita.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaAttivita= new JButton("Le mie attività");
 		visualizzaAttivita.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaLotti= new JButton("I miei lotti");
@@ -59,24 +62,28 @@ public class FinestraProprietarioColtivatore extends JPanel{
 		pnlOvest.setPreferredSize(new Dimension(250,0));	
 		pnlOvest.add(Box.createVerticalGlue());
 		pnlOvest.add(creaProgetto);
-		pnlOvest.add(Box.createVerticalStrut(50));
+		pnlOvest.add(Box.createVerticalStrut(40));
+		pnlOvest.add(creaAttivita);
+		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaAttivita);
-		pnlOvest.add(Box.createVerticalStrut(50));
+		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaLotti);
-		pnlOvest.add(Box.createVerticalStrut(50));
+		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaProgetti);
-		pnlOvest.add(Box.createVerticalStrut(50));
+		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaReport);
-		pnlOvest.add(Box.createVerticalStrut(50));
+		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(creaNotifiche);
-		pnlOvest.add(Box.createVerticalStrut(50));
+		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaNotifiche);
-		pnlOvest.add(Box.createVerticalStrut(50));
+		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(esci);
 		pnlOvest.add(Box.createVerticalGlue());
 		add(pnlOvest,BorderLayout.WEST);
 		
 		JPanel pnlCard= new JPanel(new CardLayout());
+		add(pnlCard,BorderLayout.CENTER);
+		//pnlCard.add(pnlCard)
 	}
 
 	

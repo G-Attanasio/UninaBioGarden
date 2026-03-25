@@ -6,6 +6,7 @@ import view.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 
 import dao.*;
 
@@ -16,9 +17,14 @@ public class Controller {
 	private CardPanel cardPanel;
 	private FinestraLogin finestraLogin;
 	private UtenteDao utenteDao;
+	private LottoDao lottoDao;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscriviLotto finestraIscrizioneLotto;
+	private FinestraSceltaRuolo finestraSceltaRuolo;
+	private FinestraProprietario finestraProprietario;
+	private FinestraVisualizzaLotti finestraVisualizzaLotti;
+	private FinestraCreaLotto finestraCreaLotto;
 
     public Controller() {
        
@@ -26,9 +32,14 @@ public class Controller {
         this.cardPanel= frame.getCardPanel();
         this.finestraLogin= frame.getCardPanel().getFinestraLogin();
         this.utenteDao= new UtenteDao();
+        this.lottoDao= new LottoDao();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
         this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
+        this.finestraSceltaRuolo=frame.getCardPanel().getFinestraRuolo();
+        this.finestraProprietario= frame.getCardPanel().getFinestraProprietario();
+        this.finestraVisualizzaLotti= finestraProprietario.getFinVisualizzaLotti();
+        this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
         
     }
     
@@ -61,7 +72,146 @@ public class Controller {
     	
     	
     }
+    
+    public void mostraPanelInterno(String testo) {
+    	finestraProprietario.mostraPanelInterno(testo);
+    }
+    
+    
+    public void aggiungiLotto()  {
+    	String tessitura= finestraCreaLotto.getTipoTessitura();
+    	String dimensioni= finestraCreaLotto.getDimensioni();
+    	String ph= finestraCreaLotto.getPh();
+    	String morfologia= finestraCreaLotto.getTipoMorfologia();
+    	String altitudine= finestraCreaLotto.getAltitudine();
+    	String localita= finestraCreaLotto.getLocalità();
+    	String comune= finestraCreaLotto.getComune();
+    	String provincia= finestraCreaLotto.getProvincia().toUpperCase();
     	
+    	int dimensioniInt = 0;
+    	try {
+    	   
+    	    dimensioniInt = Integer.parseInt(finestraCreaLotto.getDimensioni());
+    	    if (!LottoColtivabile.isValidDimensioni(dimensioniInt)) {
+    	        finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
+    	        return; 
+    	    }
+    	} catch (NumberFormatException e) {
+    	    finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpDimensioni(), "Inserire un numero intero.");
+    	    return;
+    	}
+    	
+    	double phDouble=0.0;
+    	try {
+    		phDouble= Double.parseDouble(finestraCreaLotto.getPh());
+    		if(!LottoColtivabile.isPhValidoMioDominio(phDouble)) {
+    			finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
+    			return;
+    		}
+    	}catch(NumberFormatException e) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpPh(), "Inserire un numero.");
+    		return;
+    	}
+    	
+    	int altitudineInt=0;
+    	try {
+    		altitudineInt= Integer.parseInt(finestraCreaLotto.getAltitudine());
+    		if(!LottoColtivabile.isAltitudineValida(altitudineInt)) {
+    			finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
+    			return;
+    		}
+    	}catch(NumberFormatException e) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpAltitudine(), "Inserire un numero intero.");
+    		return;
+    	}
+    	
+    	if(!LottoColtivabile.isLunghezzaValida(localita)) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpLocalità(), "Inserire un numero di caratteri compreso tra 1 e 30.");
+    		return;
+    	}
+    	if(!LottoColtivabile.isSoloLettere(localita)) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpLocalità(), "Inserire solo lettere.");
+    		return;
+    	}
+    	if(!LottoColtivabile.isLunghezzaValida(comune)) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpComune(), "Inserire un numero di caratteri compreso tra 1 e 30.");
+    		return;
+    	}
+    	if(!LottoColtivabile.isSoloLettere(comune)) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpComune(),"Inserire solo lettere.");
+    		return;
+    	}
+    	if(!LottoColtivabile.isLunghezzaProvinciaValida(provincia)) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpProvincia(), "Inserire 2 caratteri.");
+    		return;
+    	}
+    	if(!LottoColtivabile.isSoloLettere(provincia)) {
+    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpProvincia(), "Inserire 2 caratteri.");
+    	}
+    	
+    	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
+    	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(morfologia.toUpperCase());
+    			
+    	LottoColtivabile lc= new LottoColtivabile(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,utenteLoggato);
+    	
+    	try{
+    		if(lottoDao.salva(lc)) { 
+    		caricaLotti();
+    		mostraPanelInterno("visualizza lotti");
+    		}
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    		//System.out.println("salvataggio non riuscito.");
+    		return;
+    	}
+    }
+    
+    public void caricaLotti() {
+    	try{
+    		ArrayList<LottoColtivabile> listaLotti;
+    	int idUtente= utenteLoggato.getIdUtente();
+    	listaLotti= lottoDao.prelevaLottiPerProprietario(idUtente);
+    	finestraVisualizzaLotti.svuotaTabella();
+    	
+    	for(LottoColtivabile lc : listaLotti) {
+    		Object[] riga= {
+    				lc.getCodLotto(),      
+    	            lc.getTessitura(),     
+    	            lc.getDimensioni(),    
+    	            lc.getPh(),            
+    	            lc.getMorfologia(),
+    	            lc.getAltitudine(),
+    	            lc.getLocalita(),
+    	            lc.getComune(),
+    	            lc.getProvincia()
+    		};
+    		finestraVisualizzaLotti.aggiungiRigaTabella(riga);
+    	}
+    	
+    	}catch(SQLException e){
+    		System.out.println("errore");
+    	}
+    }
+    	
+    public void eliminaLotto() {
+    	 int riga = finestraVisualizzaLotti.getTabella().getSelectedRow();
+    	    if (riga != -1) {
+    	        
+    	        int idLotto = (int) finestraVisualizzaLotti.getModello().getValueAt(riga, 0);
+    	        try {
+    	            boolean successo = lottoDao.cancellaLotto(idLotto);
+    	            if (successo) {
+    	                caricaLotti(); 
+    	                System.out.println("Lotto " + idLotto + " eliminato con successo.");
+    	            }
+    	        } catch (SQLException e) {
+    	            e.printStackTrace();
+    	        }
+    	    } else {
+    	        System.out.println("Nessun lotto selezionato.");
+    	    }
+    	
+    }
     
     
     public void mostraPanel(String testo) {
@@ -167,6 +317,9 @@ public class Controller {
     	 String dataNascita= finestraIscrizioneProprietario.getDataNascita();
     	 String password = finestraIscrizioneProprietario.getPassword();
     	 String confermaPassword = finestraIscrizioneProprietario.getConfermaPassword();
+    	 String ruolo= finestraSceltaRuolo.getSceltaRuolo();
+    	 
+    	 String ruoloComeEnum= ruolo.replace("/", "_").trim().toString();
     	 
     	 finestraIscrizioneProprietario.resetBordi();
     	
@@ -223,8 +376,9 @@ public class Controller {
     		    finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpConfermaPassword(), "Le password non coincidono!");
     		    return;
     		}
+    	TipoRuolo tipoRuoloEnum= TipoRuolo.valueOf(ruoloComeEnum.toUpperCase());
     	
-    	Utente u = new Utente(nome, cognome, username, password, email, dataNascitaParse, TipoRuolo.PROPRIETARIO);
+    	Utente u = new Utente(nome, cognome, username, password, email, dataNascitaParse, tipoRuoloEnum);
     	
     	String tessitura= finestraIscrizioneLotto.getTipoTessitura();
     	String dimensioni= finestraIscrizioneLotto.getDimensioni();
@@ -305,17 +459,21 @@ public class Controller {
     	
     		boolean salvato=utenteDao.salvaConLotto(u, lc);
     		if(salvato) {
-    			cardPanel.mostraPanel("proprietario");
     			setUtenteLoggato(u);
+    			if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
+    				cardPanel.mostraPanel("proprietario");
+    			}
+    			else if (u.getRuolo()== TipoRuolo.PROPRIETARIO_COLTIVATORE) {
+    				cardPanel.mostraPanel("proprietario-coltivatore");
+    				
+    			}
+    			
     		}
     		else {
     			finestraIscrizioneLotto.messaggioErroreBottone(finestraIscrizioneLotto.getSalva(), "Salvataggio non riuscito");
     			return;
     		
     	}
-    	
-    	
-    	
     	
     }
 

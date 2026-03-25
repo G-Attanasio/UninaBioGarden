@@ -20,6 +20,7 @@ public class CardPanel extends JPanel {
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscriviLotto finestraIscriviLotto;
+
 	
 	public CardPanel(Controller controller) {
 		this.controller=controller;
@@ -43,6 +44,7 @@ public class CardPanel extends JPanel {
 		add(finestraIscrizioneProprietario,"iscrizione proprietario");
 		add(finestraIscrizioneColtivatore,"iscrizione coltivatore");
 		add(finestraIscriviLotto,"crea lotto");
+		
 	}
 	
 	public void mostraPanel(String nome) {

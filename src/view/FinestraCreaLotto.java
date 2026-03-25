@@ -17,9 +17,9 @@ import javax.swing.JTextField;
 
 import controller.Controller;
 
-public class FinestraIscriviLotto extends JPanel {
+public class FinestraCreaLotto extends JPanel {
 
-	private static final long serialVersionUID = 1L;
+private static final long serialVersionUID = 1L;
 	
 	private Controller controller;
 	private String[] tessiture= {"SABBIOSO","ARGILLOSO","LIMOSO","MEDIO IMPASTO"};
@@ -33,10 +33,10 @@ public class FinestraIscriviLotto extends JPanel {
 	private JTextField cmpComune;
 	private JTextField cmpProvincia;
 	private JButton salva;
-	private JButton indietro;
+	private JButton annulla;
 	
 	
-	public FinestraIscriviLotto(Controller controller) {
+	public FinestraCreaLotto(Controller controller) {
 		this.controller=controller;
 		setLayout(new BorderLayout());
 		JPanel pnlNord= new JPanel(new FlowLayout());
@@ -46,13 +46,13 @@ public class FinestraIscriviLotto extends JPanel {
 		JPanel pnlCenter= new JPanel();
 		pnlCenter.setLayout(new BoxLayout(pnlCenter,BoxLayout.Y_AXIS));
 		pnlNord.setBackground(Color.GREEN);
-		pnlNord.setPreferredSize(new Dimension(600,100));
+		pnlNord.setPreferredSize(new Dimension(600,50));
 		pnlSud.setBackground(Color.GREEN);
-		pnlSud.setPreferredSize(new Dimension(500,100));
+		pnlSud.setPreferredSize(new Dimension(500,50));
 		pnlEst.setBackground(Color.GREEN);
-		pnlEst.setPreferredSize(new Dimension(100,500));
+		pnlEst.setPreferredSize(new Dimension(50,500));
 		pnlOvest.setBackground(Color.GREEN);
-		pnlOvest.setPreferredSize(new Dimension(100,500));
+		pnlOvest.setPreferredSize(new Dimension(50,500));
 		add(pnlNord,BorderLayout.NORTH);
 		add(pnlSud,BorderLayout.SOUTH);
 		add(pnlEst,BorderLayout.EAST);
@@ -71,7 +71,7 @@ public class FinestraIscriviLotto extends JPanel {
 		morfologia.setFont(fontGrande);
 		pnlTessMorf.add(tessitura);
 		pnlTessMorf.add(tipoTessitura);
-		pnlTessMorf.add(Box.createRigidArea(new Dimension(70,0)));
+		pnlTessMorf.add(Box.createRigidArea(new Dimension(40,0)));
 		pnlTessMorf.add(morfologia);
 		pnlTessMorf.add(tipoMorfologia);
 		pnlCenter.add(Box.createVerticalGlue());
@@ -96,10 +96,10 @@ public class FinestraIscriviLotto extends JPanel {
 		cmpAltitudine.setFont(fontGrande);
 		pnlDimPhAlt.add(dimensioni);
 		pnlDimPhAlt.add(cmpDimensioni);
-		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(50,0)));
+		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(30,0)));
 		pnlDimPhAlt.add(ph);
 		pnlDimPhAlt.add(cmpPh);
-		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(50,0)));
+		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(30,0)));
 		pnlDimPhAlt.add(altitudine);
 		pnlDimPhAlt.add(cmpAltitudine);
 		pnlCenter.add(pnlDimPhAlt);
@@ -124,10 +124,10 @@ public class FinestraIscriviLotto extends JPanel {
 		
 		pnlLuogo.add(località);
 		pnlLuogo.add(cmpLocalità);
-		pnlLuogo.add(Box.createRigidArea(new Dimension(50,0)));
+		pnlLuogo.add(Box.createRigidArea(new Dimension(20,0)));
 		pnlLuogo.add(comune);
 		pnlLuogo.add(cmpComune);
-		pnlLuogo.add(Box.createRigidArea(new Dimension(40,0)));
+		pnlLuogo.add(Box.createRigidArea(new Dimension(20,0)));
 		pnlLuogo.add(provincia);
 		pnlLuogo.add(cmpProvincia);
 		pnlCenter.add(pnlLuogo);
@@ -137,21 +137,21 @@ public class FinestraIscriviLotto extends JPanel {
 		salva= new JButton("Salva");
 		salva.setPreferredSize(riga);
 		salva.setFont(fontGrande);
-		indietro= new JButton("Indietro");
-		indietro.setPreferredSize(riga);
-		indietro.setFont(fontGrande);
+		annulla= new JButton("Indietro");
+		annulla.setPreferredSize(riga);
+		annulla.setFont(fontGrande);
 		pnlBottoni.add(salva);
-		pnlBottoni.add(Box.createRigidArea(new Dimension(120,0)));
-		pnlBottoni.add(indietro);
+		pnlBottoni.add(Box.createRigidArea(new Dimension(50,0)));
+		pnlBottoni.add(annulla);
 		pnlCenter.add(pnlBottoni);
 		pnlCenter.add(Box.createVerticalGlue());
 		
-		indietro.addActionListener(e->{
-	            controller.mostraPanel("iscrizione proprietario");
+		annulla.addActionListener(e->{
+	             controller.mostraPanelInterno("visualizza lotti");
 	           
 		});
 		salva.addActionListener(e->{
-				controller.validaIscrizioneUtenteProprietario();
+				 controller.aggiungiLotto();
 	            
 		});
 		
@@ -217,8 +217,8 @@ public class FinestraIscriviLotto extends JPanel {
 		return salva;
 	}
 
-	public JButton getIndietro() {
-		return indietro;
+	public JButton getAnnulla() {
+		return annulla;
 	}
 
 	public JTextField getCmpDimensioni() {

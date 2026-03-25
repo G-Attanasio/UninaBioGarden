@@ -1,10 +1,12 @@
 package dao;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import database.DBConnection;
 import model.LottoColtivabile;
@@ -14,12 +16,11 @@ import model.Utente;
 
 public class LottoDao {
 
-	public boolean salva(LottoColtivabile lc) {
-		String sql="INSERT INTO LOTTOCOLTIVABILE (TESSITURA,DIMENSIONI,PH,MORFOLOGIA,ALTITUDINE,LOCALITA,COMUNE,PROVINCIA) VALUES (?::tipotessitura,?,?,?::tipomorfologia,?,?,?,?)";
-		try{
-			Connection conn= DBConnection.getConnection();
+	public boolean salva(LottoColtivabile lc) throws SQLException {
+		String sql="INSERT INTO LOTTOCOLTIVABILE (TESSITURA,DIMENSIONI,PH,MORFOLOGIA,ALTITUDINE,LOCALITA,COMUNE,PROVINCIA,FK_IDPROPRIETARIO) VALUES (?::tipotessitura,?,?,?::tipomorfologia,?,?,?,?,?)";
+		try (Connection conn= DBConnection.getConnection();
+				PreparedStatement ps= conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			
-			PreparedStatement ps= conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
 			ps.setString(1, lc.getTessitura().toString());
 			ps.setInt(2, lc.getDimensioni());
@@ -41,10 +42,8 @@ public class LottoDao {
 				}
 				return true;
 			}
-			
-	
 	}catch(SQLException e) {
-		e.printStackTrace();
+		throw e;
 	}
 	return false;
 	}
@@ -61,7 +60,7 @@ public class LottoDao {
 		        	 if(rs.next()) {
 		        		 
 		        		 Utente proprietario = new Utente(null,null,null,null,null,null,null);
-		        		 proprietario.setIdUtente(rs.getInt("FK_PROPRIETARIO"));
+		        		 proprietario.setIdUtente(rs.getInt("FK_IDPROPRIETARIO"));
 		        		 
 		        		 LottoColtivabile lotto= new LottoColtivabile(
 		        		 rs.getInt("CODLOTTO"),
@@ -106,6 +105,55 @@ public class LottoDao {
 	        psL.executeUpdate();
 	    }
 	    
+	}
+	
+	public ArrayList<LottoColtivabile> prelevaLottiPerProprietario(int idUtente) throws SQLException {
+	    ArrayList<LottoColtivabile> lista = new ArrayList<>();
+	   
+	    String sql = "SELECT * FROM LOTTOCOLTIVABILE WHERE FK_IDPROPRIETARIO = ? AND ATTIVO = true";
+	    
+	    Connection conn = DBConnection.getConnection();
+	    PreparedStatement ps = conn.prepareStatement(sql); 
+	        
+	    ps.setInt(1, idUtente);
+	    ResultSet rs = ps.executeQuery();
+	        
+	        while (rs.next()) {
+	           
+	            LottoColtivabile lc = new LottoColtivabile(
+	                rs.getInt("CODLOTTO"),
+	                TipoTessitura.valueOf(rs.getString("TESSITURA").toUpperCase()),
+	                rs.getInt("DIMENSIONI"),
+	                rs.getDouble("PH"),
+	                TipoMorfologia.valueOf(rs.getString("MORFOLOGIA").toUpperCase()),
+	                rs.getInt("ALTITUDINE"),
+	                rs.getString("LOCALITA"),
+	                rs.getString("COMUNE"),
+	                rs.getString("PROVINCIA"),
+	                null, 
+	                true
+	            );
+	            lista.add(lc);
+	        }
+	        return lista;
+	    }
+	    
+	
+	
+	public boolean cancellaLotto(int codLotto) throws SQLException {
+		String sql = "CALL P_DISATTIVA_LOTTO(?)";
+		
+		 try (Connection conn = DBConnection.getConnection();
+		 CallableStatement cs= conn.prepareCall(sql)){
+		
+		 cs.setInt(1, codLotto);
+	     cs.execute();
+	     return true;
+	        
+		
+	}catch(SQLException e) {
+		throw e;
+	}
 	}
 }
 	

@@ -47,4 +47,9 @@ public class FinestraSceltaRuolo extends JPanel {
 		});
 		
 	}
+
+	public String getSceltaRuolo() {
+		return sceltaRuolo.getSelectedItem().toString();
+	}
+	
 }
