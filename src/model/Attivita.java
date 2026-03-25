@@ -30,12 +30,12 @@ public abstract class Attivita {
 	    this.progetto = progetto;
 	}
 	
-	public boolean isDataInizioValida(LocalDate inizio) {
+	public static boolean isDataInizioValida(LocalDate inizio) {
 	    if (inizio == null || inizio.isBefore(LocalDate.now())) return false;
 	    return true;
 	}
 
-	public boolean isDataFineValida(LocalDate inizio, LocalDate fine) {
+	public static boolean isDataFineValida(LocalDate inizio, LocalDate fine) {
 	    if (fine == null || fine.isBefore(inizio)) return false;
 	    return true;
 	}

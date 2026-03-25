@@ -27,6 +27,7 @@ public class Controller {
 	private FinestraVisualizzaLotti finestraVisualizzaLotti;
 	private FinestraCreaLotto finestraCreaLotto;
 	private FinestraVisualizzaColture finestraVisualizzaColture;
+	private FinestraCreaProgetto finestraCreaProgetto;
 
     public Controller() {
        
@@ -44,6 +45,7 @@ public class Controller {
         this.finestraVisualizzaLotti= finestraProprietario.getFinVisualizzaLotti();
         this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
         this.finestraVisualizzaColture=finestraProprietario.getFinVisualizzaColture();
+        this.finestraCreaProgetto= finestraProprietario.getFinCreaProgetto();
         
     }
     
@@ -73,8 +75,6 @@ public class Controller {
 			
 			
 		}
-    	
-    	
     }
     
     public void mostraPanelInterno(String testo) {
@@ -196,6 +196,7 @@ public class Controller {
     		System.out.println("errore");
     	}
     }
+    
     public void caricaColture() {
     	try {
     		ArrayList<Coltura> listaColture;
@@ -217,6 +218,30 @@ public class Controller {
     	}catch(SQLException e) {
     		e.printStackTrace();
     	}
+    }
+    
+    public void caricaColtureInCreaProgetto() {
+    	try {
+    		ArrayList<Coltura> listaColture;
+    		ArrayList<String> lista= new ArrayList<>();
+    		listaColture= colturaDao.preleva();
+    		for(Coltura c : listaColture) {
+    			 lista.add(c.getNome());
+    	}
+    		finestraCreaProgetto.popolaColture(lista);
+    }catch(SQLException e) {
+    	e.printStackTrace();
+    }
+    }
+    
+    public void caricaColtivatoriInProgetto(){
+    	try{
+    		ArrayList<String> listaColtivatori= new ArrayList<String>();
+    		listaColtivatori=utenteDao.prelevaPerProgetto();
+    		finestraCreaProgetto.pianificaAttivita(listaColtivatori);
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+        }
     }
     	
     public void eliminaLotto() {
@@ -500,6 +525,58 @@ public class Controller {
     			return;
     		
     	}
+    	
+    }
+    
+    public String validaAttivitaSeminaRaccolta(String quantitaS,String quantitaR, String inizioS, String fineS, String inizioR, String fineR,String coltS, String coltR,String metodoS,String metodoR) {
+    	double quantitaSemi=0.0;
+    	double quantitaPrevistaRaccolta=0.0;
+    	
+    	try {
+    		quantitaSemi= Double.parseDouble(quantitaS.replace(",", "."));
+    		if(SeminaColtura.isQuantitaSemiValida(quantitaSemi)) {
+    			return "errore <0.";
+    		}
+    		quantitaPrevistaRaccolta= Double.parseDouble(quantitaR.replace(",", "."));
+    	}catch(NumberFormatException e) {
+    		return "errore non double";
+    	}
+    	
+    	LocalDate dataInizioSemina= LocalDate.parse(inizioS);
+    	LocalDate dataFineSemina= LocalDate.parse(fineS);
+    	
+    	try{
+    		if(!Attivita.isDataInizioValida(dataInizioSemina)) {
+    			return "errore datainizio semina";
+    	}
+    	if(!Attivita.isDataFineValida(dataInizioSemina, dataFineSemina)) {
+    		return "errore datafine semina";
+    		}
+    	}catch(DateTimeParseException e) {
+    		return "errore formato";
+    	}
+    	
+    	LocalDate dataInizioRaccolta= LocalDate.parse(inizioR);
+    	LocalDate dataFineRaccolta= LocalDate.parse(fineR);
+    	
+    	try{
+    		if(!Attivita.isDataInizioValida(dataInizioRaccolta)) {
+    		return "errore datainizio raccolta";
+    	}
+    	if(!Attivita.isDataFineValida(dataInizioRaccolta, dataFineRaccolta)) {
+    		return "errore datafine raccolta";
+    	}
+    	}catch(DateTimeParseException e) {
+    		return "errore formato";
+    	}
+    	
+    	TipoSemina seminaEnum= TipoSemina.valueOf(metodoS.toString().toUpperCase());
+    	TipoRaccolta raccoltaEnum= TipoRaccolta.valueOf(metodoR.toString().toUpperCase());
+    	
+    	
+    	
+    	return "ok";
+    	
     	
     }
 

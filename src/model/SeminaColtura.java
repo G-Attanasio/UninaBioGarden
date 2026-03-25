@@ -13,12 +13,12 @@ public class SeminaColtura {
 	    this.quantitaSemi = quantitaSemi;
 	}
 	
-	public boolean isQuantitaSemiValida(double numero){
+	public static boolean isQuantitaSemiValida(double numero){
 		if(numero < 0) return false;
 		return true;
 	}
 	
-	public boolean isSoloCifre(String testo ) {
+	public static boolean isSoloCifre(String testo ) {
 		if (testo == null || testo.isEmpty()) return false;
 	    int contatorePunti = 0;
 	    for (int i = 0; i < testo.length(); i++) {

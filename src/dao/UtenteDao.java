@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import database.DBConnection;
 import model.LottoColtivabile;
@@ -128,6 +129,21 @@ public class UtenteDao {
 		        } catch (SQLException e) { e.printStackTrace(); }
 		    }
 		}
-
+	
+	public ArrayList<String> prelevaPerProgetto()throws SQLException{
+		ArrayList<String> usernames= new ArrayList<>();
+		String sql= "SELECT USERNAME FROM UTENTE WHERE RUOLO::text IN ('PROPRIETARIO_COLTIVATORE','COLTIVATORE')";
+		try(Connection conn= DBConnection.getConnection();
+				PreparedStatement ps= conn.prepareStatement(sql)) {
+			ResultSet rs= ps.executeQuery();
+			
+			while(rs.next()) {
+				usernames.add(rs.getString("USERNAME"));
+			}
+		}catch(SQLException e) {
+			throw e;
+		}
+		return usernames;
+	}
 	
 }

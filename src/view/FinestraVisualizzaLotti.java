@@ -76,6 +76,7 @@ public class FinestraVisualizzaLotti extends JPanel {
 			controller.mostraPanelInterno("crea lotto");
 		});
 		creaProgetto.addActionListener(e->{
+			controller.caricaColtureInCreaProgetto();
 			controller.mostraPanelInterno("crea progetto");
 		});
 
