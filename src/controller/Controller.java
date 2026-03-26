@@ -13,12 +13,16 @@ import dao.*;
 public class Controller {
 
 	private static Utente utenteLoggato;
+	private LottoColtivabile lottoSelezionato;
+	private ArrayList<Attivita> attivitaTemporanee;
+	private ArrayList<Attivita> attivitaTotali;
 	private MainFrame frame;
 	private CardPanel cardPanel;
 	private FinestraLogin finestraLogin;
 	private UtenteDao utenteDao;
 	private LottoDao lottoDao;
 	private ColturaDao colturaDao;
+	private AttivitaDao attivitaDao; 
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscriviLotto finestraIscrizioneLotto;
@@ -220,6 +224,18 @@ public class Controller {
     	}
     }
     
+    public void avviaProgetto(int codLotto) {
+    	 try {
+    	        this.lottoSelezionato = lottoDao.preleva(codLotto);
+    	        if (this.lottoSelezionato != null) {
+    	            caricaColtureInCreaProgetto();
+    	            finestraProprietario.mostraPanelInterno("crea progetto");    	            
+    	        }
+    	    } catch (SQLException e) {
+    	    	
+    	    }
+    }
+    
     public void caricaColtureInCreaProgetto() {
     	try {
     		ArrayList<Coltura> listaColture;
@@ -234,13 +250,14 @@ public class Controller {
     }
     }
     
-    public void caricaColtivatoriInProgetto(){
+    public void caricaColtivatoriInProgetto(String coltura){
     	try{
     		ArrayList<String> listaColtivatori= new ArrayList<String>();
     		listaColtivatori=utenteDao.prelevaPerProgetto();
-    		finestraCreaProgetto.pianificaAttivita(listaColtivatori);
+    		finestraCreaProgetto.pianificaAttivita(listaColtivatori,coltura);
     	}catch(SQLException e) {
     		e.printStackTrace();
+    		
         }
     }
     	
@@ -528,14 +545,61 @@ public class Controller {
     	
     }
     
-    public String validaAttivitaSeminaRaccolta(String quantitaS,String quantitaR, String inizioS, String fineS, String inizioR, String fineR,String coltS, String coltR,String metodoS,String metodoR) {
+    public String validaCreazioneProgetto(String coltS, String coltR, String nomeColtura) {
+    	String nome= finestraCreaProgetto.getCmpNome();
+    	String periodo= finestraCreaProgetto.getStagioneDiRiferimento();;
+    	String durata= finestraCreaProgetto.getCmpDurata();
+    	String dataInizioP= finestraCreaProgetto.getCmpDataInizio();
+    	
+    	String periodoComeEnum=periodo.replace("-", "_");
+    	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase());
+    	
+    	String quantitaS=finestraCreaProgetto.getCmpQuantitaSemi();
+    	String quantitaR=finestraCreaProgetto.getCmpQuantitaPrevista();
+    	String inizioS=finestraCreaProgetto.getCmpDataInizioSemina();
+    	String fineS=finestraCreaProgetto.getCmpDataFineSemina();
+    	String inizioR=finestraCreaProgetto.getCmpDataInizioRaccolta();
+    	String fineR= finestraCreaProgetto.getCmpDataFineRaccolta();
+    	String metodoS=finestraCreaProgetto.getMetodiSemina();
+    	String metodoR= finestraCreaProgetto.getMetodiRaccolta();
+    	
+    	
+    	if (nome.isEmpty() || dataInizioP.isEmpty() || durata.isEmpty()) {
+           return "errore campi progetto";
+        }
+    	
+    	
+    	if(!ProgettoStagionale.isLunghezzaNomeValida(nome)) {
+    		return"errore lunghezza nome";
+    	}
+    	int durataInt=0;
+    	try{
+    		durataInt= Integer.parseInt(durata);
+    		if(!ProgettoStagionale.isDurataValida(durataInt)) {
+    			return"errore durata";
+    		}
+    	}catch(NumberFormatException e) {
+    		return "durata numero intero";
+    	}
+    	LocalDate dataInizioProgetto=null;
+    	try{
+    		dataInizioProgetto= LocalDate.parse(dataInizioP);
+    		if(!ProgettoStagionale.isDataInizioValida(dataInizioProgetto)) {
+    			return"errore data progetto";
+    		}
+    	}catch(DateTimeParseException e) {
+    		return" data progetto formato";
+    	}
+    	
+    	
+    	
     	double quantitaSemi=0.0;
     	double quantitaPrevistaRaccolta=0.0;
     	
     	try {
     		quantitaSemi= Double.parseDouble(quantitaS.replace(",", "."));
     		if(SeminaColtura.isQuantitaSemiValida(quantitaSemi)) {
-    			return "errore <0.";
+    			return "errore <1.";
     		}
     		quantitaPrevistaRaccolta= Double.parseDouble(quantitaR.replace(",", "."));
     	}catch(NumberFormatException e) {
@@ -569,15 +633,117 @@ public class Controller {
     	}catch(DateTimeParseException e) {
     		return "errore formato";
     	}
-    	
-    	TipoSemina seminaEnum= TipoSemina.valueOf(metodoS.toString().toUpperCase());
-    	TipoRaccolta raccoltaEnum= TipoRaccolta.valueOf(metodoR.toString().toUpperCase());
-    	
-    	
-    	
-    	return "ok";
+    	String seminaComeEnum= metodoS.replace("-", "_");
+    	String raccoltaComeEnum= metodoR.replace("-", "_");
+    	TipoSemina seminaEnum= TipoSemina.valueOf(seminaComeEnum.toString().toUpperCase());
+    	TipoRaccolta raccoltaEnum= TipoRaccolta.valueOf(raccoltaComeEnum.toString().toUpperCase());
     	
     	
+    	try{
+    		Coltura coltura= colturaDao.prelevaColturaDaNome(nomeColtura);
+    		Utente coltivatoreS= utenteDao.prelevaDaUsername(coltS);
+    		Utente coltivatoreR= utenteDao.prelevaDaUsername(coltR);
+    		if(coltura!=null) {
+    			Semina semina= new Semina(dataInizioSemina,dataFineSemina,coltivatoreS,null,seminaEnum);
+    			Raccolta raccolta= new Raccolta(dataInizioRaccolta,dataFineRaccolta,coltivatoreR,null,raccoltaEnum,quantitaPrevistaRaccolta,coltura);
+    			
+    			if(!isAttivitaNonSovrapposta(coltivatoreS.getUsername(), semina)) {
+    				return"colt semina sovr attivita";
+    			}
+    			if(!isAttivitaNonSovrapposta(coltivatoreR.getUsername(), raccolta)) {
+    				return"colt raccolta sovr attivita";
+    			}
+    			if(!durataAttivitaProgetto(semina, dataInizioProgetto, durataInt)) {
+    				return"errore semina sovr progetto";
+    			}
+    			if(!durataAttivitaProgetto(raccolta, dataInizioProgetto, durataInt)) {
+    				return"errore raccolta sovr progetto";
+    			}
+    			if(!coerenzaSeminaDurata(dataFineSemina, dataInizioProgetto, coltura.getTempoMaturazione(), durataInt)) {
+    				return"errore coerenzaSeminaDurata";
+    			}
+    			if(!dataInizioRaccoltaValida(semina, raccolta)) {
+    				return"dataInizioRaccoltaNonValida";
+    			}
+    			
+    			if(!metodoRaccoltaMontagna(lottoSelezionato, raccolta)) {
+    				return "errore meccanica montagna";
+    			}
+    			attivitaTemporanee.add(semina);
+    			attivitaTemporanee.add(raccolta);
+    			return "ok";
+    		}
+    		return"errore coltura db";
+    	}catch(SQLException e) {
+    		return "errore";
+    	}
+    }
+    
+    public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {
+    	LocalDate dataFineProgetto = dataInizioProgetto.plusDays(durataProgetto);     
+        if (attivita.getDataFine().isAfter(dataFineProgetto)) {
+            return false;
+        }
+        if(attivita.getDataFine().isBefore(dataInizioProgetto)){
+        	return false;
+        }
+        if(attivita.getDataInizio().isAfter(dataFineProgetto)) {
+        	return false;
+        }
+        if (attivita.getDataInizio().isBefore(dataInizioProgetto)) {
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean isAttivitaNonSovrapposta(String username,Attivita attivita) {
+    	try {	
+    	ArrayList<Attivita> tutteLeAttivita=new ArrayList();
+    	tutteLeAttivita=attivitaDao.prelevaTutteAttivitaPerColtivatore(username);
+    	tutteLeAttivita.addAll(attivitaTemporanee);
+    	 for (Attivita a : tutteLeAttivita) {  	     
+    	        if (a.getColtivatore().getUsername().equals(username)) {      
+    	            if (!attivita.getDataInizio().isAfter(a.getDataFine()) && !attivita.getDataFine().isBefore(a.getDataInizio())) {
+    	                return true; 
+    	            }
+    	        }
+    	    }
+    	    
+    }catch(SQLException e) {
+    	return false;
+    }
+    	return false;
+    }
+    
+    public boolean coerenzaSeminaDurata(LocalDate dataFineSemina,LocalDate dataInizioProgetto,int tempoMaturazione, int durataProgetto) {
+    	 LocalDate dataScadenzaProgetto = dataInizioProgetto.plusDays(durataProgetto);
+    	 LocalDate data = dataFineSemina.plusDays(tempoMaturazione);
+    	    if (dataScadenzaProgetto.isBefore(data)) {
+    	        return false;
+    	    }
+    	    
+    	    return true;
+    }
+    
+    public boolean dataInizioRaccoltaValida(Semina semina, Raccolta raccolta) {
+    	if (raccolta.getDataInizio().isBefore(semina.getDataFine())) {
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean metodoRaccoltaMontagna(LottoColtivabile lc,Raccolta raccolta) {
+    	if(raccolta.getMetodoRaccolta()==TipoRaccolta.MECCANICA && lc.getMorfologia()==TipoMorfologia.MONTUOSO) {
+    		return false;
+    	}
+    	return true;
+    }
+    
+    public boolean metodoIrrigazionePendenza(LottoColtivabile lc, Irrigazione i) {
+    	if(i.getMetodoIrrigazione()==TipoIrrigazione.SOMMERSIONE && (lc.getMorfologia()==TipoMorfologia.COLLINARE || lc.getMorfologia()==TipoMorfologia.MONTUOSO)) {
+    		return false;
+    	}
+    	return true;
     }
 
 	public static Utente getUtenteLoggato() {

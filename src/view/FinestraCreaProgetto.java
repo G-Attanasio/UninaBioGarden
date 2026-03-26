@@ -19,6 +19,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import controller.Controller;
 
@@ -32,7 +35,6 @@ public class FinestraCreaProgetto extends JPanel {
 	private JTextField cmpNome;
 	private JTextField cmpDurata;
 	private JTextField cmpDataInizio;
-	private JTextField cmpDataFine;
 	private ArrayList<String> listaColture;
 	private JComboBox<String> cmpListaColture;
 	private JButton aggiungiColtura;
@@ -41,14 +43,23 @@ public class FinestraCreaProgetto extends JPanel {
 	private JComboBox<String> metodiIrrigazione= new JComboBox<>(irrigazioni);
 	private JButton salva;
 	private JButton annulla;
-	private DefaultListModel<String> modelloLista;
-	
-	
+	private DefaultListModel<String> modelloLista= new DefaultListModel<String>();
+	private String colturaScelta;
+	private JComboBox<String> metodiSemina= new JComboBox<>(new String[]{"SPAGLIO","FILE","POSTARELLE","IDROSEMINA"});
+	private JTextField cmpQuantitaSemi;
+	private JTextField cmpDataInizioSemina;
+	private JTextField cmpDataFineSemina;
+	private JComboBox<String> metodiRaccolta= new JComboBox<>(new String[] {"MANUALE","MECCANIZZATA","MECCANICA"});
+	private JTextField cmpQuantitaPrevista;
+	private JTextField cmpDataInizioRaccolta;
+	private JTextField cmpDataFineRaccolta;
+	private JButton conferma;
+	private JButton annullaAttivita;
 	
 	
 	
 	public FinestraCreaProgetto(Controller controller) {
-		this.setController(controller);
+		this.controller=controller;
 		setLayout(new BorderLayout());
 		JPanel pnlInterno= new JPanel();
 		pnlInterno.setLayout(new BoxLayout(pnlInterno,BoxLayout.Y_AXIS));
@@ -66,18 +77,14 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlInterno.add(pnlNomeStagione);
 		
 		JPanel pnlDurDate= new JPanel (new FlowLayout());
-		JLabel durata= new JLabel("Durata:");
-		JLabel dataInizio= new JLabel("Data inizio:");
-		JLabel dataFine= new JLabel("Data fine:");
+		JLabel durata= new JLabel("Durata del progetto:");
+		JLabel dataInizio= new JLabel("Data di inizio progetto:");
 		cmpDurata= new JTextField(4);
 		cmpDataInizio= new JTextField(10);
-		cmpDataFine= new JTextField(10);
 		pnlDurDate.add(durata);
 		pnlDurDate.add(cmpDurata);
 		pnlDurDate.add(dataInizio);
 		pnlDurDate.add(cmpDataInizio);
-		pnlDurDate.add(dataFine);
-		pnlDurDate.add(cmpDataFine);
 		pnlInterno.add(pnlDurDate);
 		
 		JPanel pnlColture = new JPanel(new FlowLayout());
@@ -107,10 +114,10 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlInterno.add(pnlBottoni);
 		
 		aggiungiColtura.addActionListener(e->{
-			 String colturaScelta = (String) cmpListaColture.getSelectedItem();
-			    
+			 colturaScelta = (String) cmpListaColture.getSelectedItem();
 			    if (colturaScelta != null) {
-			    	pianificaAttivita(listaColture);
+			    	controller.caricaColtivatoriInProgetto(colturaScelta);
+			    	
 			    } else {
 			        JOptionPane.showMessageDialog(null, "Seleziona prima una coltura!");
 			    }
@@ -119,15 +126,15 @@ public class FinestraCreaProgetto extends JPanel {
 		
 	}
 	
-	public void pianificaAttivita(ArrayList<String> nomiColtivatori) {
+	public void pianificaAttivita(ArrayList<String> nomiColtivatori, String nomeColtura) {
+		
 		JPanel pnlpopup= new JPanel();
 		pnlpopup.setLayout(new BoxLayout(pnlpopup,BoxLayout.Y_AXIS));
 		
 		JPanel pnlSeminaMetodo= new JPanel(new FlowLayout());
 		JLabel metodoS= new JLabel("Metodo semina:");
-		JComboBox<String> metodiSemina= new JComboBox<>(new String[]{"SPAGLIO","FILE","POSTARELLE","IDROSEMINA"});
 		JLabel quantitaSemi= new JLabel("Quantità semi in kg:");
-		JTextField cmpQuantitaSemi= new JTextField(5);
+		cmpQuantitaSemi= new JTextField(5);
 		pnlSeminaMetodo.add(metodoS);
 		pnlSeminaMetodo.add(metodiSemina);
 		pnlSeminaMetodo.add(quantitaSemi);
@@ -136,9 +143,9 @@ public class FinestraCreaProgetto extends JPanel {
 		
 		JPanel pnlDateS= new JPanel(new FlowLayout());
 		JLabel dataInizioSemina= new JLabel("Data inizio:");
-		JTextField cmpDataInizioSemina= new JTextField(10);
+		cmpDataInizioSemina= new JTextField(10);
 		JLabel dataFineSemina= new JLabel("Data fine:");
-		JTextField cmpDataFineSemina= new JTextField(10);
+		cmpDataFineSemina= new JTextField(10);
 		JLabel coltivatoreS= new JLabel("Coltivatore:");
 		JComboBox<String> listaColtivatoriS= new JComboBox<String>(nomiColtivatori.toArray(new String[0]));
 		pnlDateS.add(dataInizioSemina);
@@ -151,9 +158,9 @@ public class FinestraCreaProgetto extends JPanel {
 		
 		JPanel pnlRaccoltaMetodo= new JPanel(new FlowLayout());
 		JLabel metodoR= new JLabel("Metodo raccolta:");
-		JComboBox<String> metodiRaccolta= new JComboBox<>(new String[] {"MANUALE","MECCANIZZATA","MECCANICA"});
+		
 		JLabel quantitaPrevista= new JLabel("Quantità prevista in kg:");
-		JTextField cmpQuantitaPrevista= new JTextField(8);
+		cmpQuantitaPrevista= new JTextField(8);
 		pnlRaccoltaMetodo.add(metodoR);
 		pnlRaccoltaMetodo.add(metodiRaccolta);
 		pnlRaccoltaMetodo.add(quantitaPrevista);
@@ -162,9 +169,9 @@ public class FinestraCreaProgetto extends JPanel {
 		
 		JPanel pnlDateR= new JPanel(new FlowLayout());
 		JLabel dataInizioRaccolta= new JLabel("Data inizio:");
-		JTextField cmpDataInizioRaccolta= new JTextField(10);
+		cmpDataInizioRaccolta= new JTextField(10);
 		JLabel dataFineRaccolta= new JLabel("Data fine:");
-		JTextField cmpDataFineRaccolta= new JTextField(10);
+		cmpDataFineRaccolta= new JTextField(10);
 		JLabel coltivatoreR= new JLabel("Coltivatore:");
 		JComboBox<String> listaColtivatoriR= new JComboBox<String>(nomiColtivatori.toArray(new String[0]));
 		pnlDateR.add(dataInizioRaccolta);
@@ -175,44 +182,75 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlDateR.add(listaColtivatoriR);
 		pnlpopup.add(pnlDateR);
 		
-		 JOptionPane pannelloOpzioni = new JOptionPane(pnlpopup, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		 JDialog finestra = pannelloOpzioni.createDialog(this, "Pianificazione Attività");
-		
-		//int result = JOptionPane.showConfirmDialog(null, pnlpopup, 
-	      //       "Pianificazione Attività", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		conferma= new JButton("Conferma");
+		annullaAttivita= new JButton("Annulla");
+		Object opzioni[]= {conferma,annulla};
+		JOptionPane pannelloOpzioni = new JOptionPane(pnlpopup, JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION,null,opzioni);
+		JDialog finestra = pannelloOpzioni.createDialog(this, "Pianificazione "+nomeColtura);
 
 	
-		pannelloOpzioni.addPropertyChangeListener(e -> {
-	        if (JOptionPane.VALUE_PROPERTY.equals(e.getPropertyName())) {
-	            Object value = pannelloOpzioni.getValue();
-
-	            if (value.equals(JOptionPane.OK_OPTION)) {
+		conferma.addActionListener(e -> {
+	       
 	            	
 	    
-	            	String quantitaS = cmpQuantitaSemi.getText();
-	        	    String quantitaR = cmpQuantitaPrevista.getText();
-	        	    String dInizioS = cmpDataInizioSemina.getText();
-	        	    String dFineS = cmpDataFineSemina.getText();
-	        	    String dInizioR = cmpDataInizioRaccolta.getText();
-	        	    String dFineR = cmpDataFineRaccolta.getText();
+	            	
 	        	    String coltS = (String) listaColtivatoriS.getSelectedItem();
 	        	    String coltR = (String) listaColtivatoriR.getSelectedItem();
 	        	    String metS = (String) metodiSemina.getSelectedItem();
 	        	    String metR = (String) metodiRaccolta.getSelectedItem();
 	            	
 	        	    
-	        	    controller.validaAttivitaSeminaRaccolta(quantitaS, quantitaR, dInizioS, dFineS, dInizioR, dFineR, coltS, coltR, metS, metR);
-	            }
-	        	    else {
-	        	    	finestra.dispose();
+	        	    String esito=controller.validaCreazioneProgetto( coltS, coltR,nomeColtura);
+	        	    if(esito.equalsIgnoreCase("ok")) {
+	        	    	modelloLista.addElement(nomeColtura); 
+	        	        finestra.dispose();
+	        	    }else {
+	        	    	gestisciErrori(esito);
+	        	    	pannelloOpzioni.setValue(JOptionPane.UNINITIALIZED_VALUE);
+	        	    	JOptionPane.showMessageDialog(finestra, "Errore: " + esito, "Attenzione", JOptionPane.WARNING_MESSAGE);
 	        	    }
-	            }
 	        });
+		
+		annulla.addActionListener(e->{
+			finestra.dispose();
+		});
+		finestra.setVisible(true);
+	}
+	
+	
+	
+	public void resetBordi() {
+		Border bordo= UIManager.getBorder("TextField.border");
+		cmpNome.setBorder(bordo);
+		cmpNome.setToolTipText(null);
+		cmpDurata.setBorder(bordo);
+		cmpDurata.setToolTipText(null);
+		cmpDataInizio.setBorder(bordo);
+		cmpDataInizio.setToolTipText(null);	
+	}
+	
+	public void gestisciErrori(String errore) {
+		if(errore.equals("errore campi progetto")) {
+			messaggioErrore(cmpDataInizio, "Inserire data");
+			messaggioErrore(cmpNome, "Inserire nome");
+			messaggioErrore(cmpDurata, "Inserire durata");
+		}
+		if(errore.equals("errore lunghezza nome")) {
+			messaggioErrore(cmpNome, "Nome troppo lungo, massimo 30 caratteri");
+		}
+		if(errore.equals("errore durata")) {
+			messaggioErrore(cmpDurata, "La durata deve essere compresa tra 1 e 180 giorni");
+		}
+	}
+	
+	public void erroreCampiProgetto() {
+		JOptionPane.showMessageDialog(null, "Inserire nome, data inizio e durata prima di aggiungere colture.");
 	}
 	
 	public void messaggioErrore(JTextField campo, String messaggio) {
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
 	}
 	
 	public void messaggioErroreBottone(JButton bottone, String messaggio) {
@@ -302,19 +340,71 @@ public class FinestraCreaProgetto extends JPanel {
 	public void setModelloLista(DefaultListModel<String> modelloLista) {
 		this.modelloLista = modelloLista;
 	}
+
+	public String getCmpNome() {
+		return cmpNome.getText().trim();
+	}
+
+	public String getCmpDurata() {
+		return cmpDurata.getText().trim();
+	}
+
+	public String getCmpDataInizio() {
+		return cmpDataInizio.getText().trim();
+	}
+
+	public String getStagioneDiRiferimento() {
+		return stagioneDiRiferimento.getSelectedItem().toString();
+	}
+
+	public String[] getIrrigazioni() {
+		return irrigazioni;
+	}
+
+	public String getColturaScelta() {
+		return colturaScelta;
+	}
+
+	public String getMetodiSemina() {
+		return metodiSemina.getSelectedItem().toString();
+	}
+
+	public String getCmpQuantitaSemi() {
+		return cmpQuantitaSemi.getText().trim();
+	}
+
+	public String getCmpDataInizioSemina() {
+		return cmpDataInizioSemina.getText().trim();
+	}
+
+	public String getCmpDataFineSemina() {
+		return cmpDataFineSemina.getText().trim();
+	}
+
+	public String getMetodiRaccolta() {
+		return metodiRaccolta.getSelectedItem().toString();
+	}
+
+	public String getCmpQuantitaPrevista() {
+		return cmpQuantitaPrevista.getText().trim();
+	}
+
+	public String getCmpDataInizioRaccolta() {
+		return cmpDataInizioRaccolta.getText().trim();
+	}
+
+	public String getCmpDataFineRaccolta() {
+		return cmpDataFineRaccolta.getText().trim();
+	}
+
+	public JButton getConferma() {
+		return conferma;
+	}
+
+	public JButton getAnnullaAttivita() {
+		return annullaAttivita;
+	}
 	
-	/*btnIniziaProgetto.addActionListener(e -> {
-	    int riga = tabella.getSelectedRow();
-	    if (riga != -1) {
-	        // Recuperiamo l'ID del lotto e magari la località per farla vedere nel form
-	        int idLotto = (int) modello.getValueAt(riga, 0);
-	        String localita = (String) modello.getValueAt(riga, 6);
-	        
-	        // Passiamo i dati al Controller
-	        controller.preparaCreazioneProgetto(idLotto, localita);
-	    } else {
-	        JOptionPane.showMessageDialog(this, "Seleziona prima il lotto su cui vuoi lavorare!");
-	    }
-	});*/
+	
 	
 }

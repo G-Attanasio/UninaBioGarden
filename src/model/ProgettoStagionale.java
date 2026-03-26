@@ -52,22 +52,22 @@ public class ProgettoStagionale {
 		}
 	}
 	
-	public boolean isLunghezzaNomeValida(String testo) {
-		if(testo == null || testo.length()>50 || testo.isEmpty()) return false;
+	public static boolean isLunghezzaNomeValida(String testo) {
+		if(testo == null || testo.length()>30 || testo.isEmpty()) return false;
 		return true;
 	}
 	
-	public boolean isDurataValida(int durata) {
+	public static boolean isDurataValida(int durata) {
 		if(durata <1 || durata >180) return false;
 		return true;
 	}
 	
-	public boolean isDataInizioValida(LocalDate inizio) {
+	public static boolean isDataInizioValida(LocalDate inizio) {
 	    if (inizio == null) return false;
 	    return !inizio.isBefore(LocalDate.now());
 	}
 	
-	public boolean isNumerico(String numero) {
+	public static boolean isNumerico(String numero) {
 		for (int i=0; i<numero.length(); i++) {
 			char c= numero.charAt(i);
 			if(!Character.isDigit(c) && !Character.isWhitespace(c)) {

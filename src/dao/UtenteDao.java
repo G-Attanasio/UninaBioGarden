@@ -146,4 +146,35 @@ public class UtenteDao {
 		return usernames;
 	}
 	
+	public Utente prelevaDaUsername(String username) throws SQLException {
+	    String sql = "SELECT * FROM UTENTE WHERE USERNAME = ?";
+	    
+	    try (Connection conn = DBConnection.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        
+	        ps.setString(1, username);
+	       
+	        
+	        ResultSet rs = ps.executeQuery(); 
+	        
+	        if (rs.next()) {
+	            
+	            return new Utente(
+	                rs.getInt("IDUTENTE"),
+	                rs.getString("NOME"),
+	                rs.getString("COGNOME"),
+	                rs.getString("USERNAME"),
+	                rs.getString("PASSWORD"), 
+	                rs.getString("EMAIL"),
+	                rs.getObject("DATANASCITA", LocalDate.class),
+	                TipoRuolo.valueOf(rs.getString("RUOLO").toUpperCase())
+	            );
+	        }
+	    } catch (SQLException e) {
+	        throw e;
+	    }
+	    return null; 
+	}
+	
+	
 }

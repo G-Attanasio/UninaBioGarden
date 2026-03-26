@@ -48,7 +48,7 @@ public class LottoDao {
 	return false;
 	}
 	
-	public LottoColtivabile preleva (int codLotto) {
+	public LottoColtivabile preleva (int codLotto) throws SQLException {
 		String sql="SELECT * FROM LOTTOCOLTIVABILE WHERE CODLOTTO=?";
 		try (Connection conn = DBConnection.getConnection();
 		         PreparedStatement ps = conn.prepareStatement(sql)) {

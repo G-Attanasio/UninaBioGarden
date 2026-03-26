@@ -76,8 +76,14 @@ public class FinestraVisualizzaLotti extends JPanel {
 			controller.mostraPanelInterno("crea lotto");
 		});
 		creaProgetto.addActionListener(e->{
-			controller.caricaColtureInCreaProgetto();
-			controller.mostraPanelInterno("crea progetto");
+			 int riga = tabella.getSelectedRow();
+			    if (riga != -1) {
+			        int idLotto = (int) modello.getValueAt(riga, 0);
+			        // CHIAMATA AL CONTROLLER
+			        controller.avviaProgetto(idLotto); 
+			    } else {
+			        JOptionPane.showMessageDialog(this, "Seleziona un lotto dalla lista!");
+			    }
 		});
 
 		

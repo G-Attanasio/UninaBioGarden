@@ -35,4 +35,30 @@ public class ColturaDao {
 		}
 		return listaColture;
 	}
+	
+	public Coltura prelevaColturaDaNome(String nome) throws SQLException {
+	    String sql = "SELECT CODCOLTURA FROM COLTURA WHERE NOME = ?";
+	    try (Connection conn = DBConnection.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setString(1, nome);
+	        try (ResultSet rs = ps.executeQuery()) {
+	            if (rs.next()) {
+	            	Coltura c= new Coltura(
+	            			rs.getInt("CODCOLTURA"),
+	            			rs.getString("NOME"),
+	            			rs.getString("SPECIE"),
+	            			rs.getString("FAMIGLIA"),
+	            			rs.getInt("TEMPOMATURAZIONE"),
+	            			rs.getString("DESTINAZIONEUSO"),
+	            			rs.getString("PERIODOIDEALE")
+	            			);
+	            	return c;
+	            }
+	            
+	        }
+	    }catch(SQLException e) {
+	    	throw e;
+	    }
+	    return null ;
+	}
 }
