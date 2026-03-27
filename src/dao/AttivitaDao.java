@@ -1,5 +1,6 @@
 package dao;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +13,7 @@ import model.Irrigazione;
 import model.ProgettoStagionale;
 import model.Raccolta;
 import model.Semina;
+import model.SeminaColtura;
 import model.Stato;
 import model.TipoIrrigazione;
 import model.TipoRaccolta;
@@ -124,6 +126,73 @@ public class AttivitaDao {
 		}
         return lista;
 }
+	
+	public boolean salvaAttivita(Attivita attivita,int codProgetto,Connection conn,ArrayList<SeminaColtura> semine)throws SQLException {
+		 if (attivita instanceof Semina) {
+		        salvaSemina((Semina) attivita, codProgetto, conn,semine);
+		    } else if (attivita instanceof Raccolta) {
+		        salvaRaccolta((Raccolta) attivita, codProgetto, conn);
+		    } else if (attivita instanceof Irrigazione) {
+		        salvaIrrigazione((Irrigazione) attivita, codProgetto, conn);
+		    }
+		    return false;
+	}
+	
+	public void salvaSemina(Semina semina, int codProgetto, Connection conn, ArrayList<SeminaColtura> semineColture) throws SQLException {
+		
+		double quantitaSemi=0;
+	    String nomeColtura="";
+
+	    for (SeminaColtura sc : semineColture) {  
+	        if (sc.getSemina() == semina) { 
+	            quantitaSemi = sc.getQuantitaSemi();
+	            nomeColtura = sc.getColtura().getNome();
+	            break; 
+	        }
+	    }	
+	    String sql = "{CALL P_REGISTRA_ATTIVITA_SEMINA(?, ?, ?::TIPOSEMINA, ?, ?, ?, ?)}";
+
+	    try (CallableStatement cs = conn.prepareCall(sql)) {
+	        
+	        cs.setObject(1,semina.getDataInizio());               
+	        cs.setObject(2,semina.getDataFine());                
+	        cs.setString(3,semina.getMetodoSemina().toString().toUpperCase());       
+	        cs.setDouble(4,quantitaSemi);        
+	        cs.setString(5,nomeColtura);                 
+	        cs.setInt(6,codProgetto);    	       
+	        cs.setInt(7,semina.getColtivatore().getIdUtente());
+	        cs.execute();
+	    }
+	}
+    public void salvaIrrigazione(Irrigazione i, int codProgetto, Connection conn) throws SQLException {
+    	
+    	    
+    	    String sql = "{CALL P_REGISTRA_ATTIVITA_IRRIGAZIONE(?, ?, ?::TIPOIRRIGAZIONE, ?, ?)}";
+
+    	    try (CallableStatement cs = conn.prepareCall(sql)) {
+    	        cs.setObject(1, i.getDataInizio());
+    	        cs.setObject(2, i.getDataFine());   	         	       
+    	        cs.setString(3, i.getMetodoIrrigazione().toString().toUpperCase());   	        
+    	        cs.setInt(4, codProgetto);
+    	        cs.setInt(5, i.getColtivatore().getIdUtente());
+    	        cs.execute();
+    	    }
+    	}
+
+	
+    public void salvaRaccolta(Raccolta r, int codProgetto, Connection conn)throws SQLException {
+    	 String sql = "{CALL P_REGISTRA_ATTIVITA_RACCOLTA(?, ?, ?::TIPORACCOLTA, ?, ?, ?)}";
+
+    	    try (CallableStatement cs = conn.prepareCall(sql)) {
+    	        cs.setObject(1,r.getDataInizio());
+    	        cs.setObject(2,r.getDataFine());
+    	        cs.setString(3, r.getMetodoRaccolta().toString().toUpperCase());   	        
+    	        cs.setDouble(4, r.getQuantitaPrevista());    	        
+    	        cs.setInt(5, r.getColtivatore().getIdUtente());
+    	        cs.setInt(6, codProgetto);
+    	        cs.execute();
+    	    }
+	}
 }
 
 

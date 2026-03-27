@@ -30,7 +30,7 @@ public class ProgettoStagionale {
 		this.attivitaSvolte=new ArrayList<Attivita>();
 	}
 	
-	public ProgettoStagionale(int codProgetto,String nomeProgetto, Stagione stagioneDiRiferimento, int durata, LocalDate dataInizio,LocalDate dataFine,Stato statoEsecuzione,Utente creatore,LottoColtivabile lottoImpegnato) {
+	public ProgettoStagionale(int codProgetto,String nomeProgetto, Stagione stagioneDiRiferimento, int durata, LocalDate dataInizio,LocalDate dataFine,Stato statoEsecuzione,LottoColtivabile lottoImpegnato,Utente creatore) {
 		this(nomeProgetto,stagioneDiRiferimento,durata,dataInizio,creatore, lottoImpegnato);
 		this.codProgetto=codProgetto;
 		this.dataFine=dataFine;

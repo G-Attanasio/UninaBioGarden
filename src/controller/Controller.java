@@ -16,6 +16,9 @@ public class Controller {
 	private LottoColtivabile lottoSelezionato;
 	private ArrayList<Attivita> attivitaTemporanee;
 	private ArrayList<Attivita> attivitaTotali;
+	private ArrayList<SeminaColtura> listaSeminaColtura;
+	private ArrayList<ProgettoStagionale> progettiperLotto;
+	private ArrayList<ProgettoStagionale> progettiTotaliEsistenti;
 	private MainFrame frame;
 	private CardPanel cardPanel;
 	private FinestraLogin finestraLogin;
@@ -23,6 +26,7 @@ public class Controller {
 	private LottoDao lottoDao;
 	private ColturaDao colturaDao;
 	private AttivitaDao attivitaDao; 
+	private ProgettoDao progettoDao;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscriviLotto finestraIscrizioneLotto;
@@ -42,6 +46,7 @@ public class Controller {
         this.lottoDao= new LottoDao();
         this.colturaDao= new ColturaDao();
         this.attivitaDao= new AttivitaDao();
+        this.progettoDao= new ProgettoDao();
         this.attivitaTemporanee= new ArrayList<Attivita>();
         this.attivitaTotali= new ArrayList<Attivita>();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
@@ -666,7 +671,7 @@ public class Controller {
     		if(coltura!=null) {
     			Semina semina= new Semina(dataInizioSemina,dataFineSemina,coltivatoreS,null,seminaEnum);
     			Raccolta raccolta= new Raccolta(dataInizioRaccolta,dataFineRaccolta,coltivatoreR,null,raccoltaEnum,quantitaPrevistaRaccolta,coltura);
-    			
+    			SeminaColtura seminaColtura= new SeminaColtura(coltura,semina,quantitaSemi);
     			if(!isAttivitaNonSovrapposta(coltivatoreS.getUsername(), semina)) {
     				return"colt semina sovr attivita";
     			}
@@ -691,6 +696,7 @@ public class Controller {
     			}
     			attivitaTemporanee.add(semina);
     			attivitaTemporanee.add(raccolta);
+    			listaSeminaColtura.add(seminaColtura);
     		}
     	}catch(SQLException e) {
     		return "errore generico db";
@@ -699,6 +705,10 @@ public class Controller {
     }
     
     public String salvaProgetto() {
+    	
+    	String periodo= finestraCreaProgetto.getStagioneDiRiferimento();;
+    	String periodoComeEnum=periodo.replace("-", "_");
+    	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase());
     	String metodoI= finestraCreaProgetto.getMetodiIrrigazione().toString().toUpperCase();
     	TipoIrrigazione irrigazioneEnum= TipoIrrigazione.valueOf(metodoI.toString().toUpperCase());
     	String coltI= finestraCreaProgetto.getListaColtivatoriI();
@@ -719,6 +729,8 @@ public class Controller {
     	}catch(DateTimeParseException e) {
     		return"errore formato date irrigazione";
     	}
+    	int durata= Integer.parseInt(finestraCreaProgetto.getCmpDurata());
+		LocalDate dataP= LocalDate.parse(finestraCreaProgetto.getCmpDataInizio());
     	try {
     		Utente coltivatoreI= utenteDao.prelevaDaUsername(coltI);
     		if(coltivatoreI!= null) {
@@ -726,8 +738,7 @@ public class Controller {
     			if(!isAttivitaNonSovrapposta(coltivatoreI.getUsername(), irrigazione)) {
     				return"colt irrigazione sovr attivita";
     			}
-    			int durata= Integer.parseInt(finestraCreaProgetto.getCmpDurata());
-    			LocalDate dataP= LocalDate.parse(finestraCreaProgetto.getCmpDataInizio());
+    			
     			if(!durataAttivitaProgetto(irrigazione, dataP, durata)) {
     				return"errore irrigazione sovr progetto";
     			}
@@ -739,8 +750,35 @@ public class Controller {
     	}catch(SQLException e) {
     		return"errore db";
     	}
+    	ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,utenteLoggato,lottoSelezionato);
+    	try{
+    		progettiperLotto=progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
+    		if(!sovrapposizioneProgetti(nuovoProgetto, progettiperLotto)) {
+    			return"errore sovr progetti";
+    		}
+    	}catch(SQLException e) {
+    		return"errore da db";
+    	}
     	
+    }
+    
+    public void annullaCreazioneProgetto() {
+        attivitaTemporanee.clear(); 
+        listaSeminaColtura.clear(); 
+        mostraPanel("visualizza lotti");
+    }
+    public boolean sovrapposizioneProgetti(ProgettoStagionale progetto, ArrayList<ProgettoStagionale> lista) {
+    	LocalDate dataFine=progetto.getDataInizio().plusDays(progetto.getDurata());
     	
+    	for(ProgettoStagionale ps : lista ) {
+    		 LocalDate inizioEsistente = ps.getDataInizio();
+    	        LocalDate fineEsistente = inizioEsistente.plusDays(ps.getDurata());
+    	        
+    	        if(!progetto.getDataInizio().isAfter(fineEsistente) && !progetto.getDataFine().isBefore(inizioEsistente)) {
+    	        	return false;
+    	        }
+    	}
+    	return true;
     }
     
     public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {

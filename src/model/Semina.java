@@ -7,18 +7,20 @@ public class  Semina extends Attivita {
 	
 	private TipoSemina metodoSemina;
 	private ArrayList<SeminaColtura> listaSemine;
+	
 
 	public Semina(LocalDate dataInizio, LocalDate dataFine, Utente coltivatore,ProgettoStagionale progetto, TipoSemina metodoSemina) {
 		super(dataInizio, dataFine, coltivatore, progetto);
 		this.metodoSemina=metodoSemina;
 		this.listaSemine= new ArrayList<SeminaColtura>();
-		
+	
 	}
 	
 	public Semina(int codAttivita, Stato statoEsecuzione, LocalDate dataInizio, LocalDate dataFine, Utente coltivatore, ProgettoStagionale progetto, TipoSemina metodoSemina) {
 	    super(codAttivita, statoEsecuzione, dataInizio, dataFine, coltivatore, progetto); 
 	    this.metodoSemina=metodoSemina;
 	    this.listaSemine= new ArrayList<SeminaColtura>();
+	  
 	}
 	
 	public void addSemina(SeminaColtura sc) {
@@ -45,5 +47,7 @@ public class  Semina extends Attivita {
 	public void setListaSemine(ArrayList<SeminaColtura> listaSemine) {
 		this.listaSemine = listaSemine;
 	}
+
+	
 	
 }
