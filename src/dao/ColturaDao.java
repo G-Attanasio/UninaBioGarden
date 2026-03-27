@@ -37,7 +37,7 @@ public class ColturaDao {
 	}
 	
 	public Coltura prelevaColturaDaNome(String nome) throws SQLException {
-	    String sql = "SELECT CODCOLTURA FROM COLTURA WHERE NOME = ?";
+	    String sql = "SELECT* FROM COLTURA WHERE NOME = ?";
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setString(1, nome);

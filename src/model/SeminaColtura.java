@@ -14,7 +14,7 @@ public class SeminaColtura {
 	}
 	
 	public static boolean isQuantitaSemiValida(double numero){
-		if(numero < 1) return false;
+		if(numero < 1 || numero > 10000) return false;
 		return true;
 	}
 	

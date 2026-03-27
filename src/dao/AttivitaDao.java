@@ -22,9 +22,7 @@ import model.Utente;
 public class AttivitaDao {
 
 	public ArrayList<Attivita> prelevaTutteAttivitaPerColtivatore(String username )throws SQLException{
-		ArrayList<Attivita> lista= new ArrayList<>();
-		
-        
+		ArrayList<Attivita> lista= new ArrayList<>();  
         try (Connection conn= DBConnection.getConnection())
               {
             	  String sqlS = "SELECT A.*,S.*,U.USERNAME FROM ATTIVITA A JOIN SEMINA S ON A.CODATTIVITA = S.FK_CODATTIVITA "+
@@ -43,12 +41,12 @@ public class AttivitaDao {
             	   u.setUsername(rsS.getString("USERNAME"));
                Semina s=new Semina(
             		rsS.getInt("FK_CODATTIVITA"),   
-            		Stato.valueOf(rsS.getString("STATOESECUZIONE").toString()),
+            		Stato.valueOf(rsS.getString("STATOESECUZIONE").toString().toUpperCase()),
                     rsS.getDate("DATAINIZIO").toLocalDate(),
                     rsS.getDate("DATAFINE").toLocalDate(),
                     u,
                     null,
-                    TipoSemina.valueOf(rsS.getString("METODOSEMINA").toString())
+                    TipoSemina.valueOf(rsS.getString("METODOSEMINA").toString().toUpperCase())
                 );
                 lista.add(s);
             }
@@ -74,12 +72,12 @@ public class AttivitaDao {
             	u.setUsername(rsR.getString("USERNAME"));
                 Raccolta r= new Raccolta(
                 	rsR.getInt("FK_CODATTIVITA"),	
-                	Stato.valueOf(rsR.getString("STATOESECUZIONE").toString()),
+                	Stato.valueOf(rsR.getString("STATOESECUZIONE").toString().toUpperCase()),
                     rsR.getDate("DATAINIZIO").toLocalDate(),
                     rsR.getDate("DATAFINE").toLocalDate(),
                     u,
                     null,
-                    TipoRaccolta.valueOf(rsR.getString("METODORACCOLTA").toString()),
+                    TipoRaccolta.valueOf(rsR.getString("METODORACCOLTA").toString().toUpperCase()),
                     rsR.getDouble("quantitaprevista"),
                     0,
                     null
@@ -105,26 +103,25 @@ public class AttivitaDao {
           	u.setUsername(rsI.getString("USERNAME"));
               Irrigazione i= new Irrigazione(
               	rsI.getInt("FK_CODATTIVITA"),	
-              	Stato.valueOf(rsI.getString("STATOESECUZIONE").toString()),
+              	Stato.valueOf(rsI.getString("STATOESECUZIONE").toString().toUpperCase()),
                   rsI.getDate("DATAINIZIO").toLocalDate(),
                   rsI.getDate("DATAFINE").toLocalDate(),
                   u,
                   null,
-                  TipoIrrigazione.valueOf(rsI.getString("METODOIRRIGAZIONE").toString())
+                  TipoIrrigazione.valueOf(rsI.getString("METODOIRRIGAZIONE").toString().toUpperCase())
                   
               );
               lista.add(i);
           }
       }catch(SQLException e) {
       	throw e;
-      }
+      	}
       }catch(SQLException e) {
       	throw e;
-       
-    }
+       }
 	}catch(SQLException e) {
 		throw e;
-	}
+		}
         return lista;
 }
 }

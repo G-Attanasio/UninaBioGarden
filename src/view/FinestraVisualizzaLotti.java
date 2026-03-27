@@ -67,7 +67,6 @@ public class FinestraVisualizzaLotti extends JPanel {
 		            controller.eliminaLotto();
 		        }
 		    } else {
-		        
 		        JOptionPane.showMessageDialog(this, "Seleziona un lotto dalla tabella.", "Nessuna selezione", JOptionPane.INFORMATION_MESSAGE);
 		    }
 		});
@@ -78,9 +77,9 @@ public class FinestraVisualizzaLotti extends JPanel {
 		creaProgetto.addActionListener(e->{
 			 int riga = tabella.getSelectedRow();
 			    if (riga != -1) {
-			        int idLotto = (int) modello.getValueAt(riga, 0);
-			        // CHIAMATA AL CONTROLLER
+			        int idLotto = (int) modello.getValueAt(riga, 0);			        
 			        controller.avviaProgetto(idLotto); 
+			        controller.caricaColtivatoriInProgetto();
 			    } else {
 			        JOptionPane.showMessageDialog(this, "Seleziona un lotto dalla lista!");
 			    }
