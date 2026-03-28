@@ -9,8 +9,8 @@ public class AttivitaImminente extends Notifica {
 	private String descrizione;
 	private LocalDate dataScadenza;
 
-	public AttivitaImminente( LocalDate dataInvio, Utente creatore, String tipoAttivitaImminente, String descrizione,LocalDate dataScadenza, ArrayList<NotificaDestinatario> listaDestinatari) {
-		super(dataInvio, creatore, listaDestinatari);
+	public AttivitaImminente( LocalDate dataInvio, Utente creatore, String tipoAttivitaImminente, String descrizione,LocalDate dataScadenza) {
+		super(dataInvio, creatore);
 		this.tipoAttivitaImminente=tipoAttivitaImminente;
 		this.descrizione=descrizione;
 		this.dataScadenza=dataScadenza;
@@ -23,21 +23,16 @@ public class AttivitaImminente extends Notifica {
 		this.dataScadenza=dataScadenza;
 	}
 	
-	public boolean isTipoAttivitaImminenteLunghezzaValida(String stringa) {
+	public static boolean isTipoAttivitaImminenteLunghezzaValida(String stringa) {
 		if (stringa==null || stringa.length()>= 50) return false;
 		return true;
 	}
 	
-	public boolean isDescrizioneLunghezzaValida(String stringa) {
+	public static boolean isDescrizioneLunghezzaValida(String stringa) {
 		if (stringa==null || stringa.length()>= 500) return false;
 		return true;
 	}
 	
-	public boolean isDataScadenzaValida(LocalDate dataScadenza) {
-		if(dataScadenza==null || dataScadenza.isBefore(super.getDataInvio())) return false;
-		return true;
-	}
-
 	public String getTipoAttivitaImminente() {
 		return tipoAttivitaImminente;
 	}

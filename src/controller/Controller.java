@@ -38,6 +38,7 @@ public class Controller {
 	private FinestraCreaProgetto finestraCreaProgetto;
 	private FinestraAttivitaAssegnate finestraAttivitaAssegnate;
 	private FinestraVisualizzaProgetti finestraVisualizzaProgetti;
+	private FinestraCreaNotifica finestraCreaNotifica;
 
     public Controller() {
        
@@ -64,7 +65,7 @@ public class Controller {
         this.finestraCreaProgetto= finestraProprietario.getFinCreaProgetto();
         this.finestraAttivitaAssegnate=finestraProprietario.getFinAttivitaAssegnate();
         this.finestraVisualizzaProgetti=finestraProprietario.getFinVisualizzaProgetti();
-        
+        this.finestraCreaNotifica=finestraProprietario.getFinCreaNotifica();
     }
     
     public void validaLogin()  {
@@ -800,6 +801,13 @@ public class Controller {
     		return "errore generico db";
     	}
     	return "ok";
+    }
+    
+    public String CreaNotifica() {
+    	String descrizioneVeloce= finestraCreaNotifica.getCmpDescrizioneVeloce();
+    	String descrizione= finestraCreaNotifica.getCmpDescrizione();
+    	String dataScadenza= finestraCreaNotifica.getCmpDataScadenza();
+    	
     }
     
     public String salvaProgetto() {

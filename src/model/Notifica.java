@@ -8,27 +8,20 @@ public abstract class Notifica {
 	private int codNotifica;
 	private LocalDate dataInvio;
 	private Utente creatore;
-	private ArrayList<NotificaDestinatario> listaDestinatari;
 	
-	public Notifica(LocalDate dataInvio, Utente creatore, ArrayList<NotificaDestinatario> listaDestinatari) {
+	
+	public Notifica(LocalDate dataInvio, Utente creatore) {
 		this.dataInvio=dataInvio;
 		this.creatore=creatore;
-		this.listaDestinatari=listaDestinatari;
+		
 	}
 	
 	public Notifica(int codNotifica, LocalDate dataInvio,Utente creatore) {
-		this(dataInvio,creatore, new ArrayList<NotificaDestinatario>());
+		this(dataInvio,creatore);
 		this.codNotifica=codNotifica;
 	}
 	
-	public void addNotifica(NotificaDestinatario nd) {
-		if(nd != null && listaDestinatari.contains(nd)) {
-			listaDestinatari.add(nd);
-			if(nd.getNotifica()==null) {
-				nd.setNotifica(this);
-			}
-		}
-	}
+	
 	
 	public int getCodNotifica() {
 		return codNotifica;
@@ -49,11 +42,5 @@ public abstract class Notifica {
 		this.creatore = creatore;
 	}
 
-	public ArrayList<NotificaDestinatario> getListaDestinatari() {
-		return listaDestinatari;
-	}
-
-	public void setListaDestinatari(ArrayList<NotificaDestinatario> listaDestinatari) {
-		this.listaDestinatari = listaDestinatari;
-	}
+	
 }

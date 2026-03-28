@@ -10,8 +10,8 @@ public class Anomalia extends Notifica {
 	private LivelloGravita gravita;
 	private int estensione;
 	
-	public Anomalia(LocalDate dataInvio, Utente creatore, ArrayList<NotificaDestinatario> listaDestinatari,String tipoAnomalia,String descrizione, LivelloGravita gravita, int estensione) {
-		super(dataInvio, creatore, listaDestinatari);
+	public Anomalia(LocalDate dataInvio, Utente creatore,String tipoAnomalia,String descrizione, LivelloGravita gravita, int estensione) {
+		super(dataInvio, creatore);
 		this.tipoAnomalia=tipoAnomalia;
 		this.descrizione=descrizione;
 		this.gravita=gravita;
@@ -26,17 +26,8 @@ public class Anomalia extends Notifica {
 		this.estensione=estensione;
 	}
 	
-	public boolean isTipoAnomaliaLunghezzaValida(String stringa) {
-		if (stringa==null || stringa.length()>= 50) return false;
-		return true;
-	}
 	
-	public boolean isDescrizioneLunghezzaValida(String stringa) {
-		if (stringa==null || stringa.length()>= 500) return false;
-		return true;
-	}
-	
-	public boolean isEstensioneValida(int estensione) {
+	public static boolean isEstensioneValida(int estensione) {
 		if(estensione < 0) return false;
 		return true;
 	}

@@ -18,7 +18,6 @@ public class FinestraProprietario extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private Controller controller;
-	//private JButton creaProgetto;
 	private JButton attivitaAssegnate;
 	private JButton visualizzaLotti;
 	private JButton visualizzaProgetti;
@@ -37,7 +36,7 @@ public class FinestraProprietario extends JPanel {
 	private FinestraVisualizzaColture finVisualizzaColture;
 	private FinestraReport finReport;
 	private FinestraCreaNotifica finCreaNotifica;
-	//private FinestraVisualizzaNotifiche finVisualizzaNotifiche;
+	private FinestraVisualizzaNotifiche finVisualizzaNotifiche;
 	
 	public FinestraProprietario(Controller controller) {
 		this.setController(controller);
@@ -51,7 +50,7 @@ public class FinestraProprietario extends JPanel {
 		finVisualizzaColture= new FinestraVisualizzaColture(controller);
 		finReport= new FinestraReport(controller);
 		finCreaNotifica= new FinestraCreaNotifica(controller);
-		//finVisualizzaNotifiche= new FinestraVisualizzaNotifiche(controller);
+		finVisualizzaNotifiche= new FinestraVisualizzaNotifiche(controller);
 		// lato nord
 		setLayout(new BorderLayout());
 		JPanel pnlNord= new JPanel(new FlowLayout());
@@ -61,8 +60,7 @@ public class FinestraProprietario extends JPanel {
 		add(pnlNord, BorderLayout.NORTH);
 		// lato ovest
 		JPanel pnlOvest= new JPanel();
-		//creaProgetto= new JButton("Crea progetto");
-		//creaProgetto.setAlignmentX(CENTER_ALIGNMENT);
+		
 		attivitaAssegnate= new JButton("Attività assegnate");
 		attivitaAssegnate.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaLotti= new JButton("I miei lotti");
@@ -81,8 +79,7 @@ public class FinestraProprietario extends JPanel {
 		pnlOvest.setLayout(new BoxLayout(pnlOvest,BoxLayout.Y_AXIS));
 		pnlOvest.setPreferredSize(new Dimension(250,0));
 		pnlOvest.add(Box.createVerticalGlue());
-		//pnlOvest.add(creaProgetto);
-		//pnlOvest.add(Box.createVerticalStrut(40));
+		
 		pnlOvest.add(attivitaAssegnate);
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaLotti);
@@ -111,7 +108,9 @@ public class FinestraProprietario extends JPanel {
 		pnlCard.add(finVisualizzaProgetti,"visualizza progetti");
 		pnlCard.add(finVisualizzaColture,"lista colture");
 		pnlCard.add(finReport,"report");
+		pnlCard.add(finVisualizzaNotifiche,"visualizza notifiche");
 		pnlCard.add(finCreaNotifica,"crea notifica");
+		
 		add(pnlCard,BorderLayout.CENTER);
 		
 		attivitaAssegnate.addActionListener(e->{
@@ -134,7 +133,7 @@ public class FinestraProprietario extends JPanel {
 			controller.mostraPanelInterno("report");
 		});
 		creaNotifiche.addActionListener(e->{
-			controller.mostraPanelInterno("crea notifica");
+			controller.mostraPanelInterno("visualizza notifiche");
 		});
 		esci.addActionListener(e->{
 			controller.mostraPanel("prima pagina");
@@ -159,14 +158,6 @@ public class FinestraProprietario extends JPanel {
 	public void setController(Controller controller) {
 		this.controller = controller;
 	}
-
-	/*public JButton getCreaProgetto() {
-		return creaProgetto;
-	}
-
-	public void setCreaProgetto(JButton creaProgetto) {
-		this.creaProgetto = creaProgetto;
-	}*/
 
 	public FinestraCreaProgetto getFinCreaProgetto() {
 		return finCreaProgetto;
