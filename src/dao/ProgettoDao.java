@@ -19,7 +19,7 @@ public class ProgettoDao {
 
 	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int idLotto) throws SQLException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
-	    String sql = "SELECT * FROM PROGETTO WHERE id_lotto = ?";
+	    String sql = "SELECT * FROM PROGETTOSTAGIONALE WHERE FK_CODLOTTO = ?";
 	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -29,7 +29,7 @@ public class ProgettoDao {
 	            	LottoColtivabile lc;
 	                lista.add(new ProgettoStagionale(
 	                    rs.getInt("CODPROGETTO"),
-	                    rs.getString("NOME"),
+	                    rs.getString("NOMEPROGETTO"),
 	                    Stagione.valueOf(rs.getString("STAGIONEDIRIFERIMENTO").toString().toUpperCase()),
 	                    rs.getInt("DURATA"),
 	                    rs.getDate("DATAINIZIO").toLocalDate(),
@@ -53,7 +53,7 @@ public class ProgettoDao {
 		try {
 			conn.setAutoCommit(false); 
 			
-			String sqlP = "{CALL P_REGISTRA_PROGETTO_STAGIONALE(?,?::STAGIONE,?,?,?::STATO,?,?)}";
+			String sqlP = "CALL P_REGISTRA_PROGETTO_STAGIONALE(?,?::STAGIONE,?,?,?::STATO,?,?,?)";
 			int codProgettoGenerato = -1;
 			 try (CallableStatement cs = conn.prepareCall(sqlP)) {
 		            cs.setString(1, progetto.getNomeProgetto());

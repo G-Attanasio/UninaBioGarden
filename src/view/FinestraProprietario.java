@@ -114,11 +114,9 @@ public class FinestraProprietario extends JPanel {
 		pnlCard.add(finCreaNotifica,"crea notifica");
 		add(pnlCard,BorderLayout.CENTER);
 		
-		//creaProgetto.addActionListener(e->{
-		//	controller.mostraPanelInterno("crea progetto");
-		//});
 		attivitaAssegnate.addActionListener(e->{
-			controller.mostraPanelInterno("crea attivita");
+			controller.caricaAttivitaAssegnate();
+			controller.mostraPanelInterno("attivita assegnate");
 		});
 		visualizzaLotti.addActionListener(e->{
 			controller.caricaLotti();

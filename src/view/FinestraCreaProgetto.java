@@ -62,6 +62,7 @@ public class FinestraCreaProgetto extends JPanel {
 	private JComboBox<String> listaColtivatoriS;
 	private JButton conferma;
 	private JButton annullaAttivita;
+	JScrollPane scrollLista;
 	
 	
 	
@@ -100,7 +101,7 @@ public class FinestraCreaProgetto extends JPanel {
 		modelloLista= new DefaultListModel<>();
 		aggiungiColtura= new JButton("Aggiungi coltura");
 		coltureAggiunte= new JList<>(modelloLista);
-		JScrollPane scrollLista= new JScrollPane(coltureAggiunte);
+		scrollLista= new JScrollPane(coltureAggiunte);
 		scrollLista.setPreferredSize(new Dimension(100,50));
 		pnlColture.add(sceltaColtura);
 		pnlColture.add(cmpListaColture);
@@ -148,9 +149,24 @@ public class FinestraCreaProgetto extends JPanel {
 		});
 		
 		salva.addActionListener(e->{
+			String esito= controller.salvaProgetto();
 			
+			if(esito.equals("ok")) {
+				JOptionPane.showMessageDialog(this, 
+			            "Salvataggio pianificazione avvenuta con successo", 
+			            "Operazione Completata", 
+			            JOptionPane.INFORMATION_MESSAGE);
+				controller.mostraPanelInterno("visualizza lotti");
+			}
+			else {
+				
+				gestisciErroriProgetto(esito);
+			}
 		});
 		
+		annulla.addActionListener(e->{
+			controller.annullaCreazioneProgetto();
+		});
 		
 	}
 	
@@ -220,28 +236,26 @@ public class FinestraCreaProgetto extends JPanel {
 		conferma.addActionListener(e -> {
 	        	
 	     String coltS = (String) listaColtivatoriS.getSelectedItem();
-	     String coltR = (String) listaColtivatoriR.getSelectedItem();
-	     
-	            	
-	        	    
+	     String coltR = (String) listaColtivatoriR.getSelectedItem();       	
 	     String esito=controller.validaCreazioneAttivitaProgetto(nomeColtura);
+	     
 	     if(esito.equalsIgnoreCase("ok")) {
-	    	 resetBordiProgetto();
+	    	 resetBordiAttivita();
 	    	 cmpDataInizio.setEditable(false);
 	    	    cmpDurata.setEditable(false);
 	    	    cmpDataInizio.setBackground(Color.LIGHT_GRAY);
 	    	    cmpDurata.setBackground(Color.LIGHT_GRAY);
 	     modelloLista.addElement(nomeColtura); 
-	     System.out.println("Size modello: " + modelloLista.getSize());
 	        	        finestra.dispose();
 	        	    }else {
-	        	    	gestisciErrori(esito);
+	        	    	gestisciErroriAttivita(esito);
 	        	    	pannelloOpzioni.setValue(JOptionPane.UNINITIALIZED_VALUE);
 	        	    	//JOptionPane.showMessageDialog(finestra, "Errore: " + esito, "Attenzione", JOptionPane.WARNING_MESSAGE);
 	        	    }
 	        });
 		
 		annullaAttivita.addActionListener(e->{
+			finestra.setVisible(false); 
 			finestra.dispose();
 		});
 		finestra.setVisible(true);
@@ -257,10 +271,17 @@ public class FinestraCreaProgetto extends JPanel {
 		cmpDurata.setToolTipText(null);
 		cmpDataInizio.setBorder(bordo);
 		cmpDataInizio.setToolTipText(null);	
+		cmpDataInizioIrrigazione.setBorder(bordo);
+		cmpDataInizioIrrigazione.setToolTipText(null);
+		cmpDataFineIrrigazione.setBorder(bordo);
+		cmpDataFineIrrigazione.setToolTipText(null);
+		listaColtivatoriI.setBorder(bordo);
+		listaColtivatoriI.setToolTipText(null);
 	}
 	
-	public void gestisciErrori(String errore) {
-		resetBordiProgetto();
+	public void gestisciErroriAttivita(String errore) {
+		System.out.println("View riceve errore: " + errore); // <--- DEBUG
+		resetBordiAttivita();
 		if(errore.equals("errore campi progetto")) {
 			messaggioErrore(cmpDataInizio, "Inserire data");
 			messaggioErrore(cmpNome, "Inserire nome");
@@ -281,10 +302,14 @@ public class FinestraCreaProgetto extends JPanel {
 		if(errore.equals("data progetto formato")) {
 			messaggioErrore(cmpDataInizio, "Inserire una data nel formato YYYY-MM-DD");
 		}
+		if(errore.equals("errore sovr progetti")) {
+			messaggioErrore(cmpDataInizio, "Il lotto è già impegnato in un altro progetto, selezionare periodo temporale differente");
+			messaggioErrore(cmpDurata, "Il lotto è già impegnato in un altro progetto, selezionare periodo temporale differente");
+		}
 		if(errore.equals("errore <1.")) {
 			messaggioErrore(cmpQuantitaSemi, "Inserire almeno un kilo di semi o non superare le 10 tonnellate");
 		}
-		if(errore.equals("errore non double")) {
+		if(errore.equals("errore non double quantità semi")) {
 			messaggioErrore(cmpQuantitaSemi, "Inserire cifre numeriche");
 		}
 		if(errore.equals("errore datainizio semina")) {
@@ -306,6 +331,9 @@ public class FinestraCreaProgetto extends JPanel {
 		if(errore.equals("errore formato raccolta")) {
 			messaggioErrore(cmpDataInizioRaccolta, "Inserire una data nel formato YYYY-MM-DD");
 			messaggioErrore(cmpDataFineRaccolta, "Inserire una data nel formato YYYY-MM-DD");
+		}
+		if(errore.equals("errore non double quantita prevista raccolta")) {
+			messaggioErrore(cmpQuantitaPrevista, "Inserire cifre numeriche");
 		}
 		if(errore.equals("colt semina sovr attivita")) {
 			messaggioErrore(cmpDataInizioSemina, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
@@ -338,9 +366,39 @@ public class FinestraCreaProgetto extends JPanel {
 		if(errore.equals("errore generico db")) {
 			System.out.println(errore);
 		}
+		
 	}
-	public void resetBordiProgetto() {
+	
+	public void gestisciErroriProgetto(String errore) {
+		resetBordi();
+		if(errore.equals("errore datainizio irrigazione")) {
+			messaggioErrore(cmpDataInizioIrrigazione, "Inserire una data valida");
+		}
+		if(errore.equals("errore datafine irrigazione")) {
+			messaggioErrore(cmpDataFineIrrigazione, "Inserire una data successiva a quella di inizio");
+		}
+		if(errore.equals("errore formato date irrigazione")) {
+			messaggioErrore(cmpDataInizioIrrigazione, "Inserire una data nel formato YYYY-MM-DD");
+			messaggioErrore(cmpDataFineIrrigazione, "Inserire una data nel formato YYYY-MM-DD");
+		}
+		if(errore.equals("colt irrigazione sovr attivita")) {
+			messaggioErrore(cmpDataInizioIrrigazione, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+			messaggioErrore(cmpDataFineIrrigazione, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+		}
+		if(errore.equals("errore irrigazione sovr progetto")) {
+			messaggioErrore(cmpDataInizioIrrigazione, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
+			messaggioErrore(cmpDataFineIrrigazione, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
+		}
+		if(errore.equals("errore pendenza sommersione")) {
+			messaggioErroreCombo(metodiIrrigazione, "Irrigazione a sommersione non consentita su lotti con morfologia collinare o montuosa");
+		}		
+		if(errore.equals("errore lista vuota")) {
+			messaggioErroreBottone(aggiungiColtura, "Aggiungere almeno una coltura al progetto");
+		}
+	}
+	public void resetBordiAttivita() {
 		Border bordo= UIManager.getBorder("TextField.border");
+		
 		cmpNome.setBorder(bordo);
 		cmpNome.setToolTipText(null);
 		cmpDurata.setBorder(bordo);
@@ -358,6 +416,8 @@ public class FinestraCreaProgetto extends JPanel {
 		cmpQuantitaPrevista.setBorder(bordo);
 		cmpQuantitaPrevista.setToolTipText(null);
 	}
+	
+	
 	
 	public void erroreCampiProgetto() {
 		JOptionPane.showMessageDialog(null, "Inserire nome, data inizio e durata prima di aggiungere colture.");
@@ -379,6 +439,7 @@ public class FinestraCreaProgetto extends JPanel {
 	}
 	
 	public void messaggioErrore(JTextField campo, String messaggio) {
+		System.out.println("DEBUG VIEW: Coloro di rosso il campo " + campo.getName());
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
 		ToolTipManager.sharedInstance().setInitialDelay(0);

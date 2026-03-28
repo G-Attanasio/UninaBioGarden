@@ -36,6 +36,7 @@ public class Controller {
 	private FinestraCreaLotto finestraCreaLotto;
 	private FinestraVisualizzaColture finestraVisualizzaColture;
 	private FinestraCreaProgetto finestraCreaProgetto;
+	private FinestraAttivitaAssegnate finestraAttivitaAssegnate;
 
     public Controller() {
        
@@ -49,6 +50,8 @@ public class Controller {
         this.progettoDao= new ProgettoDao();
         this.attivitaTemporanee= new ArrayList<Attivita>();
         this.attivitaTotali= new ArrayList<Attivita>();
+        this.listaSeminaColtura= new ArrayList<SeminaColtura>();
+        this.progettiperLotto= new ArrayList<ProgettoStagionale>();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
         this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
@@ -58,6 +61,7 @@ public class Controller {
         this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
         this.finestraVisualizzaColture=finestraProprietario.getFinVisualizzaColture();
         this.finestraCreaProgetto= finestraProprietario.getFinCreaProgetto();
+        this.finestraAttivitaAssegnate=finestraProprietario.getFinAttivitaAssegnate();
         
     }
     
@@ -207,6 +211,43 @@ public class Controller {
     	}catch(SQLException e){
     		System.out.println("errore");
     	}
+    }
+    
+    public void caricaAttivitaAssegnate() {
+    	 try {
+    	        
+    	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaAssegnateDaProprietario(utenteLoggato.getIdUtente());
+    	        finestraAttivitaAssegnate.svuotaTabella(); 	         	       
+    	        for (Attivita a : tutte) {   	            
+    	        	String tipo = "";
+    	        	String metodo="";
+    	        	if (a instanceof Semina) {
+    	                tipo = "Semina";
+    	                metodo = ((Semina) a).getMetodoSemina().toString(); 
+    	            } 
+    	            else if (a instanceof Raccolta) {
+    	                tipo = "Raccolta";
+    	                metodo = ((Raccolta) a).getMetodoRaccolta().toString(); 
+    	            } 
+    	            else if (a instanceof Irrigazione) {
+    	                tipo = "Irrigazione";
+    	                metodo = ((Irrigazione) a).getMetodoIrrigazione().toString();
+    	            }
+    	            Object[] riga = {
+    	            	tipo,
+    	                a.getColtivatore().getUsername(),
+    	                a.getProgetto().getNomeProgetto(),
+    	                metodo,
+    	                a.getDataInizio(),
+    	                a.getDataFine(),
+    	                a.getStatoEsecuzione()
+    	            };
+    	            finestraAttivitaAssegnate.aggiungiRigaTabella(riga);
+    	        }
+    	    } catch (SQLException e) {
+    	        e.printStackTrace();
+    	       
+    	    }
     }
     
     public void caricaColture() {
@@ -440,6 +481,7 @@ public class Controller {
     	 }
     	 if(Utente.isLunghezzaValida(email)==false) {
     		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpEmail(),"La lunghezza dell'email deve essere inferiore di 30 caratteri.");
+    		 return;
     	 }
  
     	 LocalDate dataNascitaParse = null;
@@ -536,6 +578,7 @@ public class Controller {
     	}
     	if(!LottoColtivabile.isSoloLettere(provincia)) {
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpProvincia(), "Inserire 2 caratteri.");
+    		return;
     	}
     	
     	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
@@ -566,6 +609,7 @@ public class Controller {
     }
     
     public String validaCreazioneAttivitaProgetto(String nomeColtura) {
+    	
     	String nome= finestraCreaProgetto.getCmpNome();
     	String periodo= finestraCreaProgetto.getStagioneDiRiferimento();;
     	String durata= finestraCreaProgetto.getCmpDurata();
@@ -584,7 +628,7 @@ public class Controller {
     	String metodoR= finestraCreaProgetto.getMetodiRaccolta();
     	String coltS=finestraCreaProgetto.getListaColtivatoriS();
     	String coltR=finestraCreaProgetto.getListaColtivatoriR();
-    	
+    	System.out.println("DEBUG CONTROLLER - Ricevuto: [" + quantitaS + "]");
     	if (nome.isEmpty() || dataInizioP.isEmpty() || durata.isEmpty()) {
            return "errore campi progetto";
         }
@@ -611,7 +655,15 @@ public class Controller {
     	}catch(DateTimeParseException e) {
     		return"data progetto formato";
     	}
-    	
+    	 try{
+    		 ArrayList<ProgettoStagionale> listaAggiornata = progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
+    		 ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durataInt,dataInizioProgetto,utenteLoggato,lottoSelezionato);
+    	    	if(!sovrapposizioneProgetti(nuovoProgetto, listaAggiornata)) {
+    				return"errore sovr progetti";
+    			}
+    	 }catch(SQLException e) {
+    		 e.printStackTrace();
+    	 }
     	
     	
     	double quantitaSemi=0.0;
@@ -622,9 +674,14 @@ public class Controller {
     		if(!SeminaColtura.isQuantitaSemiValida(quantitaSemi)) {
     			return "errore <1.";
     		}
+    		
+    	}catch(NumberFormatException e) {
+    		return "errore non double quantità semi";
+    	}
+    	try {
     		quantitaPrevistaRaccolta= Double.parseDouble(quantitaR.replace(",", "."));
     	}catch(NumberFormatException e) {
-    		return "errore non double";
+    		return"errore non double quantita prevista raccolta";
     	}
     	
     	LocalDate dataInizioSemina= null;
@@ -705,7 +762,9 @@ public class Controller {
     }
     
     public String salvaProgetto() {
-    	
+    	 if (listaSeminaColtura == null || listaSeminaColtura.isEmpty()) {
+    	        return "errore lista vuota";
+    	    }
     	String periodo= finestraCreaProgetto.getStagioneDiRiferimento();;
     	String periodoComeEnum=periodo.replace("-", "_");
     	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase());
@@ -748,24 +807,36 @@ public class Controller {
     			attivitaTemporanee.add(irrigazione);
     		}
     	}catch(SQLException e) {
+    		e.printStackTrace();
     		return"errore db";
     	}
     	ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,utenteLoggato,lottoSelezionato);
     	try{
     		progettiperLotto=progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
-    		if(!sovrapposizioneProgetti(nuovoProgetto, progettiperLotto)) {
-    			return"errore sovr progetti";
-    		}
+    		
     	}catch(SQLException e) {
+    		e.printStackTrace();
     		return"errore da db";
     	}
     	
+    	try {
+    		boolean salvataggio= progettoDao.salvaProgettoCompleto(nuovoProgetto, attivitaTemporanee, listaSeminaColtura);
+    		if(salvataggio) {
+    			attivitaTemporanee.clear();
+    			listaSeminaColtura.clear();
+    			return"ok";
+    		}
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    		return"errore da db";
+    	}
+    	return "errore sconosciuto";
     }
     
     public void annullaCreazioneProgetto() {
         attivitaTemporanee.clear(); 
         listaSeminaColtura.clear(); 
-        mostraPanel("visualizza lotti");
+        finestraProprietario.mostraPanelInterno("visualizza lotti");
     }
     public boolean sovrapposizioneProgetti(ProgettoStagionale progetto, ArrayList<ProgettoStagionale> lista) {
     	LocalDate dataFine=progetto.getDataInizio().plusDays(progetto.getDurata());
@@ -774,7 +845,7 @@ public class Controller {
     		 LocalDate inizioEsistente = ps.getDataInizio();
     	        LocalDate fineEsistente = inizioEsistente.plusDays(ps.getDurata());
     	        
-    	        if(!progetto.getDataInizio().isAfter(fineEsistente) && !progetto.getDataFine().isBefore(inizioEsistente)) {
+    	        if(!progetto.getDataInizio().isAfter(fineEsistente) && !dataFine.isBefore(inizioEsistente)) {
     	        	return false;
     	        }
     	}
