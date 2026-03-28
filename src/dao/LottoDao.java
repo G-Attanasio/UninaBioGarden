@@ -141,16 +141,12 @@ public class LottoDao {
 	
 	
 	public boolean cancellaLotto(int codLotto) throws SQLException {
-		String sql = "CALL P_DISATTIVA_LOTTO(?)";
-		
+		String sql = "CALL P_DISATTIVA_LOTTO(?)";		
 		 try (Connection conn = DBConnection.getConnection();
-		 CallableStatement cs= conn.prepareCall(sql)){
-		
+		 CallableStatement cs= conn.prepareCall(sql)){		
 		 cs.setInt(1, codLotto);
 	     cs.execute();
-	     return true;
-	        
-		
+	     return true;	        		
 	}catch(SQLException e) {
 		throw e;
 	}

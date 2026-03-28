@@ -37,6 +37,7 @@ public class Controller {
 	private FinestraVisualizzaColture finestraVisualizzaColture;
 	private FinestraCreaProgetto finestraCreaProgetto;
 	private FinestraAttivitaAssegnate finestraAttivitaAssegnate;
+	private FinestraVisualizzaProgetti finestraVisualizzaProgetti;
 
     public Controller() {
        
@@ -62,6 +63,7 @@ public class Controller {
         this.finestraVisualizzaColture=finestraProprietario.getFinVisualizzaColture();
         this.finestraCreaProgetto= finestraProprietario.getFinCreaProgetto();
         this.finestraAttivitaAssegnate=finestraProprietario.getFinAttivitaAssegnate();
+        this.finestraVisualizzaProgetti=finestraProprietario.getFinVisualizzaProgetti();
         
     }
     
@@ -214,8 +216,7 @@ public class Controller {
     }
     
     public void caricaAttivitaAssegnate() {
-    	 try {
-    	        
+    	   try { 
     	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaAssegnateDaProprietario(utenteLoggato.getIdUtente());
     	        finestraAttivitaAssegnate.svuotaTabella(); 	         	       
     	        for (Attivita a : tutte) {   	            
@@ -248,6 +249,28 @@ public class Controller {
     	        e.printStackTrace();
     	       
     	    }
+    }
+    
+    public void caricaIMieiProgetti() {
+    	try {
+    		ArrayList<ProgettoStagionale> lista= progettoDao.prelevaProgettiPerProprietario(utenteLoggato.getIdUtente());
+    		finestraVisualizzaProgetti.svuotaTabella();
+    		 for (ProgettoStagionale p : lista) {
+    	            Object[] riga = {
+    	            	p.getCodProgetto(),	
+    	                p.getNomeProgetto(),
+    	                p.getLottoImpegnato().getCodLotto(),
+    	                p.getStagioneDiRiferimento(),
+    	                p.getDataInizio(),
+    	                p.getDurata() + " giorni",
+    	                p.getStatoEsecuzione()
+    	            };
+    	            finestraVisualizzaProgetti.aggiungiRigaTabella(riga);
+    	        }
+    	    } catch (SQLException e) {
+    	        e.printStackTrace();
+    	    }
+    	
     }
     
     public void caricaColture() {
@@ -342,6 +365,24 @@ public class Controller {
     	
     }
     
+    public void eliminaProgetto() {
+    	int riga= finestraVisualizzaProgetti.getTabella().getSelectedRow();
+    	if(riga != -1) {
+    		int codProgetto= (int) finestraVisualizzaProgetti.getModello().getValueAt(riga, 0);
+    	
+    	try {      
+            boolean cancellato = progettoDao.eliminaProgetto(codProgetto);
+            if (cancellato) {
+                caricaIMieiProgetti(); 
+            } else {
+            	System.out.println("errore cancellazione progetto");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            
+        	}
+    	}
+    }
     
     public void mostraPanel(String testo) {
     	cardPanel.mostraPanel(testo);

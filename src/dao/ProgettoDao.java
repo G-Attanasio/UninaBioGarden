@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import database.DBConnection;
@@ -85,4 +86,50 @@ public class ProgettoDao {
 			}
 		}
 	}
-}
+	
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerProprietario(int idProprietario) throws SQLException {
+	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
+	    String sql = "SELECT * " +
+	                 "FROM PROGETTOSTAGIONALE  " +                
+	                 "WHERE FK_CREATORE = ? "+
+	                 "ORDER BY DATAINIZIO";
+
+	    try (Connection conn = DBConnection.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setInt(1, idProprietario);
+	        ResultSet rs = ps.executeQuery();
+	        while (rs.next()) {
+	            LottoColtivabile lc = new LottoColtivabile(0,null,0,0,null,0,null,null,null,null,true);
+	            lc.setCodLotto(rs.getInt("FK_CODLOTTO"));            
+	            java.sql.Date data = rs.getDate("DATAFINE");
+	            LocalDate dataFine=null;	            
+	            if (data != null) {
+	                dataFine = data.toLocalDate();
+	            }	            
+	            ProgettoStagionale p = new ProgettoStagionale(
+	                rs.getInt("CODPROGETTO"),
+	                rs.getString("NOMEPROGETTO"),
+	                Stagione.valueOf(rs.getString("STAGIONEDIRIFERIMENTO").toUpperCase()),
+	                rs.getInt("DURATA"),
+	                rs.getDate("DATAINIZIO").toLocalDate(),
+	                dataFine,
+	                Stato.valueOf(rs.getString("STATOESECUZIONE").toUpperCase()),
+	                lc,
+	                null 
+	            );
+	            lista.add(p);
+	        }
+	    }
+	    return lista;
+	}
+	
+	public boolean eliminaProgetto(int idProgetto) throws SQLException {
+	    String sql = "DELETE FROM PROGETTOSTAGIONALE WHERE CODPROGETTO = ?";	    
+	    try (Connection conn = DBConnection.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {        
+	        ps.setInt(1, idProgetto);
+	        int righeCancellate = ps.executeUpdate();
+	        return righeCancellate > 0;
+	    }
+	}
+}	

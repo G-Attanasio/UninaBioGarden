@@ -31,7 +31,7 @@ public class FinestraVisualizzaLotti extends JPanel {
 		this.controller=controller;
 		setLayout(new BorderLayout());
 		JPanel pnlSud= new JPanel ( new FlowLayout(FlowLayout.LEFT));
-		cancella= new JButton("Cancella");
+		cancella= new JButton("Cancella lotto");
 		aggiungi= new JButton("Aggiungi un lotto");
 		creaProgetto= new JButton("Crea un progetto stagionale");
 		pnlSud.add(cancella);

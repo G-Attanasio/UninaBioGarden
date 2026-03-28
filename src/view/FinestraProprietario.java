@@ -123,6 +123,7 @@ public class FinestraProprietario extends JPanel {
 			controller.mostraPanelInterno("visualizza lotti");
 		});
 		visualizzaProgetti.addActionListener(e->{
+			controller.caricaIMieiProgetti();
 			controller.mostraPanelInterno("visualizza progetti");
 		});
 		visualizzaColture.addActionListener(e->{
