@@ -1,9 +1,11 @@
 package view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -11,6 +13,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import controller.Controller;
 
@@ -65,6 +70,7 @@ public class FinestraLogin extends JPanel {
 			controller.validaLogin();
 		});
 		btnIndietro.addActionListener(e->{
+			pulisciCampi();
 			controller.mostraPanel("prima pagina");
 		});
 		
@@ -72,6 +78,31 @@ public class FinestraLogin extends JPanel {
 		
 		
 	}
+	
+	public void erroreLogin() {
+		inserisciUsername.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		inserisciUsername.setToolTipText("Username o Password non corretto");
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+		inserisciPassword.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		inserisciPassword.setToolTipText("Username o password non corretto");
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
+	public void pulisciCampi() {
+	    inserisciUsername.setText("");
+	    inserisciPassword.setText("");
+	    resetBordi();
+	}
+	
+	public void resetBordi() {
+		Border bordo= UIManager.getBorder("TextField.border");
+		inserisciUsername.setBorder(bordo);
+		inserisciUsername.setToolTipText(null);
+		inserisciPassword.setBorder(bordo);
+	    inserisciPassword.setToolTipText(null);
+	}
+	
+	
 	
 	public String getUsername() {
 		String s= inserisciUsername.getText().trim();

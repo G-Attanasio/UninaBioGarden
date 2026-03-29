@@ -156,25 +156,24 @@ public class FinestraCreaProgetto extends JPanel {
 			            "Salvataggio pianificazione avvenuta con successo", 
 			            "Operazione Completata", 
 			            JOptionPane.INFORMATION_MESSAGE);
+				pulisciCampi();
 				controller.mostraPanelInterno("visualizza lotti");
 			}
-			else {
-				
+			else {				
 				gestisciErroriProgetto(esito);
 			}
 		});
 		
 		annulla.addActionListener(e->{
+			pulisciCampi();
 			controller.annullaCreazioneProgetto();
 		});
 		
 	}
 	
-	public void pianificaAttivita(ArrayList<String> nomiColtivatori, String nomeColtura) {
-		
+	public void pianificaAttivita(ArrayList<String> nomiColtivatori, String nomeColtura) {		
 		JPanel pnlpopup= new JPanel();
-		pnlpopup.setLayout(new BoxLayout(pnlpopup,BoxLayout.Y_AXIS));
-		
+		pnlpopup.setLayout(new BoxLayout(pnlpopup,BoxLayout.Y_AXIS));		
 		JPanel pnlSeminaMetodo= new JPanel(new FlowLayout());
 		JLabel metodoS= new JLabel("Metodo semina:");
 		JLabel quantitaSemi= new JLabel("Quantità semi in kg:");
@@ -249,8 +248,7 @@ public class FinestraCreaProgetto extends JPanel {
 	        	        finestra.dispose();
 	        	    }else {
 	        	    	gestisciErroriAttivita(esito);
-	        	    	pannelloOpzioni.setValue(JOptionPane.UNINITIALIZED_VALUE);
-	        	    	//JOptionPane.showMessageDialog(finestra, "Errore: " + esito, "Attenzione", JOptionPane.WARNING_MESSAGE);
+	        	    	pannelloOpzioni.setValue(JOptionPane.UNINITIALIZED_VALUE);	        	    	
 	        	    }
 	        });
 		
@@ -277,10 +275,13 @@ public class FinestraCreaProgetto extends JPanel {
 		cmpDataFineIrrigazione.setToolTipText(null);
 		listaColtivatoriI.setBorder(bordo);
 		listaColtivatoriI.setToolTipText(null);
+		metodiIrrigazione.setBorder(bordo);
+		metodiIrrigazione.setToolTipText(null);
+		scrollLista.setBorder(bordo);
+		scrollLista.setToolTipText(null);
 	}
 	
 	public void gestisciErroriAttivita(String errore) {
-		System.out.println("View riceve errore: " + errore); // <--- DEBUG
 		resetBordiAttivita();
 		if(errore.equals("errore campi progetto")) {
 			messaggioErrore(cmpDataInizio, "Inserire data");
@@ -393,12 +394,11 @@ public class FinestraCreaProgetto extends JPanel {
 			messaggioErroreCombo(metodiIrrigazione, "Irrigazione a sommersione non consentita su lotti con morfologia collinare o montuosa");
 		}		
 		if(errore.equals("errore lista vuota")) {
-			messaggioErroreBottone(aggiungiColtura, "Aggiungere almeno una coltura al progetto");
+			messaggioErroreScroll(scrollLista, "Aggiungere almeno una coltura al progetto");
 		}
 	}
 	public void resetBordiAttivita() {
-		Border bordo= UIManager.getBorder("TextField.border");
-		
+		Border bordo= UIManager.getBorder("TextField.border");		
 		cmpNome.setBorder(bordo);
 		cmpNome.setToolTipText(null);
 		cmpDurata.setBorder(bordo);
@@ -417,7 +417,15 @@ public class FinestraCreaProgetto extends JPanel {
 		cmpQuantitaPrevista.setToolTipText(null);
 	}
 	
-	
+	public void pulisciCampi() {
+	    cmpNome.setText("");
+	    cmpDurata.setText("");
+	    cmpDataInizio.setText("");
+	    cmpDataInizioIrrigazione.setText("");
+	    cmpDataFineIrrigazione.setText("");
+	    modelloLista.clear();
+	    resetBordi();
+	}
 	
 	public void erroreCampiProgetto() {
 		JOptionPane.showMessageDialog(null, "Inserire nome, data inizio e durata prima di aggiungere colture.");
@@ -425,10 +433,15 @@ public class FinestraCreaProgetto extends JPanel {
 	
 	public void setElencoColtivatori(ArrayList<String> elenco) {
 		this.listaColtivatoriI.removeAllItems();
-		 if (elenco != null) {
+		 if (elenco != null && !elenco.isEmpty()) {
 		        for (String nome : elenco) {
 		            this.listaColtivatoriI.addItem(nome);
 		        }
+		    }else {	    	
+	                JOptionPane.showMessageDialog(null, 
+	                    "Non ci sono coltivatori nel sistema.", 
+	                    "Errore Configurazione", 
+	                    JOptionPane.WARNING_MESSAGE);            
 		    }
 	}
 	
@@ -438,8 +451,13 @@ public class FinestraCreaProgetto extends JPanel {
 		ToolTipManager.sharedInstance().setInitialDelay(0);
 	}
 	
+	public void messaggioErroreScroll(JScrollPane scroll, String messaggio) {
+		scroll.setBorder(BorderFactory.createLineBorder(Color.RED,2));
+		scroll.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
 	public void messaggioErrore(JTextField campo, String messaggio) {
-		System.out.println("DEBUG VIEW: Coloro di rosso il campo " + campo.getName());
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
 		ToolTipManager.sharedInstance().setInitialDelay(0);

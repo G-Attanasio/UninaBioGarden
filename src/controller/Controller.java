@@ -19,6 +19,7 @@ public class Controller {
 	private ArrayList<SeminaColtura> listaSeminaColtura;
 	private ArrayList<ProgettoStagionale> progettiperLotto;
 	private ArrayList<ProgettoStagionale> progettiTotaliEsistenti;
+	private ArrayList<Notifica> notifiche;
 	private MainFrame frame;
 	private CardPanel cardPanel;
 	private FinestraLogin finestraLogin;
@@ -27,6 +28,7 @@ public class Controller {
 	private ColturaDao colturaDao;
 	private AttivitaDao attivitaDao; 
 	private ProgettoDao progettoDao;
+	private NotificaDao notificaDao;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscriviLotto finestraIscrizioneLotto;
@@ -39,6 +41,7 @@ public class Controller {
 	private FinestraAttivitaAssegnate finestraAttivitaAssegnate;
 	private FinestraVisualizzaProgetti finestraVisualizzaProgetti;
 	private FinestraCreaNotifica finestraCreaNotifica;
+	private FinestraVisualizzaNotifiche finestraVisualizzaNotifiche;
 
     public Controller() {
        
@@ -50,10 +53,12 @@ public class Controller {
         this.colturaDao= new ColturaDao();
         this.attivitaDao= new AttivitaDao();
         this.progettoDao= new ProgettoDao();
+        this.notificaDao= new NotificaDao();
         this.attivitaTemporanee= new ArrayList<Attivita>();
         this.attivitaTotali= new ArrayList<Attivita>();
         this.listaSeminaColtura= new ArrayList<SeminaColtura>();
         this.progettiperLotto= new ArrayList<ProgettoStagionale>();
+        this.notifiche= new ArrayList<Notifica>();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
         this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
@@ -66,33 +71,35 @@ public class Controller {
         this.finestraAttivitaAssegnate=finestraProprietario.getFinAttivitaAssegnate();
         this.finestraVisualizzaProgetti=finestraProprietario.getFinVisualizzaProgetti();
         this.finestraCreaNotifica=finestraProprietario.getFinCreaNotifica();
+        this.finestraVisualizzaNotifiche=finestraProprietario.getFinVisualizzaNotifiche();
     }
     
     public void validaLogin()  {
     	String username= finestraLogin.getUsername();
-    	String password= new String(finestraLogin.getPassword());
-    	
+    	String password= new String(finestraLogin.getPassword());   
+    	if(username.isEmpty() || password.isEmpty()) {
+    		finestraLogin.erroreLogin();
+    	}
     	Utente u;
 		try {
 			u = utenteDao.preleva(username, password);
 			if(u != null) {
 	    		setUtenteLoggato(u);
 	    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
+	    			finestraLogin.pulisciCampi();
 	    			cardPanel.mostraPanel("proprietario");
 	    		}
 	    		if (u.getRuolo()==TipoRuolo.COLTIVATORE) {
+	    			finestraLogin.pulisciCampi();
 	    			cardPanel.mostraPanel("coltivatore");
 	    		}
 	    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
+	    			finestraLogin.pulisciCampi();
 	    			cardPanel.mostraPanel("proprietario-coltivatore");
-	    		}
-	    		
-	    	}
-	    		
-		} catch (SQLException e) {
-			
-			
-			
+	    		}	    		
+	    	}	    		
+		} catch (SQLException e) {			
+			finestraLogin.erroreLogin();			
 		}
     }
     
@@ -180,11 +187,11 @@ public class Controller {
     	try{
     		if(lottoDao.salva(lc)) { 
     		caricaLotti();
+    		finestraCreaLotto.pulisciCampi();
     		mostraPanelInterno("visualizza lotti");
     		}
     	}catch(SQLException e) {
     		e.printStackTrace();
-    		//System.out.println("salvataggio non riuscito.");
     		return;
     	}
     }
@@ -346,24 +353,83 @@ public class Controller {
         }
     }
     	
+    public void caricaColtivatoriComeDestinatari() {
+    	try{
+    		ArrayList<String> listaColtivatori= new ArrayList<String>();
+    		listaColtivatori=utenteDao.prelevaPerProgetto();
+    		finestraCreaNotifica.setElencoColtivatori(listaColtivatori);  		
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    		
+        }
+    }
+    
+    public void caricaNotificheInviate() {
+    	try{
+    		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
+    		listaNotifiche=notificaDao.prelevaNotificheInviate(utenteLoggato.getIdUtente());
+    		finestraVisualizzaNotifiche.svuotaTabella();	
+    		
+    		for (Notifica n : listaNotifiche) {
+                String tipo = "";
+                String scadenza = "---";
+                String descrizioneVeloce= "---";
+                String gravita = "---";
+                String estensione = "---";
+                String descrizione="---";
+
+              
+                if (n instanceof AttivitaImminente) {
+                    tipo = "IMMINENTE";
+                    AttivitaImminente imm = (AttivitaImminente) n;
+                    scadenza = imm.getDataScadenza().toString();
+                    descrizioneVeloce=imm.getTipoAttivitaImminente();
+                    descrizione=imm.getDescrizione();
+                } 
+                else if (n instanceof Anomalia) {
+                    tipo = "ANOMALIA";
+                    Anomalia ano = (Anomalia) n;
+                    gravita = ano.getGravita().toString();
+                    descrizioneVeloce= ano.getTipoAnomalia();
+                    descrizione=ano.getDescrizione();
+                    if(ano.getEstensione() > 0) {
+                    	estensione= ano.getEstensione()+" MQ";
+                    }else {
+                    	estensione="N.D";
+                    }
+                }                        
+                Object[] riga = {
+                    tipo,                       
+                    descrizioneVeloce,                   
+                    scadenza,                   
+                    gravita,                  
+                    estensione,
+                    descrizione,
+                    n.getCodNotifica()
+                };
+                notifiche.add(n);
+                finestraProprietario.getFinVisualizzaNotifiche().aggiungiRigaTabella(riga);
+            }
+    		
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    		
+        }
+    }
+    
     public void eliminaLotto() {
     	 int riga = finestraVisualizzaLotti.getTabella().getSelectedRow();
-    	    if (riga != -1) {
-    	        
-    	        int idLotto = (int) finestraVisualizzaLotti.getModello().getValueAt(riga, 0);
+    	    if (riga != -1) {    	        
+    	        int codLotto = (int) finestraVisualizzaLotti.getModello().getValueAt(riga, 0);
     	        try {
-    	            boolean successo = lottoDao.cancellaLotto(idLotto);
+    	            boolean successo = lottoDao.cancellaLotto(codLotto);
     	            if (successo) {
-    	                caricaLotti(); 
-    	                System.out.println("Lotto " + idLotto + " eliminato con successo.");
+    	                caricaLotti();    	                
     	            }
     	        } catch (SQLException e) {
     	            e.printStackTrace();
     	        }
-    	    } else {
-    	        System.out.println("Nessun lotto selezionato.");
-    	    }
-    	
+    	    }   	
     }
     
     public void eliminaProgetto() {
@@ -382,6 +448,21 @@ public class Controller {
             e.printStackTrace();
             
         	}
+    	}
+    }
+    
+    public void eliminaNotifica() {
+    	int riga= finestraVisualizzaNotifiche.getTabella().getSelectedRow();
+    	if(riga!= -1) {
+    		int codNotifica = (int) finestraVisualizzaNotifiche.getModello().getValueAt(riga, 6);
+    		try {
+    			boolean successo= notificaDao.eliminaNotifica(codNotifica);
+    			if(successo) {
+    				caricaNotificheInviate();
+    			}
+    		}catch(SQLException e) {
+    			e.printStackTrace();
+    		}
     	}
     }
     
@@ -670,12 +751,9 @@ public class Controller {
     	String metodoR= finestraCreaProgetto.getMetodiRaccolta();
     	String coltS=finestraCreaProgetto.getListaColtivatoriS();
     	String coltR=finestraCreaProgetto.getListaColtivatoriR();
-    	System.out.println("DEBUG CONTROLLER - Ricevuto: [" + quantitaS + "]");
     	if (nome.isEmpty() || dataInizioP.isEmpty() || durata.isEmpty()) {
            return "errore campi progetto";
-        }
-    	
-    	
+        }   	    	
     	if(!ProgettoStagionale.isLunghezzaNomeValida(nome)) {
     		return"errore lunghezza nome";
     	}
@@ -806,9 +884,75 @@ public class Controller {
     public String CreaNotifica() {
     	String descrizioneVeloce= finestraCreaNotifica.getCmpDescrizioneVeloce();
     	String descrizione= finestraCreaNotifica.getCmpDescrizione();
-    	String dataScadenza= finestraCreaNotifica.getCmpDataScadenza();
+    	String tipoNotifica= finestraCreaNotifica.getSceltaNotifica();
+    	String livelloGravita=finestraCreaNotifica.getCmpLivelloGravita();
+    	String estensione= finestraCreaNotifica.getCmpEstensione();
+    	ArrayList<String> nomi= finestraCreaNotifica.getNomiDestinatariSelezionati();
     	
-    }
+    	LivelloGravita livelloEnum= LivelloGravita.valueOf(livelloGravita.toString().toUpperCase());
+    	
+    	
+    	
+    	 if(!Notifica.isNotificaLunghezzaValida(descrizioneVeloce)) {
+    		 return"errore descrizione veloce";
+    	 }
+    	 if(!Notifica.isDescrizioneLunghezzaValida(descrizione)) {
+    		 return"errore descrizione";
+    	 }
+    	 
+    	 if (nomi.isEmpty()) {
+    	        return "errore destinatari vuoti";
+    	    }
+    	 
+    	 ArrayList<Utente> destinatari = new ArrayList<>();
+    	 try {
+    	    for (String username : nomi) {
+    	        Utente u = utenteDao.prelevaDaUsername(username);
+    	        if (u != null) destinatari.add(u);
+    	    }
+    	 }catch(SQLException e) {
+    		 return"errore dal db";
+    	 }
+    	 
+    	 Notifica n = null;
+    	 LocalDate oggi = LocalDate.now();
+    	 int estensioneInt;
+    	 try {
+    	        if (tipoNotifica.equals("Attività Imminente")) {
+    	            LocalDate scadenza = LocalDate.parse(finestraCreaNotifica.getCmpDataScadenza());
+    	            n = new AttivitaImminente(oggi, utenteLoggato,descrizioneVeloce,descrizione,scadenza, destinatari);
+    	        } else {
+    	            if(estensione!= null && !estensione.trim().isEmpty()) {
+    	            	try{
+    	            		estensioneInt = Integer.parseInt(finestraCreaNotifica.getCmpEstensione());
+    	            	}catch(NumberFormatException e) {
+    	            		return"errore formato estensione";
+    	            	}
+    	            }else {
+    	            	estensioneInt=0;
+    	            }
+    	            n = new Anomalia(oggi, utenteLoggato, descrizioneVeloce, descrizione, livelloEnum, estensioneInt,destinatari);
+    	        }
+    	 }catch(DateTimeParseException e) {
+    		 return"errore formato data";
+    	 }
+    	 
+    	 try {
+    		 
+    	 notificaDao.salvaNotifica(n);
+    	 finestraCreaNotifica.getModelloScelti().clear();
+          
+         return "ok";
+
+     } catch (SQLException e) {
+    	 e.printStackTrace();
+        
+     }
+    	 return"errore";
+		
+}
+    	 
+    
     
     public String salvaProgetto() {
     	 if (listaSeminaColtura == null || listaSeminaColtura.isEmpty()) {

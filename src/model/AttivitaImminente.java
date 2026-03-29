@@ -9,28 +9,18 @@ public class AttivitaImminente extends Notifica {
 	private String descrizione;
 	private LocalDate dataScadenza;
 
-	public AttivitaImminente( LocalDate dataInvio, Utente creatore, String tipoAttivitaImminente, String descrizione,LocalDate dataScadenza) {
-		super(dataInvio, creatore);
+	public AttivitaImminente( LocalDate dataInvio, Utente creatore, String tipoAttivitaImminente, String descrizione,LocalDate dataScadenza, ArrayList<Utente> destinatari) {
+		super(dataInvio, creatore,destinatari);
 		this.tipoAttivitaImminente=tipoAttivitaImminente;
 		this.descrizione=descrizione;
 		this.dataScadenza=dataScadenza;
 	}
 	
-	public AttivitaImminente(int codNotifica, LocalDate dataInvio,Utente creatore, String tipoAttivitaImminente, String descrizione, LocalDate dataScadenza) {
-		super(codNotifica,dataInvio,creatore);
+	public AttivitaImminente(int codNotifica, LocalDate dataInvio,Utente creatore, String tipoAttivitaImminente, String descrizione, LocalDate dataScadenza, ArrayList<Utente> destinatari) {
+		super(codNotifica,dataInvio,creatore,destinatari);
 		this.tipoAttivitaImminente=tipoAttivitaImminente;
 		this.descrizione=descrizione;
 		this.dataScadenza=dataScadenza;
-	}
-	
-	public static boolean isTipoAttivitaImminenteLunghezzaValida(String stringa) {
-		if (stringa==null || stringa.length()>= 50) return false;
-		return true;
-	}
-	
-	public static boolean isDescrizioneLunghezzaValida(String stringa) {
-		if (stringa==null || stringa.length()>= 500) return false;
-		return true;
 	}
 	
 	public String getTipoAttivitaImminente() {

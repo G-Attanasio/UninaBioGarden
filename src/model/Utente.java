@@ -17,7 +17,7 @@ public  class Utente {
 	private ArrayList<ProgettoStagionale> progettiCreati;
 	private ArrayList<ProgettoStagionale> progettiAssegnati;
 	private ArrayList<Attivita> attivitaAssegnate;
-	private ArrayList<NotificaDestinatario> listaNotificheRicevute;
+	private ArrayList<Notifica> listaNotificheRicevute;
 	private ArrayList<Notifica> listaNotificheInviate;
 	
 	public Utente(String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
@@ -34,7 +34,7 @@ public  class Utente {
 		this.progettiAssegnati= new ArrayList<ProgettoStagionale>();
 		this.attivitaAssegnate= new ArrayList<Attivita>();
 		this.listaNotificheInviate= new ArrayList<Notifica>();
-		this.listaNotificheRicevute= new ArrayList<NotificaDestinatario>();
+		this.listaNotificheRicevute= new ArrayList<Notifica>();
 	}
 	
 	public Utente(int idUtente, String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
@@ -112,11 +112,11 @@ public  class Utente {
 		}
 	}
 	
-	public void addNotificaRicevuta(NotificaDestinatario nd) {
+	public void addNotificaRicevuta(Notifica nd) {
 		if(nd != null && !listaNotificheRicevute.contains(nd)) {
 			listaNotificheRicevute.add(nd);
-			if(nd.getDestinatario()==null) {
-				nd.setDestinatario(this);
+			if(!nd.getDestinatari().contains(this)) {
+				nd.addDestinatario(this);
 			}
 		}
 	}
@@ -216,10 +216,10 @@ public  class Utente {
 	public void setAttivitaAssegnate(ArrayList<Attivita> attivitàAssegnate) {
 		this.attivitaAssegnate = attivitàAssegnate;
 	}
-	public ArrayList<NotificaDestinatario> getListaNotificheRicevute(){
+	public ArrayList<Notifica> getListaNotificheRicevute(){
 		return listaNotificheRicevute;
 	}
-	public void setListaNotifiche(ArrayList<NotificaDestinatario> listaNotificheRicevute) {
+	public void setListaNotifiche(ArrayList<Notifica> listaNotificheRicevute) {
 		this.listaNotificheRicevute=listaNotificheRicevute;
 	}
 	public ArrayList<Notifica> getListaNotificheInviate(){

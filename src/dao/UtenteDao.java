@@ -146,6 +146,8 @@ public class UtenteDao {
 		return usernames;
 	}
 	
+	
+	
 	public Utente prelevaDaUsername(String username) throws SQLException {
 	    String sql = "SELECT * FROM UTENTE WHERE USERNAME = ?";
 	    

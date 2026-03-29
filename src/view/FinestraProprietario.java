@@ -71,7 +71,7 @@ public class FinestraProprietario extends JPanel {
 		visualizzaColture.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaReport= new JButton("Report raccolte");
 		visualizzaReport.setAlignmentX(CENTER_ALIGNMENT);
-		creaNotifiche= new JButton("Crea notifica");
+		creaNotifiche= new JButton("Visualizza notifiche");
 		creaNotifiche.setAlignmentX(CENTER_ALIGNMENT);
 		esci= new JButton("Esci");
 		esci.setAlignmentX(CENTER_ALIGNMENT);
@@ -133,6 +133,7 @@ public class FinestraProprietario extends JPanel {
 			controller.mostraPanelInterno("report");
 		});
 		creaNotifiche.addActionListener(e->{
+			controller.caricaNotificheInviate();
 			controller.mostraPanelInterno("visualizza notifiche");
 		});
 		esci.addActionListener(e->{
@@ -191,5 +192,10 @@ public class FinestraProprietario extends JPanel {
 	public FinestraCreaNotifica getFinCreaNotifica() {
 		return finCreaNotifica;
 	}
+
+	public FinestraVisualizzaNotifiche getFinVisualizzaNotifiche() {
+		return finVisualizzaNotifiche;
+	}
+	
 	
 }

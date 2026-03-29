@@ -14,6 +14,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import controller.Controller;
 
@@ -147,12 +150,12 @@ private static final long serialVersionUID = 1L;
 		pnlCenter.add(Box.createVerticalGlue());
 		
 		annulla.addActionListener(e->{
-	             controller.mostraPanelInterno("visualizza lotti");
+			pulisciCampi();
+	        controller.mostraPanelInterno("visualizza lotti");
 	           
 		});
 		salva.addActionListener(e->{
-				 controller.aggiungiLotto();
-	            
+			 controller.aggiungiLotto();			   
 		});
 		
 	}
@@ -162,11 +165,45 @@ private static final long serialVersionUID = 1L;
 	public void messaggioErrore(JTextField campo, String messaggio) {
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+		
 	}
 	
 	public void messaggioErroreBottone(JButton bottone, String messaggio) {
 		bottone.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		bottone.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
+	public void resetBordi(){		
+		Border bordo= UIManager.getBorder("TextField.border");
+		cmpDimensioni.setBorder(bordo);
+		cmpDimensioni.setToolTipText(null);
+		cmpPh.setBorder(bordo);
+		cmpPh.setToolTipText(null);
+		cmpAltitudine.setBorder(bordo);
+		cmpAltitudine.setToolTipText(null);
+		cmpLocalità.setBorder(bordo);
+		cmpLocalità.setToolTipText(null);
+		cmpComune.setBorder(bordo);
+		cmpComune.setToolTipText(null);
+		cmpProvincia.setBorder(bordo);
+		cmpProvincia.setToolTipText(null);
+		salva.setBorder(bordo);
+		salva.setToolTipText(null);
+		annulla.setBorder(bordo);
+		annulla.setToolTipText(null);
+		
+	}
+	
+	public void pulisciCampi() {
+	    cmpDimensioni.setText("");
+	    cmpPh.setText("");
+	    cmpAltitudine.setText("");
+	    cmpLocalità.setText("");
+	    cmpComune.setText("");
+	    cmpProvincia.setText("");;
+	    resetBordi();
 	}
 
 	public Controller getController() {
