@@ -129,9 +129,9 @@ public class FinestraProprietario extends JPanel {
 			controller.caricaColture();
 			controller.mostraPanelInterno("lista colture");
 		});
-		visualizzaReport.addActionListener(e->{
+		/*visualizzaReport.addActionListener(e->{
 			controller.mostraPanelInterno("report");
-		});
+		});*/
 		creaNotifiche.addActionListener(e->{
 			controller.caricaNotificheInviate();
 			controller.mostraPanelInterno("visualizza notifiche");

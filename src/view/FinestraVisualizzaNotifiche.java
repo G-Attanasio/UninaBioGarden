@@ -57,8 +57,8 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		
 		cancella.addActionListener(e -> {
 		    
-		    int rigaSelezionata = tabella.getSelectedRow();
-		    if (rigaSelezionata != -1) { 
+		    int riga = tabella.getSelectedRow();
+		    if (riga != -1) { 
 		        int scelta = JOptionPane.showConfirmDialog(
 		            this, 
 		            "Sei sicuro di voler eliminare questa notifica?", 
@@ -67,7 +67,7 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		            JOptionPane.WARNING_MESSAGE
 		        );
 		        if (scelta == JOptionPane.YES_OPTION) {
-		            controller.eliminaNotifica();
+		            controller.eliminaNotifica(riga);
 		        }
 		    } else {
 		        JOptionPane.showMessageDialog(this, "Seleziona una notifica dalla tabella.", "Nessuna selezione", JOptionPane.INFORMATION_MESSAGE);

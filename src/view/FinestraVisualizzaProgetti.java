@@ -22,13 +22,16 @@ public class FinestraVisualizzaProgetti extends JPanel {
 	private String[] titoli= {"codice","Nome","Codice lotto","Periodo","Data inizio","Durata","Stato"};
 	private DefaultTableModel modello;
 	private JButton cancella;
+	private JButton report;
 	
 	public FinestraVisualizzaProgetti(Controller controller) {
 		this.controller=controller;
 		setLayout(new BorderLayout());
 		JPanel pnlSud= new JPanel ( new FlowLayout(FlowLayout.LEFT));
-		cancella= new JButton("Cancella progetto");		
+		cancella= new JButton("Cancella progetto");	
+		report= new JButton("Visualizza report raccolte");
 		pnlSud.add(cancella);		
+		pnlSud.add(report);
 		add(pnlSud,BorderLayout.SOUTH);		
 		modello= new DefaultTableModel(titoli, 0){
 			private static final long serialVersionUID = 1L;
@@ -45,8 +48,7 @@ public class FinestraVisualizzaProgetti extends JPanel {
 		scroll= new JScrollPane(tabella);
 		add(scroll,BorderLayout.CENTER);
 		
-		cancella.addActionListener(e -> {
-		    
+		cancella.addActionListener(e -> {		    
 		    int rigaSelezionata = tabella.getSelectedRow();
 		    if (rigaSelezionata != -1) { 
 		        int codProgetto = (int) modello.getValueAt(rigaSelezionata, 0);
@@ -58,10 +60,30 @@ public class FinestraVisualizzaProgetti extends JPanel {
 		            JOptionPane.WARNING_MESSAGE
 		        );
 		        if (scelta == JOptionPane.YES_OPTION) {
-		            controller.eliminaProgetto();
+		            controller.eliminaProgetto(codProgetto);
 		        }
 		    } else {
 		        JOptionPane.showMessageDialog(this, "Seleziona un progetto dalla tabella.", "Nessuna selezione", JOptionPane.INFORMATION_MESSAGE);
+		    }
+		});
+		
+		report.addActionListener(e -> {
+		    int riga = tabella.getSelectedRow();
+		    
+		    if (riga != -1) {
+		        String stato = tabella.getValueAt(riga, 6).toString();
+		        if (stato.equals("COMPLETATO")) {
+		            int codProgetto = Integer.parseInt(tabella.getValueAt(riga, 0).toString());		        
+		            controller.caricaDatiReport(codProgetto);
+		        } else {
+		            JOptionPane.showMessageDialog(this, 
+		                "L'analisi è disponibile solo per i progetti con stato 'COMPLETATO'.\n" +
+		                "Stato attuale: " + stato, 
+		                "Report non disponibile", 
+		                JOptionPane.WARNING_MESSAGE);
+		        }
+		    } else {
+		        JOptionPane.showMessageDialog(this, "Seleziona un progetto dalla tabella.");
 		    }
 		});
 		
@@ -87,8 +109,8 @@ public class FinestraVisualizzaProgetti extends JPanel {
 		return tabella;
 	}
 
-	public JTable getModello() {
-		return tabella;
+	public DefaultTableModel getModello() { 
+	    return modello;
 	}
 	
 }

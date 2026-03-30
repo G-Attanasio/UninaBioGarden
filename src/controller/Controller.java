@@ -1,6 +1,7 @@
 package controller;
 
 import model.*;
+
 import view.*;
 
 import java.sql.SQLException;
@@ -9,6 +10,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import dao.*;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.JFreeChart;
+
 
 public class Controller {
 
@@ -29,6 +33,7 @@ public class Controller {
 	private AttivitaDao attivitaDao; 
 	private ProgettoDao progettoDao;
 	private NotificaDao notificaDao;
+	private ReportDao reportDao;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscriviLotto finestraIscrizioneLotto;
@@ -42,6 +47,7 @@ public class Controller {
 	private FinestraVisualizzaProgetti finestraVisualizzaProgetti;
 	private FinestraCreaNotifica finestraCreaNotifica;
 	private FinestraVisualizzaNotifiche finestraVisualizzaNotifiche;
+	private FinestraReport finestraReport;
 
     public Controller() {
        
@@ -54,6 +60,7 @@ public class Controller {
         this.attivitaDao= new AttivitaDao();
         this.progettoDao= new ProgettoDao();
         this.notificaDao= new NotificaDao();
+        this.reportDao= new ReportDao();
         this.attivitaTemporanee= new ArrayList<Attivita>();
         this.attivitaTotali= new ArrayList<Attivita>();
         this.listaSeminaColtura= new ArrayList<SeminaColtura>();
@@ -72,6 +79,7 @@ public class Controller {
         this.finestraVisualizzaProgetti=finestraProprietario.getFinVisualizzaProgetti();
         this.finestraCreaNotifica=finestraProprietario.getFinCreaNotifica();
         this.finestraVisualizzaNotifiche=finestraProprietario.getFinVisualizzaNotifiche();
+        this.finestraReport= finestraProprietario.getFinReport();
     }
     
     public void validaLogin()  {
@@ -417,6 +425,31 @@ public class Controller {
         }
     }
     
+    public void caricaDatiReport(int codProgetto) {
+    	try {
+    		ArrayList<DatiReport> dati= new ArrayList<DatiReport>();
+    		dati= reportDao.prelevaDatiReport(codProgetto);
+    		ArrayList<Object[]> datiDaPassare= new ArrayList<>();   		
+    		for(DatiReport r: dati) {
+    			Object[] riga= {
+    				r.getNomeColtura(),
+    				r.getSemi(),
+    				r.getPrevista(),
+    				r.getReale()
+    			};
+    			datiDaPassare.add(riga);
+    		}
+    		for (Object[] riga : datiDaPassare) {
+    		    System.out.println("BARRA: " + riga[0] + " Valori: " + riga[1] + ", " + riga[2] + ", " + riga[3]);
+    		}
+
+    		finestraReport.costruisciGrafico(datiDaPassare);
+    		mostraPanelInterno("report");
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    	}
+    }
+    
     public void eliminaLotto() {
     	 int riga = finestraVisualizzaLotti.getTabella().getSelectedRow();
     	    if (riga != -1) {    	        
@@ -432,11 +465,7 @@ public class Controller {
     	    }   	
     }
     
-    public void eliminaProgetto() {
-    	int riga= finestraVisualizzaProgetti.getTabella().getSelectedRow();
-    	if(riga != -1) {
-    		int codProgetto= (int) finestraVisualizzaProgetti.getModello().getValueAt(riga, 0);
-    	
+    public void eliminaProgetto(int codProgetto) { 	
     	try {      
             boolean cancellato = progettoDao.eliminaProgetto(codProgetto);
             if (cancellato) {
@@ -448,13 +477,9 @@ public class Controller {
             e.printStackTrace();
             
         	}
-    	}
     }
     
-    public void eliminaNotifica() {
-    	int riga= finestraVisualizzaNotifiche.getTabella().getSelectedRow();
-    	if(riga!= -1) {
-    		int codNotifica = (int) finestraVisualizzaNotifiche.getModello().getValueAt(riga, 6);
+    public void eliminaNotifica(int codNotifica) {
     		try {
     			boolean successo= notificaDao.eliminaNotifica(codNotifica);
     			if(successo) {
@@ -463,7 +488,7 @@ public class Controller {
     		}catch(SQLException e) {
     			e.printStackTrace();
     		}
-    	}
+    	
     }
     
     public void mostraPanel(String testo) {
@@ -574,10 +599,7 @@ public class Controller {
     	 String ruoloComeEnum= ruolo.replace("/", "_").trim().toString();
     	 
     	 finestraIscrizioneProprietario.resetBordi();
-    	
-    	 
-    	 
-    	 
+    	   	 
     	 if(Utente.isSoloLettere(nome)==false) {
     		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpNome(),"Il nome deve essere di sole lettere.");
     		 return;

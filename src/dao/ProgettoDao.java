@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import database.DBConnection;
 import model.Attivita;
 import model.LottoColtivabile;
