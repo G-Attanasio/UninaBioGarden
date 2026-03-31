@@ -325,6 +325,7 @@ public class FinestraCreaProgetto extends JPanel {
 		dataInizioRaccolta.setFont(fontGrande);
 		cmpDataInizioRaccolta= new JTextField(10);
 		cmpDataInizioRaccolta.setPreferredSize(riga);
+		cmpDataInizioRaccolta.setFont(fontGrande);
 		JLabel dataFineRaccolta= new JLabel("Data fine:");
 		dataFineRaccolta.setFont(fontGrande);
 		cmpDataFineRaccolta= new JTextField(10);
@@ -355,12 +356,10 @@ public class FinestraCreaProgetto extends JPanel {
 		JDialog finestra = pannelloOpzioni.createDialog(this, "Pianificazione "+nomeColtura);
 
 	
-		conferma.addActionListener(e -> {
-	        	
+		conferma.addActionListener(e -> {        	
 	     String coltS = (String) listaColtivatoriS.getSelectedItem();
 	     String coltR = (String) listaColtivatoriR.getSelectedItem();       	
-	     String esito=controller.validaCreazioneAttivitaProgetto(nomeColtura);
-	     
+	     String esito=controller.validaCreazioneAttivitaProgetto(nomeColtura);     
 	     if(esito.equalsIgnoreCase("ok")) {
 	    	 resetBordiAttivita();
 	    	 cmpDataInizio.setEditable(false);
@@ -374,7 +373,6 @@ public class FinestraCreaProgetto extends JPanel {
 	        	    	pannelloOpzioni.setValue(JOptionPane.UNINITIALIZED_VALUE);	        	    	
 	        	    }
 	        });
-		
 		annullaAttivita.addActionListener(e->{
 			finestra.setVisible(false); 
 			finestra.dispose();
@@ -484,11 +482,8 @@ public class FinestraCreaProgetto extends JPanel {
 		if(errore.equals("errore meccanica montagna")) {
 			messaggioErroreCombo(metodiRaccolta, "Raccolta meccanica non consentita su lotto a morfologia montuosa");
 		}
-		if(errore.equals("errore coltura db")) {
-			System.out.println(errore);
-		}
-		if(errore.equals("errore generico db")) {
-			System.out.println(errore);
+		if(errore.equals("utente non trovato")) {
+			
 		}
 		
 	}
@@ -548,6 +543,10 @@ public class FinestraCreaProgetto extends JPanel {
 	    cmpDataFineIrrigazione.setText("");
 	    modelloLista.clear();
 	    resetBordi();
+	    cmpDurata.setBackground(Color.WHITE);
+	    cmpDataInizio.setBackground(Color.WHITE);
+	    cmpDurata.setEditable(true);
+	    cmpDataInizio.setEditable(true);
 	}
 	
 	public void erroreCampiProgetto() {

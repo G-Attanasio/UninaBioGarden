@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import database.DBConnection;
+import exceptions.RisorsaNonTrovataException;
 import model.Anomalia;
 import model.AttivitaImminente;
 import model.LivelloGravita;
@@ -21,8 +22,7 @@ public class NotificaDao {
 		 Connection conn = DBConnection.getConnection();
 		 try {
 		        conn.setAutoCommit(false); 
-		        int id = 0;
-		        
+		        int id = 0;	        
 		        if (n instanceof Anomalia) {
 		            Anomalia a = (Anomalia) n;
 		            String sql = "CALL PR_REGISTRA_NOTIFICA_ANOMALIA(?, ?, ?::livellogravita, ?, ?, ?)";
@@ -71,7 +71,7 @@ public class NotificaDao {
 		    }
 	}
 	
-	public ArrayList<Notifica> prelevaNotificheInviate(int idProprietario) throws SQLException {
+	public ArrayList<Notifica> prelevaNotificheInviate(int idProprietario) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
 	    String sql = "SELECT N.*, A.TIPOANOMALIA,A.DESCRIZIONE AS DESC_A, A.GRAVITA, A.ESTENSIONE, I.TIPOATTIVITAIMMINENTE,I.DESCRIZIONE AS DESC_I, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +
@@ -115,7 +115,7 @@ public class NotificaDao {
 	    return lista;
 	}
 	
-	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws SQLException {
+	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
 	    String sql = "SELECT N.*, A.TIPOANOMALIA, A.GRAVITA, A.ESTENSIONE,A.DESCRIZIONE,I.DESCRIZIONE, I.TIPOATTIVITAIMMINENTE, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import database.DBConnection;
+import exceptions.RisorsaNonTrovataException;
 import model.Attivita;
 import model.LottoColtivabile;
 import model.ProgettoStagionale;
@@ -20,7 +21,7 @@ import model.Stato;
 
 public class ProgettoDao {
 
-	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int idLotto) throws SQLException {
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int idLotto) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
 	    String sql = "SELECT * FROM PROGETTOSTAGIONALE WHERE FK_CODLOTTO = ?";
 	    
@@ -42,11 +43,7 @@ public class ProgettoDao {
 	                    null                  
 	                ));
 	            }
-	        }catch(SQLException e) {
-	        	throw e;
 	        }
-	    }catch(SQLException e) {
-	    	throw e;
 	    }
 	    return lista;
 	}
@@ -89,7 +86,7 @@ public class ProgettoDao {
 		}
 	}
 	
-	public ArrayList<ProgettoStagionale> prelevaProgettiPerProprietario(int idProprietario) throws SQLException {
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerProprietario(int idProprietario) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
 	    String sql = "SELECT * " +
 	                 "FROM PROGETTOSTAGIONALE  " +                
@@ -139,10 +136,8 @@ public class ProgettoDao {
 	    try (Connection conn = DBConnection.getConnection();
 	         CallableStatement cs = conn.prepareCall("CALL P_SINCRONIZZA_TUTTO_AVVIO()")) {
 	        cs.execute();
-	        System.out.println("DEBUG: Database sincronizzato con successo.");
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
 	}
-
 }	

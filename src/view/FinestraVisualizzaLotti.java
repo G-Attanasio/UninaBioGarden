@@ -51,8 +51,7 @@ public class FinestraVisualizzaLotti extends JPanel {
 		scroll= new JScrollPane(tabella);
 		add(scroll,BorderLayout.CENTER);
 		
-		cancella.addActionListener(e -> {
-		    
+		cancella.addActionListener(e -> {	    
 		    int rigaSelezionata = tabella.getSelectedRow();
 		    if (rigaSelezionata != -1) { 
 		        int idLotto = (int) modello.getValueAt(rigaSelezionata, 0);

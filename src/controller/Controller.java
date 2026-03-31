@@ -10,6 +10,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import dao.*;
+import exceptions.RisorsaNonTrovataException;
+import exceptions.UtenteNonTrovatoException;
+
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.JFreeChart;
 
@@ -133,8 +136,10 @@ public class Controller {
 	    			finestraLogin.pulisciCampi();
 	    			cardPanel.mostraPanel("proprietario-coltivatore");
 	    		}	    		
-	    	}	    		
-		} catch (SQLException e) {			
+	    	}
+		}catch(UtenteNonTrovatoException e) {
+			finestraLogin.nonTrovato();
+    	} catch (SQLException e) {			
 			finestraLogin.erroreLogin();			
 		}
     }
@@ -261,8 +266,10 @@ public class Controller {
     		finestraVisualizzaLotti.aggiungiRigaTabella(riga);
     	}
     	
+    	}catch(RisorsaNonTrovataException e) {
+    		
     	}catch(SQLException e){
-    		System.out.println("errore");
+    		e.printStackTrace();
     	}
     }
     
@@ -297,7 +304,9 @@ public class Controller {
     	            };
     	            finestraAttivitaAssegnate.aggiungiRigaTabella(riga);
     	        }
-    	    } catch (SQLException e) {
+    	    }catch(RisorsaNonTrovataException e) {
+    	    	 
+    	    }catch (SQLException e) {
     	        e.printStackTrace();
     	       
     	    }
@@ -345,7 +354,9 @@ public class Controller {
    	            };
    	            finestraVisualizzaAttivita.aggiungiRigaTabella(riga);
    	        }
-   	    } catch (SQLException e) {
+   	    }catch(RisorsaNonTrovataException e) {
+   	    	
+   	    }catch (SQLException e) {
    	        e.printStackTrace();
    	       
    	    }
@@ -355,7 +366,9 @@ public class Controller {
     	try {
             attivitaDao.aggiornaQuantitaReale(codAttivita, quantita);
             caricaAttivitaColtivatore();            
-        } catch (SQLException e) {
+        }catch(RisorsaNonTrovataException e) {
+        	
+        }catch (SQLException e) {
             e.printStackTrace();          
         }
     }
@@ -378,10 +391,11 @@ public class Controller {
     	            };
     	            finestraVisualizzaProgetti.aggiungiRigaTabella(riga);
     	        }
+    	    }catch(RisorsaNonTrovataException e) {
+    	    	
     	    } catch (SQLException e) {
     	        e.printStackTrace();
     	    }
-    	
     }
     
     public void caricaColture() {
@@ -412,11 +426,14 @@ public class Controller {
     	        this.lottoSelezionato = lottoDao.preleva(codLotto);
     	        if (this.lottoSelezionato != null) {
     	            caricaColtureInCreaProgetto();
+    	            finestraCreaProgetto.pulisciCampi();
     	        }
-    	    } catch (SQLException e) {
-    	    	
-    	    }
-    }
+    	    } catch(RisorsaNonTrovataException e) {
+    	    	   	    	
+    	    }catch (SQLException e) {
+    	    	e.printStackTrace();
+    	}
+}
     
     public void caricaColtureInCreaProgetto() {
     	try {
@@ -437,6 +454,8 @@ public class Controller {
     		ArrayList<String> listaColtivatori= new ArrayList<String>();
     		listaColtivatori=utenteDao.prelevaPerProgetto();
     		finestraCreaProgetto.setElencoColtivatori(listaColtivatori); 		
+    	}catch(UtenteNonTrovatoException e) {
+    		
     	}catch(SQLException e) {
     		e.printStackTrace();
     		
@@ -449,6 +468,8 @@ public class Controller {
     		listaColtivatori=utenteDao.prelevaPerProgetto();
     		finestraCreaProgetto.setElencoColtivatori(listaColtivatori);
     		finestraCreaProgetto.pianificaAttivita(listaColtivatori,coltura);  		
+    	}catch(UtenteNonTrovatoException e) {
+    		
     	}catch(SQLException e) {
     		e.printStackTrace();
     		
@@ -460,6 +481,8 @@ public class Controller {
     		ArrayList<String> listaColtivatori= new ArrayList<String>();
     		listaColtivatori=utenteDao.prelevaPerProgetto();
     		finestraCreaNotifica.setElencoColtivatori(listaColtivatori);  		
+    	}catch(UtenteNonTrovatoException e) {
+    		finestraCreaNotifica.gestisciErrori("destinatari non trovati");
     	}catch(SQLException e) {
     		e.printStackTrace();
     		
@@ -514,9 +537,10 @@ public class Controller {
                 finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
             }
     		
-    	}catch(SQLException e) {
-    		e.printStackTrace();
+    	}catch(RisorsaNonTrovataException e) {
     		
+        }catch(SQLException e) {
+    		e.printStackTrace();
         }
     }
     
@@ -566,9 +590,12 @@ public class Controller {
                 finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
             }
     		
+    	}catch(RisorsaNonTrovataException e) {
+    		
+    	
     	}catch(SQLException e) {
     		e.printStackTrace();   		
-        }
+    	}
     }
     
     public void caricaDatiReport(int codProgetto) {
@@ -596,6 +623,8 @@ public class Controller {
                 System.out.println("DEBUG: Disegnato su " + vistaReale.hashCode());
             }
     		mostraPanelInterno("report");
+    	}catch(RisorsaNonTrovataException e) {   		
+    	
     	}catch(SQLException e) {
     		e.printStackTrace();
     	}
@@ -957,10 +986,11 @@ public class Controller {
     	    	if(!sovrapposizioneProgetti(nuovoProgetto, listaAggiornata)) {
     				return"errore sovr progetti";
     			}
+    	 }catch(RisorsaNonTrovataException e) {
+    		 
     	 }catch(SQLException e) {
     		 e.printStackTrace();
     	 }
-    	
     	
     	double quantitaSemi=0.0;
     	double quantitaPrevistaRaccolta=0.0;
@@ -1042,8 +1072,7 @@ public class Controller {
     			}
     			if(!dataInizioRaccoltaValida(semina, raccolta)) {
     				return"dataInizioRaccoltaNonValida";
-    			}
-    			
+    			}	
     			if(!metodoRaccoltaMontagna(lottoSelezionato, raccolta)) {
     				return "errore meccanica montagna";
     			}
@@ -1051,6 +1080,8 @@ public class Controller {
     			attivitaTemporanee.add(raccolta);
     			listaSeminaColtura.add(seminaColtura);
     		}
+    	}catch(UtenteNonTrovatoException e) {
+    		return"coltivatore non trovato";
     	}catch(SQLException e) {
     		return "errore generico db";
     	}
@@ -1086,6 +1117,8 @@ public class Controller {
     	        Utente u = utenteDao.prelevaDaUsername(username);
     	        if (u != null) destinatari.add(u);
     	    }
+    	 }catch(UtenteNonTrovatoException e) {
+    		 return"destinatario non trovato";
     	 }catch(SQLException e) {
     		 return"errore dal db";
     	 }
@@ -1173,6 +1206,8 @@ public class Controller {
     			}
     			attivitaTemporanee.add(irrigazione);
     		}
+    	}catch(UtenteNonTrovatoException e) {
+    		return"coltivatore non trovato";
     	}catch(SQLException e) {
     		e.printStackTrace();
     		return"errore db";
@@ -1180,6 +1215,8 @@ public class Controller {
     	ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,utenteLoggato,lottoSelezionato);
     	try{
     		progettiperLotto=progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
+    		
+    	}catch(RisorsaNonTrovataException e) {
     		
     	}catch(SQLException e) {
     		e.printStackTrace();
@@ -1250,9 +1287,11 @@ public class Controller {
     	        }
     	    }
     	    
+    }catch(RisorsaNonTrovataException e) {
+    	
     }catch(SQLException e) {
     	return false;
-    }
+    	}
     	return true;
     }
     

@@ -101,6 +101,15 @@ public class FinestraLogin extends JPanel {
 		ToolTipManager.sharedInstance().setInitialDelay(0);
 	}
 	
+	public void nonTrovato() {
+		inserisciUsername.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		inserisciUsername.setToolTipText("Utente non trovato");
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+		inserisciPassword.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		inserisciPassword.setToolTipText("Utente non trovato");
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
 	public void pulisciCampi() {
 	    inserisciUsername.setText("");
 	    inserisciPassword.setText("");

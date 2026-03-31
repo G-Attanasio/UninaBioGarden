@@ -80,7 +80,7 @@ public class PrimaPaginaPanel extends JPanel {
 		        FontMetrics fm = g2.getFontMetrics();
 		        int x = (getWidth() - fm.stringWidth(getText())) / 2;
 		        int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-		        GradientPaint gp = new GradientPaint(0, 0, new Color(144, 238, 144), 0, getHeight(), new Color(34, 139, 34));
+		        GradientPaint gp = new GradientPaint(0, 0, new Color(144, 238, 144), 0, getHeight(), new Color(14, 119, 14));
 		        g2.setPaint(gp);
 		        g2.drawString(getText(), x, y);
 		        g2.dispose();

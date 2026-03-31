@@ -30,8 +30,6 @@ public class ColturaDao {
 				listaColture.add(c);
 			}
 			
-		}catch(SQLException e) {
-			throw e;
 		}
 		return listaColture;
 	}
@@ -56,8 +54,6 @@ public class ColturaDao {
 	            }
 	            
 	        }
-	    }catch(SQLException e) {
-	    	throw e;
 	    }
 	    return null ;
 	}

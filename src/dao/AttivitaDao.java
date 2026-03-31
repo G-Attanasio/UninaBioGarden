@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.DBConnection;
+import exceptions.RisorsaNonTrovataException;
 import model.Attivita;
 import model.Coltura;
 import model.Irrigazione;
@@ -24,7 +25,7 @@ import model.Utente;
 
 public class AttivitaDao {
 
-	public ArrayList<Attivita> prelevaTutteAttivitaPerColtivatore(String username )throws SQLException{
+	public ArrayList<Attivita> prelevaTutteAttivitaPerColtivatore(String username )throws SQLException,RisorsaNonTrovataException{
 		ArrayList<Attivita> lista= new ArrayList<>();  
         try (Connection conn= DBConnection.getConnection())
               {
@@ -36,9 +37,7 @@ public class AttivitaDao {
         	
            try { 
         		
-        	   ResultSet rsS= psS.executeQuery();
-        	  
-        			   
+        	   ResultSet rsS= psS.executeQuery();      			   
         	   while (rsS.next()) {
         		   Utente u= new Utente(0,null,null,null,null,null,null,null);
             	   u.setUsername(rsS.getString("USERNAME"));
@@ -53,16 +52,12 @@ public class AttivitaDao {
                 );
                 lista.add(s);
             }
-        }catch(SQLException e) {
-        	throw e;
+           }catch(SQLException e) {
+        	   throw e;
+           }
         }
-        }catch(SQLException e) {
-        	throw e;
-        }
-	
-	
-        	
-
+          
+      
 	 String sqlR = "SELECT A.*,R.*,U.USERNAME FROM ATTIVITA A JOIN RACCOLTA R ON A.CODATTIVITA = R.FK_CODATTIVITA "+
  			   "JOIN UTENTE U ON U.IDUTENTE=A.FK_COLTIVATORE "+
  			   "WHERE U.USERNAME =?";
@@ -87,11 +82,7 @@ public class AttivitaDao {
                 );
                 lista.add(r);
             }
-        }catch(SQLException e) {
-        	throw e;
         }
-        }catch(SQLException e) {
-        	throw e;
         }
         
    	 String sqlI = "SELECT A.*,I.*,U.USERNAME FROM ATTIVITA A JOIN IRRIGAZIONE I ON A.CODATTIVITA = I.FK_CODATTIVITA "+
@@ -116,15 +107,9 @@ public class AttivitaDao {
               );
               lista.add(i);
           }
-      }catch(SQLException e) {
-      	throw e;
-      	}
-      }catch(SQLException e) {
-      	throw e;
-       }
-	}catch(SQLException e) {
-		throw e;
-		}
+      }
+      }
+	}
         return lista;
 }
 	
@@ -139,11 +124,9 @@ public class AttivitaDao {
 		    return false;
 	}
 	
-	public void salvaSemina(Semina semina, int codProgetto, Connection conn, ArrayList<SeminaColtura> semineColture) throws SQLException {
-		
+	public void salvaSemina(Semina semina, int codProgetto, Connection conn, ArrayList<SeminaColtura> semineColture) throws SQLException {	
 		double quantitaSemi=0;
 	    int codColtura=-1;
-
 	    for (SeminaColtura sc : semineColture) {  
 	        if (sc.getSemina() == semina) { 
 	            quantitaSemi = sc.getQuantitaSemi();
@@ -165,9 +148,7 @@ public class AttivitaDao {
 	        cs.execute();
 	    }
 	}
-    public void salvaIrrigazione(Irrigazione i, int codProgetto, Connection conn) throws SQLException {
-    	
-    	    
+    public void salvaIrrigazione(Irrigazione i, int codProgetto, Connection conn) throws SQLException {  	    
     	    String sql = "CALL P_REGISTRA_ATTIVITA_IRRIGAZIONE(?, ?, ?::TIPOIRRIGAZIONE, ?, ?)";
 
     	    try (CallableStatement cs = conn.prepareCall(sql)) {
@@ -179,10 +160,7 @@ public class AttivitaDao {
     	        cs.execute();
     	    }
     	}
-
-	
-    public void salvaRaccolta(Raccolta r, int codProgetto, Connection conn,ArrayList<SeminaColtura> colture)throws SQLException {
-    	
+    public void salvaRaccolta(Raccolta r, int codProgetto, Connection conn,ArrayList<SeminaColtura> colture)throws SQLException { 	
     	 int codColtura=-1;
     	 for (SeminaColtura sc : colture) {  
  	        if (sc.getColtura().equals(r.getColtura())){ 
@@ -205,7 +183,7 @@ public class AttivitaDao {
     	    }
 	}
     
-    public ArrayList<Attivita> prelevaAttivitaAssegnateDaProprietario(int idProprietario) throws SQLException {
+    public ArrayList<Attivita> prelevaAttivitaAssegnateDaProprietario(int idProprietario) throws SQLException,RisorsaNonTrovataException {
         ArrayList<Attivita> lista = new ArrayList<>();
         String sql = "SELECT A.*, U.USERNAME, PS.NOMEPROGETTO, S.METODOSEMINA, R.METODORACCOLTA, I.METODOIRRIGAZIONE " +
                 "FROM ATTIVITA A " +
@@ -266,7 +244,7 @@ public class AttivitaDao {
     }
 }
         
-        public ArrayList<Attivita> prelevaAttivitaColtivatore(int idColtivatore) throws SQLException {
+        public ArrayList<Attivita> prelevaAttivitaColtivatore(int idColtivatore) throws SQLException,RisorsaNonTrovataException{
             ArrayList<Attivita> lista = new ArrayList<>();
             String sql = "SELECT A.*, PS.NOMEPROGETTO, U.USERNAME, S.METODOSEMINA, R.METODORACCOLTA, I.METODOIRRIGAZIONE, " +
                     "COALESCE(C_R.NOME, C_S.NOME) AS COLT " + 
@@ -332,7 +310,7 @@ public class AttivitaDao {
     }
     
             
-      public ArrayList<SeminaColtura> prelevaDettagliColturePerColtivatore (int idColtivatore) throws SQLException {
+      public ArrayList<SeminaColtura> prelevaDettagliColturePerColtivatore (int idColtivatore) throws SQLException,RisorsaNonTrovataException {
                 ArrayList<SeminaColtura> lista = new ArrayList<>();
                 String sql = "SELECT SC.FK_CODATTIVITA, C.NOME " +
                              "FROM SEMINACOLTURA SC " +
@@ -352,22 +330,17 @@ public class AttivitaDao {
                 return lista;
             }
             
-      public void aggiornaQuantitaReale(int codAttivita, double kg) throws SQLException {
+      public void aggiornaQuantitaReale(int codAttivita, double kg) throws SQLException,RisorsaNonTrovataException {
     	    String sql = "UPDATE RACCOLTA SET QUANTITAREALE = ? WHERE FK_CODATTIVITA = ?";   	    
     	    try (Connection conn = DBConnection.getConnection();
     	         PreparedStatement ps = conn.prepareStatement(sql)) {  	        
     	        ps.setDouble(1, kg);
     	        ps.setInt(2, codAttivita);  	        
     	        int righe = ps.executeUpdate();
-    	        if (righe > 0) {
-    	            System.out.println("DEBUG DAO: Quantità aggiornata con successo per attività " + codAttivita);
-    	        } else {
-    	            System.out.println("DEBUG DAO: Nessuna riga trovata per l'ID " + codAttivita);
-    	        }
-    	    } catch (SQLException e) {
-    	        System.err.println("ERRORE DAO: " + e.getMessage());
-    	        throw e; 
-    	    }
+    	        if (righe == 0) {
+    	            throw new RisorsaNonTrovataException();
+    	        } 
+    	    } 
     	}
 }
 
