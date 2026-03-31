@@ -6,9 +6,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -68,27 +74,49 @@ public class FinestraCreaProgetto extends JPanel {
 	
 	public FinestraCreaProgetto(Controller controller) {
 		this.controller=controller;
+		Font fontGrande= new Font("Arial",Font.PLAIN,20);
+		Dimension grandezza= new Dimension(180,30);
+		Dimension pnl= new Dimension(1000,70);
+		Dimension riga= new Dimension(100,30);
 		setLayout(new BorderLayout());
+		this.setOpaque(false);
 		JPanel pnlInterno= new JPanel();
 		pnlInterno.setLayout(new BoxLayout(pnlInterno,BoxLayout.Y_AXIS));
+		pnlInterno.setOpaque(false);
 		JScrollPane scroll= new JScrollPane(pnlInterno);
+		scroll.setOpaque(false);
+		scroll.getViewport().setOpaque(false); 
+		scroll.setBorder(null);
 		add(scroll,BorderLayout.CENTER);
 		
 		JPanel pnlNomeStagione= new JPanel(new FlowLayout());
+		pnlNomeStagione.setOpaque(false);
 		JLabel nome= new JLabel("Scegli il nome del progetto:");
+		nome.setFont(fontGrande);
 		cmpNome= new JTextField(20);
+		cmpNome.setPreferredSize(riga);
+		cmpNome.setFont(fontGrande);
 		JLabel stagione= new JLabel("Scegli periodo:");
+		stagione.setFont(fontGrande);
 		pnlNomeStagione.add(nome);
 		pnlNomeStagione.add(cmpNome);
 		pnlNomeStagione.add(stagione);
 		pnlNomeStagione.add(stagioneDiRiferimento);
+		pnlInterno.add(Box.createVerticalGlue());
 		pnlInterno.add(pnlNomeStagione);
 		
 		JPanel pnlDurDate= new JPanel (new FlowLayout());
+		pnlDurDate.setOpaque(false);
 		JLabel durata= new JLabel("Durata del progetto:");
+		durata.setFont(fontGrande);
 		JLabel dataInizio= new JLabel("Data di inizio progetto:");
+		dataInizio.setFont(fontGrande);
 		cmpDurata= new JTextField(4);
+		cmpDurata.setPreferredSize(riga);
+		cmpDurata.setFont(fontGrande);
 		cmpDataInizio= new JTextField(10);
+		cmpDataInizio.setPreferredSize(riga);
+		cmpDataInizio.setFont(fontGrande);
 		pnlDurDate.add(durata);
 		pnlDurDate.add(cmpDurata);
 		pnlDurDate.add(dataInizio);
@@ -96,13 +124,17 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlInterno.add(pnlDurDate);
 		
 		JPanel pnlColture = new JPanel(new FlowLayout());
+		pnlColture.setOpaque(false);
 		JLabel sceltaColtura= new JLabel("Scegli una coltura:");
+		sceltaColtura.setFont(fontGrande);
 		cmpListaColture= new JComboBox<>();
+		cmpListaColture.setPreferredSize(riga);
 		modelloLista= new DefaultListModel<>();
 		aggiungiColtura= new JButton("Aggiungi coltura");
+		aggiungiColtura.setFont(fontGrande);
 		coltureAggiunte= new JList<>(modelloLista);
 		scrollLista= new JScrollPane(coltureAggiunte);
-		scrollLista.setPreferredSize(new Dimension(100,50));
+		scrollLista.setPreferredSize(new Dimension(150,80));
 		pnlColture.add(sceltaColtura);
 		pnlColture.add(cmpListaColture);
 		pnlColture.add(aggiungiColtura);
@@ -110,10 +142,14 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlInterno.add(pnlColture);
 		
 		JPanel pnlIrrigazione= new JPanel( new FlowLayout());
+		pnlIrrigazione.setOpaque(false);
 		JLabel sceltaIrrigazione= new JLabel("Scegli il metodo di irrigazione:");
+		sceltaIrrigazione.setFont(fontGrande);
 		JLabel coltivatoreI= new JLabel("Coltivatore:");
+		coltivatoreI.setFont(fontGrande);
 		this.elencoColtivatori= new ArrayList<String>();
 		listaColtivatoriI= new JComboBox<String>(elencoColtivatori.toArray(new String[0]));
+		listaColtivatoriI.setPreferredSize(riga);
 		pnlIrrigazione.add(sceltaIrrigazione);
 		pnlIrrigazione.add(metodiIrrigazione);
 		pnlIrrigazione.add(coltivatoreI);
@@ -121,22 +157,39 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlInterno.add(pnlIrrigazione);
 		
 		JPanel pnlDateIrrigazione= new JPanel(new FlowLayout());
+		pnlDateIrrigazione.setOpaque(false);
 		JLabel dataInizioIrrigazione= new JLabel("Data inizio irrigazione:");
+		dataInizioIrrigazione.setFont(fontGrande);
 		cmpDataInizioIrrigazione= new JTextField(10);
+		cmpDataInizioIrrigazione.setPreferredSize(riga);
+		cmpDataInizioIrrigazione.setFont(fontGrande);
 		JLabel dataFineIrrigazione= new JLabel("Data fine irrigazione:");
+		dataFineIrrigazione.setFont(fontGrande);
 		cmpDataFineIrrigazione= new JTextField(10);
+		cmpDataFineIrrigazione.setPreferredSize(riga);
+		cmpDataFineIrrigazione.setFont(fontGrande);
 		pnlDateIrrigazione.add(dataInizioIrrigazione);
 		pnlDateIrrigazione.add(cmpDataInizioIrrigazione);
 		pnlDateIrrigazione.add(dataFineIrrigazione);
 		pnlDateIrrigazione.add(cmpDataFineIrrigazione);
 		pnlInterno.add(pnlDateIrrigazione);
+		pnlInterno.add(Box.createVerticalGlue());
 		
-		JPanel pnlBottoni= new JPanel (new FlowLayout());
+		JPanel pnlBottoni= new JPanel (new FlowLayout(FlowLayout.CENTER,80,10));
+		pnlBottoni.setOpaque(false);
 		salva= new JButton("Salva");
+		salva.setFont(fontGrande);
+		salva.setPreferredSize(grandezza);
+		salva.setMaximumSize(grandezza);
 		annulla= new JButton("Annulla");
+		annulla.setFont(fontGrande);
+		annulla.setPreferredSize(grandezza);
+		annulla.setMaximumSize(grandezza);
 		pnlBottoni.add(salva);
 		pnlBottoni.add(annulla);
 		pnlInterno.add(pnlBottoni);
+		
+		
 		
 		aggiungiColtura.addActionListener(e->{
 			 colturaScelta = (String) cmpListaColture.getSelectedItem();
@@ -171,13 +224,45 @@ public class FinestraCreaProgetto extends JPanel {
 		
 	}
 	
-	public void pianificaAttivita(ArrayList<String> nomiColtivatori, String nomeColtura) {		
-		JPanel pnlpopup= new JPanel();
-		pnlpopup.setLayout(new BoxLayout(pnlpopup,BoxLayout.Y_AXIS));		
+	public void pianificaAttivita(ArrayList<String> nomiColtivatori, String nomeColtura) {	
+		Font fontGrande= new Font("Arial",Font.PLAIN,19);
+		Dimension grandezza= new Dimension(160,30);
+		Dimension pnl= new Dimension(1000,10);
+		Dimension riga= new Dimension(100,30);
+		JPanel pnlpopup= new JPanel() {
+			 @Override
+			    protected void paintComponent(Graphics g) {
+			        Graphics2D g2d = (Graphics2D) g;
+			        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			        int w = getWidth();
+			        int h = getHeight();
+			        Color c1 = new Color(245, 245, 245); 
+			        Color c2 = new Color(180, 180, 180); 
+			        
+			        GradientPaint gp = new GradientPaint(0, 0, c1, 0, h, c2);
+			        g2d.setPaint(gp);
+			        g2d.fillRect(0, 0, w, h);
+			    }
+		};
+		pnlpopup.setOpaque(false);
+		pnlpopup.setPreferredSize(new Dimension(800,500));
+		pnlpopup.setMaximumSize(new Dimension(800,500));
+		pnlpopup.setLayout(new BoxLayout(pnlpopup,BoxLayout.Y_AXIS));	
+		JLabel etichettaSemina= new JLabel("Pianificazione semina");
+		etichettaSemina.setFont(new Font("Arial",Font.BOLD,22));
+		etichettaSemina.setAlignmentX(CENTER_ALIGNMENT);
+		pnlpopup.add(Box.createVerticalStrut(20));
+		pnlpopup.add(etichettaSemina);
+		pnlpopup.add(Box.createVerticalStrut(40));
 		JPanel pnlSeminaMetodo= new JPanel(new FlowLayout());
+		pnlSeminaMetodo.setOpaque(false);
 		JLabel metodoS= new JLabel("Metodo semina:");
+		metodoS.setFont(fontGrande);
 		JLabel quantitaSemi= new JLabel("Quantità semi in kg:");
+		quantitaSemi.setFont(fontGrande);
 		cmpQuantitaSemi= new JTextField(5);
+		cmpQuantitaSemi.setPreferredSize(riga);
+		cmpQuantitaSemi.setFont(fontGrande);
 		pnlSeminaMetodo.add(metodoS);
 		pnlSeminaMetodo.add(metodiSemina);
 		pnlSeminaMetodo.add(quantitaSemi);
@@ -185,12 +270,21 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlpopup.add(pnlSeminaMetodo);
 		
 		JPanel pnlDateS= new JPanel(new FlowLayout());
+		pnlDateS.setOpaque(false);
 		JLabel dataInizioSemina= new JLabel("Data inizio:");
+		dataInizioSemina.setFont(fontGrande);
 		cmpDataInizioSemina= new JTextField(10);
+		cmpDataInizioSemina.setPreferredSize(riga);
+		cmpDataInizioSemina.setFont(fontGrande);
 		JLabel dataFineSemina= new JLabel("Data fine:");
+		dataFineSemina.setFont(fontGrande);
 		cmpDataFineSemina= new JTextField(10);
+		cmpDataFineSemina.setPreferredSize(riga);
+		cmpDataFineSemina.setFont(fontGrande);
 		JLabel coltivatoreS= new JLabel("Coltivatore:");
+		coltivatoreS.setFont(fontGrande);
 		listaColtivatoriS= new JComboBox<String>(nomiColtivatori.toArray(new String[0]));
+		listaColtivatoriS.setPreferredSize(riga);
 		pnlDateS.add(dataInizioSemina);
 		pnlDateS.add(cmpDataInizioSemina);
 		pnlDateS.add(dataFineSemina);
@@ -199,11 +293,26 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlDateS.add(listaColtivatoriS);
 		pnlpopup.add(pnlDateS);
 		
-		JPanel pnlRaccoltaMetodo= new JPanel(new FlowLayout());
-		JLabel metodoR= new JLabel("Metodo raccolta:");
+		JPanel pnlMediano= new JPanel(new FlowLayout());
+		pnlMediano.setMaximumSize(pnl);
+		pnlMediano.setBackground(new Color(0,0,0));
+		pnlpopup.add(pnlMediano);
 		
+		JLabel etichettaRaccolta= new JLabel("Pianificazione raccolta");
+		etichettaRaccolta.setAlignmentX(CENTER_ALIGNMENT);
+		etichettaRaccolta.setFont(new Font("Arial",Font.BOLD,22));
+		pnlpopup.add(Box.createVerticalStrut(20));
+		pnlpopup.add(etichettaRaccolta);
+		pnlpopup.add(Box.createVerticalStrut(40));
+		JPanel pnlRaccoltaMetodo= new JPanel(new FlowLayout());
+		pnlRaccoltaMetodo.setOpaque(false);
+		JLabel metodoR= new JLabel("Metodo raccolta:");
+		metodoR.setFont(fontGrande);
 		JLabel quantitaPrevista= new JLabel("Quantità prevista in kg:");
+		quantitaPrevista.setFont(fontGrande);
 		cmpQuantitaPrevista= new JTextField(8);
+		cmpQuantitaPrevista.setPreferredSize(riga);
+		cmpQuantitaPrevista.setFont(fontGrande);
 		pnlRaccoltaMetodo.add(metodoR);
 		pnlRaccoltaMetodo.add(metodiRaccolta);
 		pnlRaccoltaMetodo.add(quantitaPrevista);
@@ -211,12 +320,20 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlpopup.add(pnlRaccoltaMetodo);
 		
 		JPanel pnlDateR= new JPanel(new FlowLayout());
+		pnlDateR.setOpaque(false);
 		JLabel dataInizioRaccolta= new JLabel("Data inizio:");
+		dataInizioRaccolta.setFont(fontGrande);
 		cmpDataInizioRaccolta= new JTextField(10);
+		cmpDataInizioRaccolta.setPreferredSize(riga);
 		JLabel dataFineRaccolta= new JLabel("Data fine:");
+		dataFineRaccolta.setFont(fontGrande);
 		cmpDataFineRaccolta= new JTextField(10);
+		cmpDataFineRaccolta.setPreferredSize(riga);
+		cmpDataFineRaccolta.setFont(fontGrande);
 		JLabel coltivatoreR= new JLabel("Coltivatore:");
+		coltivatoreR.setFont(fontGrande);
 		listaColtivatoriR= new JComboBox<String>(nomiColtivatori.toArray(new String[0]));
+		listaColtivatoriR.setPreferredSize(riga);
 		pnlDateR.add(dataInizioRaccolta);
 		pnlDateR.add(cmpDataInizioRaccolta);
 		pnlDateR.add(dataFineRaccolta);
@@ -226,7 +343,13 @@ public class FinestraCreaProgetto extends JPanel {
 		pnlpopup.add(pnlDateR);
 		
 		conferma= new JButton("Conferma");
+		conferma.setFont(fontGrande);
+		conferma.setPreferredSize(grandezza);
+		conferma.setMaximumSize(grandezza);
 		annullaAttivita= new JButton("Annulla");
+		annullaAttivita.setFont(fontGrande);
+		annullaAttivita.setPreferredSize(riga);
+		annullaAttivita.setMaximumSize(riga);
 		Object opzioni[]= {conferma,annullaAttivita};
 		JOptionPane pannelloOpzioni = new JOptionPane(pnlpopup, JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION,null,opzioni);
 		JDialog finestra = pannelloOpzioni.createDialog(this, "Pianificazione "+nomeColtura);
@@ -478,6 +601,20 @@ public class FinestraCreaProgetto extends JPanel {
 	        cmpListaColture.addItem(nome);
 	    }
 	}
+	
+	 @Override
+	    protected void paintComponent(Graphics g) {
+	        Graphics2D g2d = (Graphics2D) g;
+	        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);	        
+	        int w = getWidth();
+	        int h = getHeight();
+	        Color c1 = new Color(180, 200, 180); 
+	        Color c2 = new Color(245,245,220);
+	        GradientPaint gp = new GradientPaint(0, 0, c1, 0, h, c2);	        
+	        g2d.setPaint(gp);
+	        g2d.fillRect(0, 0, w, h);	        
+	        super.paintComponent(g); 
+	    }
 
 	public Controller getController() {
 		return controller;

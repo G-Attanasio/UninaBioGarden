@@ -4,6 +4,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.concurrent.Flow;
 
@@ -53,17 +54,28 @@ public class FinestraCreaNotifica extends JPanel {
 	
 	public FinestraCreaNotifica(Controller controller) {
 		this.controller=controller;
+		Font fontGrande= new Font("Arial",Font.PLAIN,20);
+		Dimension grandezza= new Dimension(180,30);
+		Dimension pnl= new Dimension(1000,70);
+		Dimension riga= new Dimension(100,30);
 		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+		this.setOpaque(false);
 		JPanel pnlDescrizioneVeloce= new JPanel(new FlowLayout(FlowLayout.LEFT));
+		pnlDescrizioneVeloce.setOpaque(false);
 		JPanel pnlDescrizione= new JPanel (new FlowLayout(FlowLayout.LEFT));
+		pnlDescrizione.setOpaque(false);
 		JPanel pnlSceltaNotifica= new JPanel(new FlowLayout());
+		pnlSceltaNotifica.setOpaque(false);
 		JLabel descrizioneVeloce= new JLabel("Inserisci una descrizione(obbligatorio):");
-		
+		descrizioneVeloce.setFont(fontGrande);		
 		cmpDescrizioneVeloce= new JTextField(30);
+		cmpDescrizioneVeloce.setFont(fontGrande);
+		cmpDescrizioneVeloce.setPreferredSize(riga);
 		pnlDescrizioneVeloce.setPreferredSize(new Dimension(250,50));
 		pnlDescrizioneVeloce.add(descrizioneVeloce);
 		pnlDescrizioneVeloce.add(cmpDescrizioneVeloce);
 		JLabel descrizione= new JLabel("Inserisci una descrizione dettagliata(facoltativo):");
+		descrizione.setFont(fontGrande);
 		cmpDescrizione= new JTextArea(8,50);
 		cmpDescrizione.setLineWrap(true);      
 		cmpDescrizione.setWrapStyleWord(true);
@@ -74,19 +86,29 @@ public class FinestraCreaNotifica extends JPanel {
 		pnlDescrizione.add(scrollText);
 		
 		JLabel scelta= new JLabel("Tipo notifica:");
+		scelta.setFont(fontGrande);
 		pnlSceltaNotifica.add(scelta);
 		pnlSceltaNotifica.add(sceltaNotifica);
 		
 	
 		JPanel pnlAttivita= new JPanel(new FlowLayout(FlowLayout.LEFT));
+		pnlAttivita.setOpaque(false);
 		JLabel dataScadenza= new JLabel("Inserire data di scadenza dell'attività imminente");
+		dataScadenza.setFont(fontGrande);
 		cmpDataScadenza= new JTextField(10);
+		cmpDataScadenza.setFont(fontGrande);
+		cmpDataScadenza.setPreferredSize(riga);
 		pnlAttivita.add(dataScadenza);
 		pnlAttivita.add(cmpDataScadenza);
 		JPanel pnlAnomalia= new JPanel(new FlowLayout());
+		pnlAnomalia.setOpaque(false);
 		JLabel livelloGravita= new JLabel("Indica il livello di gravità:");
+		livelloGravita.setFont(fontGrande);
 		JLabel estensione= new JLabel("Estensione in metri quadri(facoltativo):");
+		estensione.setFont(fontGrande);
 		cmpEstensione= new JTextField(12);
+		cmpEstensione.setFont(fontGrande);
+		cmpEstensione.setPreferredSize(riga);
 		pnlAnomalia.add(livelloGravita);
 		pnlAnomalia.add(cmpLivelloGravita);
 		pnlAnomalia.add(estensione);
@@ -97,16 +119,22 @@ public class FinestraCreaNotifica extends JPanel {
 		sceltaPanel.add(pnlAnomalia,"anomalia");
 		
 		JPanel pnlDestinatari= new JPanel(new FlowLayout(FlowLayout.LEFT));
+		pnlDestinatari.setOpaque(false);
 		JLabel sceltaDestinatari= new JLabel("Scegli destinatari");
+		sceltaDestinatari.setFont(fontGrande);
 		this.elencoColtivatori= new ArrayList<String>();
 		listaDestinatari= new JComboBox<String>(elencoColtivatori.toArray(new String[0]));
+		listaDestinatari.setPreferredSize(riga);
 		aggiungiDestinatario= new JButton("Aggiungi destinatario");
+		aggiungiDestinatario.setPreferredSize(grandezza);
 		aggiungiTutti= new JButton("Aggiungi tutti come destinatario");
+		aggiungiTutti.setPreferredSize(grandezza);
 		modelloScelti = new DefaultListModel<>();
 		listaScelti = new JList<>(modelloScelti);
 		scrollScelti = new JScrollPane(listaScelti);
 		scrollScelti.setPreferredSize(new Dimension(150, 80));
 		rimuovi= new JButton("Rimuovi");
+		rimuovi.setPreferredSize(riga);
 		pnlDestinatari.add(sceltaDestinatari);
 		pnlDestinatari.add(listaDestinatari);
 		pnlDestinatari.add(aggiungiDestinatario);
@@ -115,21 +143,24 @@ public class FinestraCreaNotifica extends JPanel {
 		pnlDestinatari.add(rimuovi);
 		
 		
-		JPanel pnlBottoni= new JPanel(new FlowLayout());
+		JPanel pnlBottoni= new JPanel(new FlowLayout(FlowLayout.CENTER,80,10));
+		pnlBottoni.setMaximumSize(pnl);
 		invia= new JButton("Invia");
+		invia.setPreferredSize(riga);
 		cancella= new JButton("Cancella");
+		cancella.setPreferredSize(riga);
 		pnlBottoni.add(invia);
 		pnlBottoni.add(cancella);
 		
 		add(Box.createVerticalGlue());
 		add(pnlDescrizioneVeloce);
 		add(pnlDescrizione);
-		add(Box.createVerticalStrut(50));
+		add(Box.createVerticalStrut(40));
 		add(pnlSceltaNotifica);
-		add(Box.createVerticalStrut(50));
+		add(Box.createVerticalStrut(40));
 		add(sceltaPanel);
 		add(pnlDestinatari);
-		add(Box.createVerticalStrut(80));
+		add(Box.createVerticalStrut(70));
 		add(pnlBottoni);
 		add(Box.createVerticalGlue());
 		

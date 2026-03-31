@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -13,6 +14,7 @@ import java.awt.RenderingHints;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import controller.Controller;
@@ -45,7 +47,8 @@ public class FinestraProprietario extends JPanel {
 	public FinestraProprietario(Controller controller) {
 		this.setController(controller);
 	
-		
+		Font fontGrande= new Font("Segoe UI",Font.PLAIN,20);
+		Dimension grandezza= new Dimension(220,27);
 		finCreaProgetto= new FinestraCreaProgetto(controller);
 		finAttivitaAssegnate= new FinestraAttivitaAssegnate(controller);		
 		finVisualizzaLotti= new FinestraVisualizzaLotti(controller);
@@ -56,8 +59,22 @@ public class FinestraProprietario extends JPanel {
 		finCreaNotifica= new FinestraCreaNotifica(controller);
 		finVisualizzaNotifiche= new FinestraVisualizzaNotifiche(controller);
 		setLayout(new BorderLayout());
-		JPanel pnlNord= new JPanel(new FlowLayout());
-		pnlNord.setBackground(new Color(245,235,220));
+		JPanel pnlNord= new JPanel(new FlowLayout(FlowLayout.LEFT)) {
+			@Override
+			protected void paintComponent(Graphics g) {
+			    Graphics2D g2d = (Graphics2D) g;
+			    int h = getHeight();
+			    int w = getWidth();
+			    
+			   
+			    Color a = new Color(235, 235, 210);
+			    Color b = new Color(230, 220, 190);
+			    
+			    GradientPaint gp = new GradientPaint(0, 0, a, 0, h, b);
+			    g2d.setPaint(gp);
+			    g2d.fillRect(0, 0, w, h);
+			}
+		};
 		Dimension area= new Dimension(400,150);
 		pnlNord.setPreferredSize(area);
 		add(pnlNord, BorderLayout.NORTH);	
@@ -76,36 +93,54 @@ public class FinestraProprietario extends JPanel {
 		        g2d.fillRect(0, 0, w, h);
 		    }
 		};
+		JLabel lblTitolo = new JLabel("U.B.G.-Dashboard");
+		lblTitolo.setFont(new Font("SansSerif", Font.BOLD, 80));
+		lblTitolo.setForeground(new Color(140, 140, 140)); 
+		pnlNord.add(lblTitolo);
 		pnlOvest.setOpaque(false);
 		attivitaAssegnate= new JButton("Attività assegnate");
 		attivitaAssegnate.setAlignmentX(CENTER_ALIGNMENT);
+		attivitaAssegnate.setPreferredSize(grandezza);
+		attivitaAssegnate.setFont(fontGrande);
 		visualizzaLotti= new JButton("I miei lotti");
 		visualizzaLotti.setAlignmentX(CENTER_ALIGNMENT);
+		visualizzaLotti.setPreferredSize(grandezza);
+		visualizzaLotti.setFont(fontGrande);
 		visualizzaProgetti= new JButton("I miei progetti");
 		visualizzaProgetti.setAlignmentX(CENTER_ALIGNMENT);
+		visualizzaProgetti.setPreferredSize(grandezza);
+		visualizzaProgetti.setFont(fontGrande);
 		visualizzaColture= new JButton("Lista colture");
 		visualizzaColture.setAlignmentX(CENTER_ALIGNMENT);
+		visualizzaColture.setPreferredSize(grandezza);
+		visualizzaColture.setFont(fontGrande);
 		visualizzaReport= new JButton("Report raccolte");
 		visualizzaReport.setAlignmentX(CENTER_ALIGNMENT);
+		visualizzaReport.setPreferredSize(grandezza);
+		visualizzaReport.setFont(fontGrande);
 		creaNotifiche= new JButton("Visualizza notifiche");
 		creaNotifiche.setAlignmentX(CENTER_ALIGNMENT);
+		creaNotifiche.setPreferredSize(grandezza);
+		creaNotifiche.setFont(fontGrande);
 		esci= new JButton("Esci");
 		esci.setAlignmentX(CENTER_ALIGNMENT);
+		esci.setPreferredSize(grandezza);
+		esci.setFont(fontGrande);
 		pnlOvest.setBackground(new Color(200,230,200));
 		pnlOvest.setLayout(new BoxLayout(pnlOvest,BoxLayout.Y_AXIS));
 		pnlOvest.setPreferredSize(new Dimension(250,0));
 		pnlOvest.add(Box.createVerticalGlue());
 		
 		pnlOvest.add(attivitaAssegnate);
-		pnlOvest.add(Box.createVerticalStrut(40));
+		pnlOvest.add(Box.createVerticalStrut(45));
 		pnlOvest.add(visualizzaLotti);
-		pnlOvest.add(Box.createVerticalStrut(40));
+		pnlOvest.add(Box.createVerticalStrut(45));
 		pnlOvest.add(visualizzaProgetti);
-		pnlOvest.add(Box.createVerticalStrut(40));
+		pnlOvest.add(Box.createVerticalStrut(45));
 		pnlOvest.add(visualizzaColture);
-		pnlOvest.add(Box.createVerticalStrut(40));
+		pnlOvest.add(Box.createVerticalStrut(45));
 		pnlOvest.add(creaNotifiche);
-		pnlOvest.add(Box.createVerticalStrut(40));
+		pnlOvest.add(Box.createVerticalStrut(45));
 		pnlOvest.add(esci);
 		pnlOvest.add(Box.createVerticalGlue());
 		add(pnlOvest,BorderLayout.WEST);

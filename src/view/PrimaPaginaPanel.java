@@ -34,7 +34,7 @@ public class PrimaPaginaPanel extends JPanel {
 		this.setOpaque(false);
 	
 		
-		Dimension grandezza= new Dimension(180,30);
+		Dimension grandezza= new Dimension(220,40);
 		JButton btnAccedi= new JButton("Accedi") {
 			  @Override
 			    protected void paintComponent(Graphics g) {
@@ -48,7 +48,7 @@ public class PrimaPaginaPanel extends JPanel {
 			};
 			btnAccedi.setContentAreaFilled(false); 
 			btnAccedi.setBorderPainted(false);    
-			btnAccedi.setFocusPainted(true);     
+			btnAccedi.setFocusPainted(false);     
 			btnAccedi.setForeground(Color.WHITE);  
 			btnAccedi.setFont(new Font("SansSerif", Font.BOLD, 15));
 		
@@ -86,14 +86,14 @@ public class PrimaPaginaPanel extends JPanel {
 		        g2.dispose();
 		    }
 		};
-		lblTitolo.setMinimumSize(new Dimension(500,100));
-		lblTitolo.setMaximumSize(new Dimension(500,100));
-		lblTitolo.setPreferredSize(new Dimension(500,100));
+		lblTitolo.setMinimumSize(new Dimension(1000,180));
+		lblTitolo.setMaximumSize(new Dimension(1000,180));
+		lblTitolo.setPreferredSize(new Dimension(1000,180));
 		btnAccedi.setMaximumSize(grandezza);
 		btnRegistrati.setMaximumSize(grandezza);
-		add(Box.createVerticalStrut(150));
+		add(Box.createVerticalStrut(120));
 		add(lblTitolo);
-		add(Box.createVerticalStrut(150));
+		add(Box.createVerticalStrut(60));
 		add(btnAccedi);
 		add(Box.createVerticalStrut(50));
 		add(btnRegistrati);
