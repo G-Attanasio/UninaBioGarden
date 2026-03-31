@@ -116,15 +116,14 @@ public class UtenteDao {
 		        	e.printStackTrace(); 
 		        }
 		    }
-		}
+	}
 	
 	public ArrayList<String> prelevaPerProgetto()throws SQLException,UtenteNonTrovatoException{
 		ArrayList<String> usernames= new ArrayList<>();
 		String sql= "SELECT USERNAME FROM UTENTE WHERE RUOLO::text IN ('PROPRIETARIO_COLTIVATORE','COLTIVATORE')";
 		try(Connection conn= DBConnection.getConnection();
 				PreparedStatement ps= conn.prepareStatement(sql)) {
-			ResultSet rs= ps.executeQuery();
-			
+			ResultSet rs= ps.executeQuery();		
 			while(rs.next()) {
 				usernames.add(rs.getString("USERNAME"));
 			}
@@ -132,21 +131,14 @@ public class UtenteDao {
 		return usernames;
 	}
 	
-	
-	
 	public Utente prelevaDaUsername(String username) throws SQLException,UtenteNonTrovatoException {
 	    String sql = "SELECT * FROM UTENTE WHERE USERNAME = ?";
 	    
 	    try (Connection conn = DBConnection.getConnection();
-	         PreparedStatement ps = conn.prepareStatement(sql)) {
-	        
-	        ps.setString(1, username);
-	       
-	        
-	        ResultSet rs = ps.executeQuery(); 
-	        
-	        if (rs.next()) {
-	            
+	         PreparedStatement ps = conn.prepareStatement(sql)) {	        
+	        ps.setString(1, username);        
+	        ResultSet rs = ps.executeQuery(); 	        
+	        if (rs.next()) {	            
 	            return new Utente(
 	                rs.getInt("IDUTENTE"),
 	                rs.getString("NOME"),

@@ -21,13 +21,13 @@ import model.Stato;
 
 public class ProgettoDao {
 
-	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int idLotto) throws SQLException,RisorsaNonTrovataException {
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int codLotto) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
 	    String sql = "SELECT * FROM PROGETTOSTAGIONALE WHERE FK_CODLOTTO = ?";
 	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
-	        ps.setInt(1, idLotto);
+	        ps.setInt(1, codLotto);
 	        try (ResultSet rs = ps.executeQuery()) {
 	            while (rs.next()) {
 	            	LottoColtivabile lc;
@@ -122,11 +122,11 @@ public class ProgettoDao {
 	    return lista;
 	}
 	
-	public boolean eliminaProgetto(int idProgetto) throws SQLException {
+	public boolean eliminaProgetto(int codProgetto) throws SQLException {
 	    String sql = "DELETE FROM PROGETTOSTAGIONALE WHERE CODPROGETTO = ?";	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {        
-	        ps.setInt(1, idProgetto);
+	        ps.setInt(1, codProgetto);
 	        int righeCancellate = ps.executeUpdate();
 	        return righeCancellate > 0;
 	    }

@@ -209,7 +209,7 @@ public class FinestraCreaNotifica extends JPanel {
 		});
 		
 		invia.addActionListener(e->{
-			String esito=controller.CreaNotifica();
+			String esito=controller.creaNotifica();
 			if(esito.equals("ok")) {
 				pulisciCampi();
 				controller.caricaNotificheInviate();

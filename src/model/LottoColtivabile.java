@@ -27,8 +27,7 @@ public class LottoColtivabile {
 		this.localita=località;
 		this.comune=comune;
 		this.provincia=provincia;
-		this.attivo=true;
-		
+		this.attivo=true;	
 		this.proprietario=proprietario;
 	}
 	

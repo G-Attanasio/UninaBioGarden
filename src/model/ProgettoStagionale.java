@@ -13,9 +13,8 @@ public class ProgettoStagionale {
 	private LocalDate dataFine;
 	private Stato statoEsecuzione;
 	private Utente creatore;
-	private ArrayList<Utente> coltivatoriAssegnati;
 	private LottoColtivabile lottoImpegnato;
-	private ArrayList<Attivita> attivitaSvolte;
+	
 	
 	public ProgettoStagionale(String nomeProgetto, Stagione stagioneDiRiferimento, int durata, LocalDate dataInizio,Utente creatore,LottoColtivabile lottoImpegnato) {
 		this.codProgetto=0;
@@ -124,28 +123,12 @@ public class ProgettoStagionale {
 		this.creatore = creatore;
 	}
 
-	public ArrayList<Utente> getColtivatoriAssegnati() {
-		return coltivatoriAssegnati;
-	}
-
-	public void setColtivatoriAssegnati(ArrayList<Utente> coltivatoriAssegnati) {
-		this.coltivatoriAssegnati = coltivatoriAssegnati;
-	}
-
 	public LottoColtivabile getLottoImpegnato() {
 		return lottoImpegnato;
 	}
 
 	public void setLottoImpegnato(LottoColtivabile lottoImpegnato) {
 		this.lottoImpegnato = lottoImpegnato;
-	}
-
-	public ArrayList<Attivita> getAttivitaSvolte() {
-		return attivitaSvolte;
-	}
-
-	public void setAttivitaSvolte(ArrayList<Attivita> attivitaSvolte) {
-		this.attivitaSvolte = attivitaSvolte;
-	}
+	}	
 	
 }

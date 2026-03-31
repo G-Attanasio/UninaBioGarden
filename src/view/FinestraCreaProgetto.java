@@ -68,7 +68,7 @@ public class FinestraCreaProgetto extends JPanel {
 	private JComboBox<String> listaColtivatoriS;
 	private JButton conferma;
 	private JButton annullaAttivita;
-	JScrollPane scrollLista;
+	private JScrollPane scrollLista;
 	
 	
 	

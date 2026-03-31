@@ -39,7 +39,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	private JPasswordField cmpConfermaPassword;
 	private JButton avanti;
 	private JButton esci;
-	private JRadioButton radioAlmenoUnLotto;
+	
 	
 	public FinestraIscrizioneProprietario(Controller controller) {
 		this.controller=controller;
@@ -278,14 +278,6 @@ public class FinestraIscrizioneProprietario extends JPanel{
 
 	public void setAvanti(JButton avanti) {
 		this.avanti = avanti;
-	}
-
-	public JRadioButton getRadioAlmenoUnLotto() {
-		return radioAlmenoUnLotto;
-	}
-
-	public void setRadioAlmenoUnLotto(JRadioButton almenoUnLotto) {
-		this.radioAlmenoUnLotto = almenoUnLotto;
 	}
 
 	public JTextField getCmpUsername() {
