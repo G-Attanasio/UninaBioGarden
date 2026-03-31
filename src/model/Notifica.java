@@ -8,14 +8,13 @@ public abstract class Notifica {
 	private int codNotifica;
 	private LocalDate dataInvio;
 	private Utente creatore;
-	private ArrayList<Utente> destinatari;
+    ArrayList<Utente> destinatari;
 	
 	
 	public Notifica(LocalDate dataInvio, Utente creatore, ArrayList<Utente> destinatari) {
 		this.dataInvio=dataInvio;
 		this.creatore=creatore;
-		this.destinatari=destinatari;
-		
+		this.destinatari=new ArrayList<Utente>();
 	}
 	
 	public Notifica(int codNotifica, LocalDate dataInvio,Utente creatore, ArrayList<Utente> destinatari) {
@@ -33,12 +32,7 @@ public abstract class Notifica {
 		return true;
 	}
 	
-	public void addDestinatario(Utente u) {
-	    if (u != null && !this.destinatari.contains(u)) {
-	        this.destinatari.add(u);
-	        u.addNotificaRicevuta(this); 
-	    }
-	}
+	
 	
 	public int getCodNotifica() {
 		return codNotifica;
@@ -58,12 +52,11 @@ public abstract class Notifica {
 	public void setCreatore(Utente creatore) {
 		this.creatore = creatore;
 	}
-	public ArrayList<Utente>  getDestinatari() {
+
+	public ArrayList<Utente> getDestinatari() {
 		return destinatari;
 	}
-	public void setDestinatari(ArrayList<Utente> destinatari) {
-		this.destinatari=destinatari;
-	}
+	
 
 	
 }

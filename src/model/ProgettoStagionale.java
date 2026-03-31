@@ -26,8 +26,7 @@ public class ProgettoStagionale {
 		this.statoEsecuzione=Stato.PIANIFICATO;
 		this.creatore=creatore;
 		this.lottoImpegnato=lottoImpegnato;
-		this.coltivatoriAssegnati=new ArrayList<Utente>();
-		this.attivitaSvolte=new ArrayList<Attivita>();
+		
 	}
 	
 	public ProgettoStagionale(int codProgetto,String nomeProgetto, Stagione stagioneDiRiferimento, int durata, LocalDate dataInizio,LocalDate dataFine,Stato statoEsecuzione,LottoColtivabile lottoImpegnato,Utente creatore) {
@@ -37,20 +36,7 @@ public class ProgettoStagionale {
 		this.statoEsecuzione=statoEsecuzione;
 	}
 	
-	public void addColtivatore(Utente u) {
-		if(u != null && !coltivatoriAssegnati.contains(u)) {
-			coltivatoriAssegnati.add(u);
-		}
-	}
 	
-	public void addAttivita(Attivita a) {
-		if(a != null && !attivitaSvolte.contains(a)) {
-			attivitaSvolte.add(a);
-		}
-		if(a.getProgetto()==null) {
-			a.setProgetto(this);
-		}
-	}
 	
 	public static boolean isLunghezzaNomeValida(String testo) {
 		if(testo == null || testo.length()>30 || testo.isEmpty()) return false;

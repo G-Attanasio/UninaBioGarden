@@ -11,8 +11,6 @@ public class Coltura {
 	private int tempoMaturazione;
 	private String destinazioneUso;
 	private String periodoIdeale;
-	private ArrayList<Raccolta> listaRaccolte;
-	private ArrayList<SeminaColtura> listaSemine;
 	
 	public Coltura (int codColtura,String nome, String specie, String famiglia, int tempoMaturazione, String destinazioneUso, String periodoIdeale) {
 		this.codColtura=codColtura;
@@ -22,28 +20,7 @@ public class Coltura {
 		this.tempoMaturazione=tempoMaturazione;
 		this.destinazioneUso=destinazioneUso;
 		this.periodoIdeale=periodoIdeale;
-		this.listaRaccolte=new ArrayList<Raccolta>();
-		this.listaSemine= new ArrayList<SeminaColtura>();
 	}
-	
-	public void addRaccolta(Raccolta r) {
-	    if (r != null && !this.listaRaccolte.contains(r)) {
-	        this.listaRaccolte.add(r);
-	        if(r.getColtura()==null) {
-	        	r.setColtura(this);
-	        }
-	    }
-	}
-
-	public void addSemina(SeminaColtura sc) {
-	    if (sc != null && !this.listaSemine.contains(sc)) {
-	        this.listaSemine.add(sc);
-	        if(sc.getColtura()==null) {
-	        	sc.setColtura(this);
-	        }
-	    }
-	}
-
 	
 	public int getCodColtura() {
 		return codColtura;
@@ -87,18 +64,8 @@ public class Coltura {
 	public void setPeriodoIdeale(String periodoIdeale) {
 		this.periodoIdeale = periodoIdeale;
 	}
-	public ArrayList<Raccolta> getListaRaccolte() {
-		return listaRaccolte;
-	}
-	public void setListaRaccolte(ArrayList<Raccolta> listaRaccolte) {
-		this.listaRaccolte = listaRaccolte;
-	}
-	public ArrayList<SeminaColtura> getListaSemine(){
-		return listaSemine;
-	}
-	public void setListaSemine( ArrayList<SeminaColtura> listaSemine) {
-		this.listaSemine=listaSemine;
-	}
+	
+
 	@Override
 	public String toString() {
 	    return nome; 

@@ -13,12 +13,7 @@ public  class Utente {
 	private String email;
 	private LocalDate dataNascita;
 	private TipoRuolo ruolo;
-	private ArrayList<LottoColtivabile> lottiPosseduti;
-	private ArrayList<ProgettoStagionale> progettiCreati;
-	private ArrayList<ProgettoStagionale> progettiAssegnati;
-	private ArrayList<Attivita> attivitaAssegnate;
-	private ArrayList<Notifica> listaNotificheRicevute;
-	private ArrayList<Notifica> listaNotificheInviate;
+	
 	
 	public Utente(String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
 		this.idUtente=0;
@@ -29,12 +24,7 @@ public  class Utente {
 		this.email=email;
 		this.dataNascita=dataNascita;
 		this.ruolo=ruolo;
-		this.lottiPosseduti= new ArrayList<LottoColtivabile>();
-		this.progettiCreati= new ArrayList<ProgettoStagionale>();
-		this.progettiAssegnati= new ArrayList<ProgettoStagionale>();
-		this.attivitaAssegnate= new ArrayList<Attivita>();
-		this.listaNotificheInviate= new ArrayList<Notifica>();
-		this.listaNotificheRicevute= new ArrayList<Notifica>();
+		
 	}
 	
 	public Utente(int idUtente, String nome, String cognome, String username, String password, String email, LocalDate dataNascita, TipoRuolo ruolo) {
@@ -74,52 +64,6 @@ public  class Utente {
 	    return eta >= 18 && eta <= 120;
 	}
 	
-	public void addProgettoCreato(ProgettoStagionale ps) {
-	    if (ps != null && !this.progettiCreati.contains(ps)) {
-	        this.progettiCreati.add(ps);
-	        if (ps.getCreatore() == null) {
-	            ps.setCreatore(this);
-	        }
-	    }
-	}
-
-	public void addLotto(LottoColtivabile l) {
-	    if (l != null &&!this.lottiPosseduti.contains(l)) this.lottiPosseduti.add(l);
-	    if(l.getProprietario()== null) {
-	    	l.setProprietario(this);
-	    }
-	}
-
-	public void addAttivita(Attivita a) {
-	    if (a != null && !this.attivitaAssegnate.contains(a)) this.attivitaAssegnate.add(a);
-	    if(a.getColtivatore()==null) {
-	    	a.setColtivatore(this);
-	    }
-	}
-
-	public void addProgettoAssegnato(ProgettoStagionale ps) {
-	    if (ps!=null && !this.progettiAssegnati.contains(ps)) {
-	        this.progettiAssegnati.add(ps);
-	    }
-	}
-	
-	public void addNotificaInviata(Notifica n) {
-		if( n!= null && !listaNotificheInviate.contains(n)) {
-			listaNotificheInviate.add(n);
-			if(n.getCreatore()==null) {
-				n.setCreatore(this);
-			}
-		}
-	}
-	
-	public void addNotificaRicevuta(Notifica nd) {
-		if(nd != null && !listaNotificheRicevute.contains(nd)) {
-			listaNotificheRicevute.add(nd);
-			if(!nd.getDestinatari().contains(this)) {
-				nd.addDestinatario(this);
-			}
-		}
-	}
 	
 	public int getIdUtente() {
 		return idUtente;
@@ -185,47 +129,4 @@ public  class Utente {
 		this.ruolo = ruolo;
 	}
 
-	public ArrayList<LottoColtivabile> getLottiPosseduti() {
-		return lottiPosseduti;
-	}
-
-	public void setLottiPosseduti(ArrayList<LottoColtivabile> lottiPosseduti) {
-		this.lottiPosseduti = lottiPosseduti;
-	}
-
-	public ArrayList<ProgettoStagionale> getProgettiCreati() {
-		return progettiCreati;
-	}
-
-	public void setProgettiCreati(ArrayList<ProgettoStagionale> progettiCreati) {
-		this.progettiCreati = progettiCreati;
-	}
-
-	public ArrayList<ProgettoStagionale> getProgettiAssegnati() {
-		return progettiAssegnati;
-	}
-
-	public void setProgettiAssegnati(ArrayList<ProgettoStagionale> progettiAssegnati) {
-		this.progettiAssegnati = progettiAssegnati;
-	}
-
-	public ArrayList<Attivita> getAttivitaAssegnate() {
-		return attivitaAssegnate;
-	}
-
-	public void setAttivitaAssegnate(ArrayList<Attivita> attivitàAssegnate) {
-		this.attivitaAssegnate = attivitàAssegnate;
-	}
-	public ArrayList<Notifica> getListaNotificheRicevute(){
-		return listaNotificheRicevute;
-	}
-	public void setListaNotifiche(ArrayList<Notifica> listaNotificheRicevute) {
-		this.listaNotificheRicevute=listaNotificheRicevute;
-	}
-	public ArrayList<Notifica> getListaNotificheInviate(){
-		return listaNotificheInviate;
-	}
-	public void setListaNotificheInviate(ArrayList<Notifica> listaNotificheInviate) {
-		this.listaNotificheInviate=listaNotificheInviate;
-	}
 }

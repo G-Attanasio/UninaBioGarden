@@ -583,8 +583,9 @@ public class Controller {
                     scadenza,                   
                     gravita,                  
                     estensione,
-                    descrizione,
-                    n.getCodNotifica()
+                    n.getCodNotifica(),
+                    descrizione
+                    
                 };
                 notifiche.add(n);
                 finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);

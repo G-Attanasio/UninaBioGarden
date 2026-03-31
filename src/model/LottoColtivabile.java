@@ -15,7 +15,7 @@ public class LottoColtivabile {
 	private String provincia;
 	private boolean attivo;
 	private Utente proprietario;
-	private ArrayList<ProgettoStagionale> progettiAssegnati;
+	
 	
 	public LottoColtivabile (TipoTessitura tessitura, int dimensioni, double ph, TipoMorfologia morfologia, int altitudine, String località, String comune, String provincia, Utente proprietario) {
 		this.codLotto=0;
@@ -28,7 +28,7 @@ public class LottoColtivabile {
 		this.comune=comune;
 		this.provincia=provincia;
 		this.attivo=true;
-		this.progettiAssegnati=new ArrayList<>();
+		
 		this.proprietario=proprietario;
 	}
 	
@@ -44,17 +44,10 @@ public class LottoColtivabile {
 		    this.proprietario = proprietario;
 		    this.codLotto = codLotto;
 		    this.attivo = attivo;
-		    this.progettiAssegnati = new ArrayList<>(); 
+		  
     }
 	
-	public void addProgetto(ProgettoStagionale ps) {
-		if(ps!=null && !this.progettiAssegnati.contains(ps)) {
-			progettiAssegnati.add(ps);
-		if(ps.getLottoImpegnato()==null) {
-			ps.setLottoImpegnato(this);
-			}
-		}
-	}
+	
 	
 	public static boolean isPhValidoMioDominio(double ph) {
 		if (ph <4.0 || ph>9.0) return false;
@@ -186,11 +179,5 @@ public class LottoColtivabile {
 		this.proprietario = proprietario;
 	}
 	
-	public ArrayList<ProgettoStagionale> getProgettiAssegnati(){
-		return progettiAssegnati;
-	}
-	
-	public void setProgettiAssegnati(ArrayList<ProgettoStagionale> lista) {
-		this.progettiAssegnati=lista;
-	}
+
 }
