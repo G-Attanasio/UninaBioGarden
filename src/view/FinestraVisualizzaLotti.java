@@ -77,9 +77,10 @@ public class FinestraVisualizzaLotti extends JPanel {
 		creaProgetto.addActionListener(e->{
 			 int riga = tabella.getSelectedRow();
 			    if (riga != -1) {
-			        int idLotto = (int) modello.getValueAt(riga, 0);			        
-			        controller.avviaProgetto(idLotto); 
+			        int codLotto = (int) modello.getValueAt(riga, 0);			        
+			        controller.avviaProgetto(codLotto); 			        
 			        controller.caricaColtivatoriInProgetto();
+			        controller.mostraPanelInterno("crea progetto");
 			    } else {
 			        JOptionPane.showMessageDialog(this, "Seleziona un lotto dalla lista!");
 			    }

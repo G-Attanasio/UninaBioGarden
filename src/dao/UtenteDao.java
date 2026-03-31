@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import database.DBConnection;
+import model.Attivita;
 import model.LottoColtivabile;
 import model.TipoRuolo;
 import model.Utente;
@@ -177,6 +178,4 @@ public class UtenteDao {
 	    }
 	    return null; 
 	}
-	
-	
 }

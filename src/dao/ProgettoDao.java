@@ -134,4 +134,15 @@ public class ProgettoDao {
 	        return righeCancellate > 0;
 	    }
 	}
+	
+	public void sincronizzaSistema() {
+	    try (Connection conn = DBConnection.getConnection();
+	         CallableStatement cs = conn.prepareCall("CALL P_SINCRONIZZA_TUTTO_AVVIO()")) {
+	        cs.execute();
+	        System.out.println("DEBUG: Database sincronizzato con successo.");
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+
 }	

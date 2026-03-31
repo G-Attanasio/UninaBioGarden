@@ -117,7 +117,7 @@ public class NotificaDao {
 	
 	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws SQLException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
-	    String sql = "SELECT N.*, A.TIPOANOMALIA, A.GRAVITA, A.ESTENSIONE, I.TIPOATTIVITAIMMINENTE, I.DATASCADENZA " +
+	    String sql = "SELECT N.*, A.TIPOANOMALIA, A.GRAVITA, A.ESTENSIONE,A.DESCRIZIONE,I.DESCRIZIONE, I.TIPOATTIVITAIMMINENTE, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +
 	                 "JOIN NOTIFICADESTINATARIO ND ON N.CODNOTIFICA = ND.FK_CODNOTIFICA " +
 	                 "LEFT JOIN ANOMALIA A ON N.CODNOTIFICA = A.FK_CODNOTIFICA " +
@@ -135,8 +135,8 @@ public class NotificaDao {
 	                 lista.add(new Anomalia(
 	                	 dataInvio,
 	                     null,
-	                     null, 
-	                     rs.getString("TIPOANOMALIA"),
+	                     rs.getString("TIPOANOMALIA"), 
+	                     rs.getString("DESCRIZIONE"),
 	                     LivelloGravita.valueOf(rs.getString("GRAVITA").toUpperCase()),
 	                     rs.getInt("ESTENSIONE"),
 	                     u
@@ -145,8 +145,8 @@ public class NotificaDao {
 	                 lista.add(new AttivitaImminente(
 	                     dataInvio,
 	                     null,
-	                     null,
 	                     rs.getString("TIPOATTIVITAIMMINENTE"),
+	                     rs.getString("DESCRIZIONE"),
 	                     rs.getDate("DATASCADENZA").toLocalDate(),
 	                     u
 	                 ));
@@ -165,4 +165,6 @@ public class NotificaDao {
 	        return righeCancellate > 0;
 	    }
 	}
+	
+	
 }

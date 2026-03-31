@@ -5,6 +5,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -41,29 +45,12 @@ private static final long serialVersionUID = 1L;
 	
 	public FinestraCreaLotto(Controller controller) {
 		this.controller=controller;
-		setLayout(new BorderLayout());
-		JPanel pnlNord= new JPanel(new FlowLayout());
-		JPanel pnlSud= new JPanel (new FlowLayout());
-		JPanel pnlEst= new JPanel( new FlowLayout());
-		JPanel pnlOvest= new JPanel( new FlowLayout());
-		JPanel pnlCenter= new JPanel();
-		pnlCenter.setLayout(new BoxLayout(pnlCenter,BoxLayout.Y_AXIS));
-		pnlNord.setBackground(Color.GREEN);
-		pnlNord.setPreferredSize(new Dimension(600,50));
-		pnlSud.setBackground(Color.GREEN);
-		pnlSud.setPreferredSize(new Dimension(500,50));
-		pnlEst.setBackground(Color.GREEN);
-		pnlEst.setPreferredSize(new Dimension(50,500));
-		pnlOvest.setBackground(Color.GREEN);
-		pnlOvest.setPreferredSize(new Dimension(50,500));
-		add(pnlNord,BorderLayout.NORTH);
-		add(pnlSud,BorderLayout.SOUTH);
-		add(pnlEst,BorderLayout.EAST);
-		add(pnlOvest,BorderLayout.WEST);
-		add(pnlCenter,BorderLayout.CENTER);
+		Dimension grandezza= new Dimension(180,30);
+		Dimension pnl= new Dimension(1000,70);
+		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+		this.setOpaque(false);
 		Dimension riga= new Dimension(100,30);
-		Font fontGrande= new Font("Arial",Font.PLAIN,20);
-		
+		Font fontGrande= new Font("Arial",Font.PLAIN,20);		
 		JPanel pnlTessMorf= new JPanel(new FlowLayout());
 		pnlTessMorf.setPreferredSize(new Dimension(100,100));
 		JLabel tessitura= new JLabel("Tessitura:");
@@ -77,16 +64,16 @@ private static final long serialVersionUID = 1L;
 		pnlTessMorf.add(Box.createRigidArea(new Dimension(40,0)));
 		pnlTessMorf.add(morfologia);
 		pnlTessMorf.add(tipoMorfologia);
-		pnlCenter.add(Box.createVerticalGlue());
-		pnlCenter.add(pnlTessMorf);
+		add(Box.createVerticalGlue());
+		add(pnlTessMorf);
 		
 		JPanel pnlDimPhAlt= new JPanel(new FlowLayout());
 		pnlDimPhAlt.setPreferredSize(new Dimension(100,100));
-		JLabel dimensioni= new JLabel("Dimensioni");
+		JLabel dimensioni= new JLabel("Dimensioni:");
 		dimensioni.setFont(fontGrande);
 		JLabel ph= new JLabel("Ph:");
 		ph.setFont(fontGrande);
-		JLabel altitudine= new JLabel("Altitudine");
+		JLabel altitudine= new JLabel("Altitudine:");
 		altitudine.setFont(fontGrande);
 		cmpDimensioni= new JTextField(10);
 		cmpDimensioni.setPreferredSize(riga);
@@ -105,7 +92,8 @@ private static final long serialVersionUID = 1L;
 		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(30,0)));
 		pnlDimPhAlt.add(altitudine);
 		pnlDimPhAlt.add(cmpAltitudine);
-		pnlCenter.add(pnlDimPhAlt);
+		add(Box.createVerticalStrut(30));
+		add(pnlDimPhAlt);
 		
 		JPanel pnlLuogo= new JPanel(new FlowLayout());
 		pnlLuogo.setPreferredSize(new Dimension(100,100));
@@ -133,7 +121,8 @@ private static final long serialVersionUID = 1L;
 		pnlLuogo.add(Box.createRigidArea(new Dimension(20,0)));
 		pnlLuogo.add(provincia);
 		pnlLuogo.add(cmpProvincia);
-		pnlCenter.add(pnlLuogo);
+		add(Box.createVerticalStrut(30));
+		add(pnlLuogo);
 		
 		JPanel pnlBottoni= new JPanel(new FlowLayout());
 		pnlBottoni.setPreferredSize(new Dimension(100,100));
@@ -146,8 +135,14 @@ private static final long serialVersionUID = 1L;
 		pnlBottoni.add(salva);
 		pnlBottoni.add(Box.createRigidArea(new Dimension(50,0)));
 		pnlBottoni.add(annulla);
-		pnlCenter.add(pnlBottoni);
-		pnlCenter.add(Box.createVerticalGlue());
+		add(Box.createVerticalStrut(30));
+		add(pnlBottoni);
+		add(Box.createVerticalGlue());
+		pnlTessMorf.setOpaque(false);
+		pnlDimPhAlt.setOpaque(false);
+		pnlLuogo.setOpaque(false);
+		pnlBottoni.setOpaque(false);
+	
 		
 		annulla.addActionListener(e->{
 			pulisciCampi();
@@ -287,5 +282,19 @@ private static final long serialVersionUID = 1L;
 	public JComboBox<String> getCmpMorfologia(){
 		return tipoMorfologia;
 	}
+	@Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);	        
+        int w = getWidth();
+        int h = getHeight();
+        Color c1 = new Color(245, 163, 96); 
+        Color c2 = new Color(200,200,200);
+        GradientPaint gp = new GradientPaint(0, 0, c1, 0, h, c2);	        
+        g2d.setPaint(gp);
+        g2d.fillRect(0, 0, w, h);	        
+        super.paintComponent(g); 
+    }
+	
 
 }

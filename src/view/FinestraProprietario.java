@@ -5,6 +5,10 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -28,8 +32,7 @@ public class FinestraProprietario extends JPanel {
 	private CardLayout layoutInterno;
 	private JPanel pnlCard;
 	private FinestraCreaProgetto finCreaProgetto;
-	private FinestraAttivitaAssegnate finAttivitaAssegnate;
-	//private FinestraVisualizzaAttivita finVisualizzaAttivita;
+	private FinestraAttivitaAssegnate finAttivitaAssegnate;	
 	private FinestraVisualizzaLotti finVisualizzaLotti;
 	private FinestraCreaLotto finCreaLotto;
 	private FinestraVisualizzaProgetti finVisualizzaProgetti;
@@ -38,12 +41,13 @@ public class FinestraProprietario extends JPanel {
 	private FinestraCreaNotifica finCreaNotifica;
 	private FinestraVisualizzaNotifiche finVisualizzaNotifiche;
 	
+	
 	public FinestraProprietario(Controller controller) {
 		this.setController(controller);
-		// inizializzazione finestre
+	
+		
 		finCreaProgetto= new FinestraCreaProgetto(controller);
-		finAttivitaAssegnate= new FinestraAttivitaAssegnate(controller);
-		//finVisualizzaAttivita= new FinestraVisualizzaAttivita(controller);
+		finAttivitaAssegnate= new FinestraAttivitaAssegnate(controller);		
 		finVisualizzaLotti= new FinestraVisualizzaLotti(controller);
 		finCreaLotto= new FinestraCreaLotto(controller);
 		finVisualizzaProgetti= new FinestraVisualizzaProgetti(controller);
@@ -51,16 +55,28 @@ public class FinestraProprietario extends JPanel {
 		finReport= new FinestraReport(controller);
 		finCreaNotifica= new FinestraCreaNotifica(controller);
 		finVisualizzaNotifiche= new FinestraVisualizzaNotifiche(controller);
-		// lato nord
 		setLayout(new BorderLayout());
 		JPanel pnlNord= new JPanel(new FlowLayout());
 		pnlNord.setBackground(new Color(245,235,220));
 		Dimension area= new Dimension(400,150);
 		pnlNord.setPreferredSize(area);
-		add(pnlNord, BorderLayout.NORTH);
-		// lato ovest
-		JPanel pnlOvest= new JPanel();
-		
+		add(pnlNord, BorderLayout.NORTH);	
+		JPanel pnlOvest= new JPanel() {
+			@Override
+		    protected void paintComponent(Graphics g) {
+		        super.paintComponent(g);
+		        Graphics2D g2d = (Graphics2D) g;
+		        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		        int w = getWidth();
+		        int h = getHeight();		       
+		        Color color1 = new Color(150, 240, 150); 
+		        Color color2 = new Color(0, 0, 0);
+		        GradientPaint gp = new GradientPaint(0, 0, color1, h, 0, color2);
+		        g2d.setPaint(gp);
+		        g2d.fillRect(0, 0, w, h);
+		    }
+		};
+		pnlOvest.setOpaque(false);
 		attivitaAssegnate= new JButton("Attività assegnate");
 		attivitaAssegnate.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaLotti= new JButton("I miei lotti");
@@ -88,14 +104,12 @@ public class FinestraProprietario extends JPanel {
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaColture);
 		pnlOvest.add(Box.createVerticalStrut(40));
-		pnlOvest.add(visualizzaReport);
-		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(creaNotifiche);
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(esci);
 		pnlOvest.add(Box.createVerticalGlue());
 		add(pnlOvest,BorderLayout.WEST);
-		// lato centro-sud-est
+		
 		layoutInterno= new CardLayout();
 		pnlCard= new JPanel(layoutInterno);
 		JPanel pnlBianco= new JPanel();
@@ -106,8 +120,8 @@ public class FinestraProprietario extends JPanel {
 		pnlCard.add(finVisualizzaLotti,"visualizza lotti");
 		pnlCard.add(finCreaLotto,"crea lotto");
 		pnlCard.add(finVisualizzaProgetti,"visualizza progetti");
-		pnlCard.add(finVisualizzaColture,"lista colture");
 		pnlCard.add(finReport,"report");
+		pnlCard.add(finVisualizzaColture,"lista colture");
 		pnlCard.add(finVisualizzaNotifiche,"visualizza notifiche");
 		pnlCard.add(finCreaNotifica,"crea notifica");
 		
@@ -129,20 +143,19 @@ public class FinestraProprietario extends JPanel {
 			controller.caricaColture();
 			controller.mostraPanelInterno("lista colture");
 		});
-		/*visualizzaReport.addActionListener(e->{
-			controller.mostraPanelInterno("report");
-		});*/
 		creaNotifiche.addActionListener(e->{
 			controller.caricaNotificheInviate();
 			controller.mostraPanelInterno("visualizza notifiche");
 		});
 		esci.addActionListener(e->{
+			controller.mostraPanelInterno("prima carta");
 			controller.mostraPanel("prima pagina");
 		});
 		
 		
 		
 	}
+	
 	
 	public void mostraPanelInterno(String testo) {
 		layoutInterno.show(pnlCard, testo);

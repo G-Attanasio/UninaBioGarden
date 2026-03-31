@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -20,9 +21,15 @@ public class FinestraColtivatore extends JPanel {
 	private JButton visualizzaAttivita;
 	private JButton visualizzaNotifiche;
 	private JButton esci;
+	private CardLayout layoutInterno;
+	private JPanel pnlCard;
+	private FinestraVisualizzaAttivita finVisualizzaAttivita;
+	private FinestraVisualizzaNotifiche finVisualizzaNotifiche;
 	
 	public FinestraColtivatore( Controller controller) {
 		this.controller=controller;
+		finVisualizzaAttivita= new FinestraVisualizzaAttivita(controller);
+		finVisualizzaNotifiche= new FinestraVisualizzaNotifiche(controller);
 		// lato nord
 		setLayout(new BorderLayout());
 		JPanel pnlNord= new JPanel(new FlowLayout());
@@ -50,5 +57,46 @@ public class FinestraColtivatore extends JPanel {
 		pnlOvest.add(Box.createVerticalGlue());
 				
 		add(pnlOvest,BorderLayout.WEST);
+		
+		layoutInterno= new CardLayout();
+		pnlCard= new JPanel(layoutInterno);
+		JPanel pnlBianco= new JPanel();
+		pnlBianco.setBackground(Color.WHITE);
+		pnlCard.add(pnlBianco,"prima carta");
+		pnlCard.add(finVisualizzaAttivita,"visualizza attivita");
+		pnlCard.add(finVisualizzaNotifiche,"visualizza notifiche");
+		add(pnlCard,BorderLayout.CENTER);
+		visualizzaAttivita.addActionListener(e->{
+			controller.caricaAttivitaColtivatore();
+			controller.mostraPanelInterno("visualizza attivita");
+		});
+		
+		visualizzaNotifiche.addActionListener(e->{
+			controller.caricaNotificheRicevute();
+			controller.mostraPanelInterno("visualizza notifiche");
+		});
+		
+		esci.addActionListener(e->{
+			controller.mostraPanelInterno("prima carta");
+			controller.mostraPanel("prima pagina");
+		});
 	}
+	
+	public void mostraPanelInterno(String testo) {
+		layoutInterno.show(pnlCard, testo);
+	}
+
+	public FinestraVisualizzaAttivita getFinVisualizzaAttivita() {
+		return finVisualizzaAttivita;
+	}
+
+	public FinestraVisualizzaNotifiche getFinVisualizzaNotifiche() {
+		return finVisualizzaNotifiche;
+	}
+
+
+
+	
+	
+	
 }

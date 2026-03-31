@@ -5,6 +5,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -15,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
@@ -38,84 +43,120 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	
 	public FinestraIscrizioneProprietario(Controller controller) {
 		this.controller=controller;
-		setLayout(new BorderLayout());
-		JPanel pnlNord= new JPanel(new FlowLayout());
-		JPanel pnlSud= new JPanel (new FlowLayout());
-		JPanel pnlEst= new JPanel( new FlowLayout());
-		JPanel pnlOvest= new JPanel( new FlowLayout());
-		JPanel pnlCenter= new JPanel();
-		pnlCenter.setLayout(new BoxLayout(pnlCenter,BoxLayout.Y_AXIS));
-		pnlNord.setBackground(Color.GREEN);
-		pnlNord.setPreferredSize(new Dimension(600,100));
-		pnlSud.setBackground(Color.GREEN);
-		pnlSud.setPreferredSize(new Dimension(500,100));
-		pnlEst.setBackground(Color.GREEN);
-		pnlEst.setPreferredSize(new Dimension(100,500));
-		pnlOvest.setBackground(Color.GREEN);
-		pnlOvest.setPreferredSize(new Dimension(100,500));
-		add(pnlNord,BorderLayout.NORTH);
-		add(pnlSud,BorderLayout.SOUTH);
-		add(pnlEst,BorderLayout.EAST);
-		add(pnlOvest,BorderLayout.WEST);
-		add(pnlCenter,BorderLayout.CENTER);
-		Dimension riga= new Dimension(100,30);
+		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+		this.setOpaque(false);
+		Dimension grandezza= new Dimension(180,30);
+		Dimension pnl= new Dimension(1000,70);
+		Dimension riga= new Dimension(300,25);
 		Font fontGrande= new Font("Arial",Font.PLAIN,20);
 		
-		JPanel pnlNomeCognome = new JPanel(new FlowLayout());
+		JPanel pnlNomeCognome = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		pnlNomeCognome.setBorder(BorderFactory.createEmptyBorder(0,60,0,0));
+		pnlNomeCognome.setOpaque(false);
+		pnlNomeCognome.setMaximumSize(pnl);
 		JLabel nome= new JLabel("Nome:");
+		nome.setFont(fontGrande);
 		JLabel cognome= new JLabel("Cognome:");
+		cognome.setFont(fontGrande);
 		cmpNome= new JTextField(20);
+		cmpNome.setPreferredSize(riga);
+		cmpNome.setFont(fontGrande);
 		cmpCognome= new JTextField(20);
+		cmpCognome.setPreferredSize(riga);
+		cmpCognome.setFont(fontGrande);
 		pnlNomeCognome.add(nome);
 		pnlNomeCognome.add(cmpNome);
 		pnlNomeCognome.add(cognome);
 		pnlNomeCognome.add(cmpCognome);
-		pnlCenter.add(pnlNomeCognome);
+		add(Box.createVerticalGlue());
+		add(pnlNomeCognome);
 		
-		JPanel pnlUsername= new JPanel (new FlowLayout());
+		JPanel pnlUsername= new JPanel (new FlowLayout(FlowLayout.LEFT));
+		pnlUsername.setBorder(BorderFactory.createEmptyBorder(0,60,0,0));
+		pnlUsername.setOpaque(false);
+		pnlUsername.setMaximumSize(pnl);
 		JLabel username= new JLabel ("Username:");
+		username.setFont(fontGrande);
 		cmpUsername= new JTextField(20);
+		cmpUsername.setPreferredSize(riga);
+		cmpUsername.setFont(fontGrande);
 		pnlUsername.add(username);
 		pnlUsername.add(cmpUsername);
-		pnlCenter.add(pnlUsername);
+		add(Box.createVerticalStrut(30));
+		add(pnlUsername);
 		
-		JPanel pnlEmail= new JPanel (new FlowLayout());
+		JPanel pnlEmail= new JPanel (new FlowLayout(FlowLayout.LEFT));
+		pnlEmail.setBorder(BorderFactory.createEmptyBorder(0,60,0,0));
+		pnlEmail.setOpaque(false);
+		pnlEmail.setMaximumSize(pnl);
 		JLabel email= new JLabel("Email:");
+		email.setFont(fontGrande);
 		cmpEmail= new JTextField(20);
+		cmpEmail.setFont(fontGrande);
+		cmpEmail.setPreferredSize(riga);
 		pnlEmail.add(email);
 		pnlEmail.add(cmpEmail);
-		pnlCenter.add(pnlEmail);
+		add(Box.createVerticalStrut(30));
+		add(pnlEmail);
 		
-		JPanel pnlData= new JPanel (new FlowLayout());
+		JPanel pnlData= new JPanel (new FlowLayout(FlowLayout.LEFT));
+		pnlData.setBorder(BorderFactory.createEmptyBorder(0,60,0,0));
+		pnlData.setMaximumSize(pnl);
+		pnlData.setOpaque(false);
 		JLabel dataNascita= new JLabel ("Data di nascita:");
+		dataNascita.setFont(fontGrande);
 		cmpDataNascita= new JTextField(20);
+		cmpDataNascita.setFont(fontGrande);
+		cmpDataNascita.setPreferredSize(riga);
 		pnlData.add(dataNascita);
 		pnlData.add(cmpDataNascita);
-		pnlCenter.add(pnlData);
+		add(Box.createVerticalStrut(30));
+		add(pnlData);
 		
-		JPanel pnlPassword= new JPanel( new FlowLayout());
+		JPanel pnlPassword= new JPanel( new FlowLayout(FlowLayout.LEFT));
+		pnlPassword.setBorder(BorderFactory.createEmptyBorder(0,60,0,0));
+		pnlPassword.setMaximumSize(pnl);
+		pnlPassword.setOpaque(false);
 		JLabel password= new JLabel("Password:");
 		JLabel confermaPassword= new JLabel("Conferma password:");
-		cmpPassword= new JPasswordField(20);
-		cmpConfermaPassword= new JPasswordField(20);
+		password.setFont(fontGrande);
+		confermaPassword.setFont(fontGrande);
+		cmpPassword= new JPasswordField(15);
+		cmpPassword.setFont(fontGrande);
+		cmpPassword.setPreferredSize(riga);
+		cmpConfermaPassword= new JPasswordField(15);
+		cmpConfermaPassword.setFont(fontGrande);
+		cmpConfermaPassword.setPreferredSize(riga);
 		pnlPassword.add(password);
 		pnlPassword.add(cmpPassword);
 		pnlPassword.add(confermaPassword);
 		pnlPassword.add(cmpConfermaPassword);
-		pnlCenter.add(pnlPassword);
+		add(Box.createVerticalStrut(30));
+		add(pnlPassword);
 		
-		JPanel pnlBottoni= new JPanel(new FlowLayout());
+		JPanel pnlBottoni= new JPanel(new FlowLayout(FlowLayout.CENTER,80,10));
+		pnlBottoni.setMaximumSize(pnl);
+		pnlBottoni.setOpaque(false);
 		avanti= new JButton("Avanti");
+		avanti.setFont(fontGrande);
+		avanti.setPreferredSize(grandezza);
+		avanti.setMaximumSize(grandezza);
 		avanti.setAlignmentX(CENTER_ALIGNMENT);
 		esci= new JButton("Esci");
+		esci.setFont(fontGrande);
+		esci.setPreferredSize(grandezza);
+		esci.setMaximumSize(grandezza);
 		esci.setAlignmentX(CENTER_ALIGNMENT);
 		pnlBottoni.add(avanti);
 		pnlBottoni.add(esci);
-		pnlCenter.add(pnlBottoni);
+		add(Box.createVerticalStrut(30));
+		add(pnlBottoni);
+		add(Box.createVerticalGlue());
 		
 		
 		
 		esci.addActionListener(e->{
+			pulisciCampi();
 			controller.mostraPanel("prima pagina");
 		});
 		avanti.addActionListener(e->{
@@ -126,6 +167,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	public void messaggioErrore(JTextField campo, String messaggio) {
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
 	}
 	
 	public void resetBordi() {
@@ -144,8 +186,18 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		cmpPassword.setToolTipText(null);
 		cmpConfermaPassword.setBorder(bordo);
 		cmpConfermaPassword.setToolTipText(null);
-		avanti.setEnabled(true);
 		
+	}
+	
+	public void pulisciCampi() {
+	    cmpNome.setText("");
+	    cmpCognome.setText("");
+	    cmpUsername.setText("");
+	    cmpEmail.setText("");
+	    cmpDataNascita.setText("");
+	    cmpPassword.setText("");
+	    cmpConfermaPassword.setText("");
+	    resetBordi();
 	}
 
 	public Controller getController() {
@@ -263,6 +315,21 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	public JTextField getCmpCognome() {
 		return cmpCognome;
 	}
+	
+	
+	 @Override
+	    protected void paintComponent(Graphics g) {
+	        Graphics2D g2d = (Graphics2D) g;
+	        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);	        
+	        int w = getWidth();
+	        int h = getHeight();
+	        Color c1 = new Color(150, 250, 150); 
+	        Color c2 = new Color(200,200,200);
+	        GradientPaint gp = new GradientPaint(0, 0, c1, 0, h, c2);	        
+	        g2d.setPaint(gp);
+	        g2d.fillRect(0, 0, w, h);	        
+	        super.paintComponent(g); 
+	    }
 	
 	
 }

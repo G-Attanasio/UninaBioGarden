@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import database.DBConnection;
 import model.Attivita;
+import model.Coltura;
 import model.Irrigazione;
 import model.ProgettoStagionale;
 import model.Raccolta;
@@ -264,6 +265,111 @@ public class AttivitaDao {
         return lista;
     }
 }
+        
+        public ArrayList<Attivita> prelevaAttivitaColtivatore(int idColtivatore) throws SQLException {
+            ArrayList<Attivita> lista = new ArrayList<>();
+            String sql = "SELECT A.*, PS.NOMEPROGETTO, U.USERNAME, S.METODOSEMINA, R.METODORACCOLTA, I.METODOIRRIGAZIONE, " +
+                    "COALESCE(C_R.NOME, C_S.NOME) AS COLT " + 
+                    "FROM ATTIVITA A " +
+                    "JOIN PROGETTOSTAGIONALE PS ON A.FK_CODPROGETTO = PS.CODPROGETTO " +
+                    "JOIN UTENTE U ON A.FK_COLTIVATORE = U.IDUTENTE " +
+                    "LEFT JOIN SEMINA S ON A.CODATTIVITA = S.FK_CODATTIVITA " +
+                    "LEFT JOIN SEMINACOLTURA SC ON S.FK_CODATTIVITA = SC.FK_CODATTIVITA " + 
+                    "LEFT JOIN RACCOLTA R ON A.CODATTIVITA = R.FK_CODATTIVITA " +
+                    "LEFT JOIN IRRIGAZIONE I ON A.CODATTIVITA = I.FK_CODATTIVITA " +
+                    "LEFT JOIN COLTURA C_R ON R.FK_CODCOLTURA = C_R.CODCOLTURA " + 
+                    "LEFT JOIN COLTURA C_S ON SC.FK_CODCOLTURA = C_S.CODCOLTURA " + 
+                    "WHERE A.FK_COLTIVATORE = ? " +
+                    "ORDER BY A.DATAINIZIO";
+            
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, idColtivatore);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) { 
+                	 Coltura c= new Coltura(0,null,null,null,0,null,null);
+                	 c.setNome(rs.getString("COLT"));         
+                     ProgettoStagionale prog= new ProgettoStagionale(0,null,null,0,null,null,null,null,null);
+                     prog.setNomeProgetto(rs.getString("NOMEPROGETTO"));
+                     if (rs.getString("METODOSEMINA") != null) {
+                         lista.add(new Semina(
+                        	 rs.getInt("CODATTIVITA"),
+                        	 Stato.valueOf(rs.getString("STATOESECUZIONE").toString().toUpperCase()),
+                             rs.getDate("DATAINIZIO").toLocalDate(),
+                             rs.getDate("DATAFINE").toLocalDate(),
+                             null,
+                             prog,
+                             TipoSemina.valueOf(rs.getString("METODOSEMINA").toUpperCase())
+                         ));
+                     } else if (rs.getString("METODORACCOLTA") != null) {
+                         lista.add(new Raccolta(
+                        	 rs.getInt("CODATTIVITA"),	 
+                        	 Stato.valueOf(rs.getString("STATOESECUZIONE").toString().toUpperCase()),
+                             rs.getDate("DATAINIZIO").toLocalDate(),
+                             rs.getDate("DATAFINE").toLocalDate(),
+                             null,
+                             prog,
+                             TipoRaccolta.valueOf(rs.getString("METODORACCOLTA").toUpperCase()),
+                             0,
+                             0,
+                             c
+                         ));
+                     } else if (rs.getString("METODOIRRIGAZIONE") != null) {
+                         lista.add(new Irrigazione(
+                        	 rs.getInt("CODATTIVITA"),
+                        	 Stato.valueOf(rs.getString("STATOESECUZIONE").toString().toUpperCase()),
+                             rs.getDate("DATAINIZIO").toLocalDate(),
+                             rs.getDate("DATAFINE").toLocalDate(),
+                             null,
+                             prog,
+                             TipoIrrigazione.valueOf(rs.getString("METODOIRRIGAZIONE").toUpperCase())
+                         ));
+                     }
+               
+            }
+            return lista;
+        }
+    }
+    
+            
+      public ArrayList<SeminaColtura> prelevaDettagliColturePerColtivatore (int idColtivatore) throws SQLException {
+                ArrayList<SeminaColtura> lista = new ArrayList<>();
+                String sql = "SELECT SC.FK_CODATTIVITA, C.NOME " +
+                             "FROM SEMINACOLTURA SC " +
+                             "JOIN COLTURA C ON SC.FK_CODCOLTURA = C.CODCOLTURA " +
+                             "JOIN ATTIVITA A ON SC.FK_CODATTIVITA = A.CODATTIVITA " +                            
+                             "WHERE A.FK_COLTIVATORE = ?";              
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setInt(1, idColtivatore);
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        Coltura c = new Coltura(0, rs.getString("NOME"), null, null, 0, null, null);                     
+                        Semina s = new Semina(rs.getInt("FK_CODATTIVITA"), null, null, null, null, null, null);
+                        lista.add(new SeminaColtura(c, s, 0));
+                    }
+                }
+                return lista;
+            }
+            
+      public void aggiornaQuantitaReale(int codAttivita, double kg) throws SQLException {
+    	    String sql = "UPDATE RACCOLTA SET QUANTITAREALE = ? WHERE FK_CODATTIVITA = ?";   	    
+    	    try (Connection conn = DBConnection.getConnection();
+    	         PreparedStatement ps = conn.prepareStatement(sql)) {  	        
+    	        ps.setDouble(1, kg);
+    	        ps.setInt(2, codAttivita);  	        
+    	        int righe = ps.executeUpdate();
+    	        if (righe > 0) {
+    	            System.out.println("DEBUG DAO: Quantità aggiornata con successo per attività " + codAttivita);
+    	        } else {
+    	            System.out.println("DEBUG DAO: Nessuna riga trovata per l'ID " + codAttivita);
+    	        }
+    	    } catch (SQLException e) {
+    	        System.err.println("ERRORE DAO: " + e.getMessage());
+    	        throw e; 
+    	    }
+    	}
 }
+
 
 

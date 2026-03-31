@@ -5,6 +5,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -14,6 +18,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import controller.Controller;
 
@@ -38,31 +45,14 @@ public class FinestraIscriviLotto extends JPanel {
 	
 	public FinestraIscriviLotto(Controller controller) {
 		this.controller=controller;
-		setLayout(new BorderLayout());
-		JPanel pnlNord= new JPanel(new FlowLayout());
-		JPanel pnlSud= new JPanel (new FlowLayout());
-		JPanel pnlEst= new JPanel( new FlowLayout());
-		JPanel pnlOvest= new JPanel( new FlowLayout());
-		JPanel pnlCenter= new JPanel();
-		pnlCenter.setLayout(new BoxLayout(pnlCenter,BoxLayout.Y_AXIS));
-		pnlNord.setBackground(Color.GREEN);
-		pnlNord.setPreferredSize(new Dimension(600,100));
-		pnlSud.setBackground(Color.GREEN);
-		pnlSud.setPreferredSize(new Dimension(500,100));
-		pnlEst.setBackground(Color.GREEN);
-		pnlEst.setPreferredSize(new Dimension(100,500));
-		pnlOvest.setBackground(Color.GREEN);
-		pnlOvest.setPreferredSize(new Dimension(100,500));
-		add(pnlNord,BorderLayout.NORTH);
-		add(pnlSud,BorderLayout.SOUTH);
-		add(pnlEst,BorderLayout.EAST);
-		add(pnlOvest,BorderLayout.WEST);
-		add(pnlCenter,BorderLayout.CENTER);
+		Dimension grandezza= new Dimension(180,30);
+		Dimension pnl= new Dimension(1000,70);
+		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+		this.setOpaque(false);
 		Dimension riga= new Dimension(100,30);
-		Font fontGrande= new Font("Arial",Font.PLAIN,20);
-		
+		Font fontGrande= new Font("Arial",Font.PLAIN,20);		
 		JPanel pnlTessMorf= new JPanel(new FlowLayout());
-		pnlTessMorf.setPreferredSize(new Dimension(100,100));
+		pnlTessMorf.setPreferredSize(pnl);
 		JLabel tessitura= new JLabel("Tessitura:");
 		tessitura.setFont(fontGrande);
 		JLabel morfologia= new JLabel("Morfologia:");
@@ -71,19 +61,19 @@ public class FinestraIscriviLotto extends JPanel {
 		morfologia.setFont(fontGrande);
 		pnlTessMorf.add(tessitura);
 		pnlTessMorf.add(tipoTessitura);
-		pnlTessMorf.add(Box.createRigidArea(new Dimension(70,0)));
+		pnlTessMorf.add(Box.createRigidArea(new Dimension(40,0)));
 		pnlTessMorf.add(morfologia);
 		pnlTessMorf.add(tipoMorfologia);
-		pnlCenter.add(Box.createVerticalGlue());
-		pnlCenter.add(pnlTessMorf);
+		add(Box.createVerticalStrut(200));
+		add(pnlTessMorf);
 		
 		JPanel pnlDimPhAlt= new JPanel(new FlowLayout());
-		pnlDimPhAlt.setPreferredSize(new Dimension(100,100));
-		JLabel dimensioni= new JLabel("Dimensioni");
+		pnlDimPhAlt.setPreferredSize(pnl);
+		JLabel dimensioni= new JLabel("Dimensioni:");
 		dimensioni.setFont(fontGrande);
 		JLabel ph= new JLabel("Ph:");
 		ph.setFont(fontGrande);
-		JLabel altitudine= new JLabel("Altitudine");
+		JLabel altitudine= new JLabel("Altitudine:");
 		altitudine.setFont(fontGrande);
 		cmpDimensioni= new JTextField(10);
 		cmpDimensioni.setPreferredSize(riga);
@@ -96,16 +86,17 @@ public class FinestraIscriviLotto extends JPanel {
 		cmpAltitudine.setFont(fontGrande);
 		pnlDimPhAlt.add(dimensioni);
 		pnlDimPhAlt.add(cmpDimensioni);
-		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(50,0)));
+		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(30,0)));
 		pnlDimPhAlt.add(ph);
 		pnlDimPhAlt.add(cmpPh);
-		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(50,0)));
+		pnlDimPhAlt.add(Box.createRigidArea(new Dimension(30,0)));
 		pnlDimPhAlt.add(altitudine);
 		pnlDimPhAlt.add(cmpAltitudine);
-		pnlCenter.add(pnlDimPhAlt);
+		add(Box.createVerticalStrut(30));
+		add(pnlDimPhAlt);
 		
 		JPanel pnlLuogo= new JPanel(new FlowLayout());
-		pnlLuogo.setPreferredSize(new Dimension(100,100));
+		pnlLuogo.setPreferredSize(pnl);
 		JLabel località= new JLabel("Località:");
 		località.setFont(fontGrande);
 		JLabel comune= new JLabel("Comune:");
@@ -124,13 +115,14 @@ public class FinestraIscriviLotto extends JPanel {
 		
 		pnlLuogo.add(località);
 		pnlLuogo.add(cmpLocalità);
-		pnlLuogo.add(Box.createRigidArea(new Dimension(50,0)));
+		pnlLuogo.add(Box.createRigidArea(new Dimension(20,0)));
 		pnlLuogo.add(comune);
 		pnlLuogo.add(cmpComune);
-		pnlLuogo.add(Box.createRigidArea(new Dimension(40,0)));
+		pnlLuogo.add(Box.createRigidArea(new Dimension(20,0)));
 		pnlLuogo.add(provincia);
 		pnlLuogo.add(cmpProvincia);
-		pnlCenter.add(pnlLuogo);
+		add(Box.createVerticalStrut(30));
+		add(pnlLuogo);
 		
 		JPanel pnlBottoni= new JPanel(new FlowLayout());
 		pnlBottoni.setPreferredSize(new Dimension(100,100));
@@ -141,18 +133,24 @@ public class FinestraIscriviLotto extends JPanel {
 		indietro.setPreferredSize(riga);
 		indietro.setFont(fontGrande);
 		pnlBottoni.add(salva);
-		pnlBottoni.add(Box.createRigidArea(new Dimension(120,0)));
+		pnlBottoni.add(Box.createRigidArea(new Dimension(50,0)));
 		pnlBottoni.add(indietro);
-		pnlCenter.add(pnlBottoni);
-		pnlCenter.add(Box.createVerticalGlue());
+		add(Box.createVerticalStrut(30));
+		add(pnlBottoni);
+		add(Box.createVerticalGlue());
+		pnlTessMorf.setOpaque(false);
+		pnlDimPhAlt.setOpaque(false);
+		pnlLuogo.setOpaque(false);
+		pnlBottoni.setOpaque(false);
+	
 		
 		indietro.addActionListener(e->{
-	            controller.mostraPanel("iscrizione proprietario");
+			pulisciCampi();
+	        controller.mostraPanel("iscrizione proprietario");
 	           
 		});
 		salva.addActionListener(e->{
-				controller.validaIscrizioneUtenteProprietario();
-	            
+			 controller.validaIscrizioneUtenteProprietario();			   
 		});
 		
 	}
@@ -162,11 +160,45 @@ public class FinestraIscriviLotto extends JPanel {
 	public void messaggioErrore(JTextField campo, String messaggio) {
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+		
 	}
 	
 	public void messaggioErroreBottone(JButton bottone, String messaggio) {
 		bottone.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		bottone.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
+	public void resetBordi(){		
+		Border bordo= UIManager.getBorder("TextField.border");
+		cmpDimensioni.setBorder(bordo);
+		cmpDimensioni.setToolTipText(null);
+		cmpPh.setBorder(bordo);
+		cmpPh.setToolTipText(null);
+		cmpAltitudine.setBorder(bordo);
+		cmpAltitudine.setToolTipText(null);
+		cmpLocalità.setBorder(bordo);
+		cmpLocalità.setToolTipText(null);
+		cmpComune.setBorder(bordo);
+		cmpComune.setToolTipText(null);
+		cmpProvincia.setBorder(bordo);
+		cmpProvincia.setToolTipText(null);
+		salva.setBorder(bordo);
+		salva.setToolTipText(null);
+		indietro.setBorder(bordo);
+		indietro.setToolTipText(null);
+		
+	}
+	
+	public void pulisciCampi() {
+	    cmpDimensioni.setText("");
+	    cmpPh.setText("");
+	    cmpAltitudine.setText("");
+	    cmpLocalità.setText("");
+	    cmpComune.setText("");
+	    cmpProvincia.setText("");;
+	    resetBordi();
 	}
 
 	public Controller getController() {
@@ -217,9 +249,7 @@ public class FinestraIscriviLotto extends JPanel {
 		return salva;
 	}
 
-	public JButton getIndietro() {
-		return indietro;
-	}
+	
 
 	public JTextField getCmpDimensioni() {
 		return cmpDimensioni;
@@ -250,5 +280,17 @@ public class FinestraIscriviLotto extends JPanel {
 	public JComboBox<String> getCmpMorfologia(){
 		return tipoMorfologia;
 	}
-
+	@Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);	        
+        int w = getWidth();
+        int h = getHeight();
+        Color c1 = new Color(245, 163, 96); 
+        Color c2 = new Color(200,200,200);
+        GradientPaint gp = new GradientPaint(0, 0, c1, 0, h, c2);	        
+        g2d.setPaint(gp);
+        g2d.fillRect(0, 0, w, h);	        
+        super.paintComponent(g); 
+    }
 }

@@ -29,6 +29,7 @@ public class FinestraReport extends JPanel {
 	
 	public FinestraReport(Controller controller) {
 		this.controller= controller;
+		System.out.println("IDENTITÀ REPORT: Sono l'oggetto " + this.hashCode());
 		setLayout(new BorderLayout());
 		JPanel pnlBottoni= new JPanel(new FlowLayout());
 		indietro= new JButton("Indietro");
@@ -36,6 +37,14 @@ public class FinestraReport extends JPanel {
 		add(pnlBottoni,BorderLayout.SOUTH);
 		pnlGrafico= new JPanel(new BorderLayout());
 		add(pnlGrafico,BorderLayout.CENTER);
+		pnlGrafico.revalidate(); 
+	    pnlGrafico.repaint();
+	    
+	    // Aggiorna anche la finestra principale per sicurezza
+	    this.revalidate();
+	    this.repaint();
+	    
+	    System.out.println("DEBUG VIEW: Refresh eseguito su pnlGrafico!");
 		
 		indietro.addActionListener(e->{
 			controller.mostraPanelInterno("visualizza progetti");
@@ -44,12 +53,16 @@ public class FinestraReport extends JPanel {
 	}
 	
 	public void costruisciGrafico(ArrayList<Object[]> datiDaPassare) {
+		 System.out.println("DEBUG VIEW: Ricevuti dati, inizio disegno...");
+		 try {
+			 
+		 
 	    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 	    for (Object[] d : datiDaPassare) {
 	    	 String nome = d[0].toString();
-	         double semi = (double) d[1];
-	         double prevista = (double) d[2];
-	         double reale = (double) d[3];
+	         double semi = Double.parseDouble(d[1].toString());
+	         double prevista = Double.parseDouble(d[2].toString())
+;	         double reale = Double.parseDouble(d[3].toString());
 	        dataset.addValue(semi, "Quantità semi (Kg)", nome);
 	        dataset.addValue(prevista, "Quantità prevista (Kg)", nome);
 	        dataset.addValue(reale, "Quantità reale (Kg)", nome);
@@ -68,5 +81,10 @@ public class FinestraReport extends JPanel {
 	    pnlGrafico.add(cp, BorderLayout.CENTER);	    
 	    revalidate();
 	    repaint();
+	    System.out.println("DEBUG VIEW: Refresh eseguito!");
+		 }catch(Exception ex) {
+			 System.err.println("ERRORE FATALE NEL GRAFICO: " + ex.getMessage());
+		        ex.printStackTrace(); // <--- ORA VEDRAI L'ERRORE IN CONSOLE
+		 }
 	}
 }

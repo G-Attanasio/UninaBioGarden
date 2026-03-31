@@ -68,8 +68,7 @@ public class FinestraVisualizzaProgetti extends JPanel {
 		});
 		
 		report.addActionListener(e -> {
-		    int riga = tabella.getSelectedRow();
-		    
+		    int riga = tabella.getSelectedRow();		    
 		    if (riga != -1) {
 		        String stato = tabella.getValueAt(riga, 6).toString();
 		        if (stato.equals("COMPLETATO")) {

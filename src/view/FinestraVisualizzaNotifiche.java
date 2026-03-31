@@ -58,7 +58,8 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		cancella.addActionListener(e -> {
 		    
 		    int riga = tabella.getSelectedRow();
-		    if (riga != -1) { 
+		    if (riga != -1) {
+		    	int codNotifica = Integer.parseInt(tabella.getValueAt(riga, 5).toString());
 		        int scelta = JOptionPane.showConfirmDialog(
 		            this, 
 		            "Sei sicuro di voler eliminare questa notifica?", 
@@ -67,7 +68,8 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		            JOptionPane.WARNING_MESSAGE
 		        );
 		        if (scelta == JOptionPane.YES_OPTION) {
-		            controller.eliminaNotifica(riga);
+		            controller.eliminaNotifica(codNotifica);
+		            controller.mostraPanelInterno("visualizza notifiche");
 		        }
 		    } else {
 		        JOptionPane.showMessageDialog(this, "Seleziona una notifica dalla tabella.", "Nessuna selezione", JOptionPane.INFORMATION_MESSAGE);
@@ -86,7 +88,7 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 			            int riga = tabella.getSelectedRow();
 			            if (riga != -1) {
 			            	String titolo = tabella.getValueAt(riga, 1).toString();		               
-			                Object desc = tabella.getValueAt(riga, 5);
+			                Object desc = tabella.getValueAt(riga, 6);
 			                String descrizione;
 			                if(desc != null) {
 			                	descrizione=desc.toString(); 
@@ -102,6 +104,9 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		
 	}
 	
+	public void onOffAggiungi(boolean scelta) {
+		aggiungi.setVisible(scelta);
+	}
 	
 	
 	public void mostraMessaggioNotifica(String titolo, String messaggio) {
@@ -130,6 +135,10 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 
 	public JTable getModello() {
 		return tabella;
+	}
+
+	public JButton getAggiungi() {
+		return aggiungi;
 	}
 	
 }

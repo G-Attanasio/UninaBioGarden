@@ -109,6 +109,10 @@ public class CardPanel extends JPanel {
 	public void setFinestraIscriviLotto(FinestraIscriviLotto finestraCreaLotto) {
 		this.finestraIscriviLotto = finestraCreaLotto;
 	}
+
+	public FinestraColtivatore getFinestraColtivatore() {
+		return finestraColtivatore;
+	}
 	
 	
 }

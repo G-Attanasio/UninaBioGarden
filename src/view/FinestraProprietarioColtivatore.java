@@ -18,73 +18,177 @@ public class FinestraProprietarioColtivatore extends JPanel{
 	private static final long serialVersionUID = 1L;
 	
 	private Controller controller;
-	private JButton creaProgetto;
-	//private JButton creaAttivita;
+	private JButton attivitaAssegnate;
 	private JButton visualizzaLotti;
 	private JButton visualizzaProgetti;
+	private JButton visualizzaColture;
+	private JButton visualizzaReport;
 	private JButton creaNotifiche;
 	private JButton esci;
-	private JButton visualizzaAttivita;
-	private JButton visualizzaNotifiche;
-	private JButton visualizzaReport;
+	private CardLayout layoutInterno;
+	private JPanel pnlCard;
+	private FinestraCreaProgetto finCreaProgetto;
+	private FinestraAttivitaAssegnate finAttivitaAssegnate;	
+	private FinestraVisualizzaLotti finVisualizzaLotti;
+	private FinestraCreaLotto finCreaLotto;
+	private FinestraVisualizzaProgetti finVisualizzaProgetti;
+	private FinestraVisualizzaColture finVisualizzaColture;
+	private FinestraReport finReport;
+	private FinestraCreaNotifica finCreaNotifica;
+	private FinestraVisualizzaNotifiche finVisualizzaNotifiche;
+	private FinestraVisualizzaAttivita finVisualizzaAttivita;
+	private JButton leMieAttivita;
+	private JButton notificheRicevute;
 	
 	public FinestraProprietarioColtivatore(Controller controller) {
 		this.controller=controller;
-		// lato nord
+		finCreaProgetto= new FinestraCreaProgetto(controller);
+		finAttivitaAssegnate= new FinestraAttivitaAssegnate(controller);
+		finVisualizzaLotti= new FinestraVisualizzaLotti(controller);
+		finCreaLotto= new FinestraCreaLotto(controller);
+		finVisualizzaProgetti= new FinestraVisualizzaProgetti(controller);
+		finVisualizzaColture= new FinestraVisualizzaColture(controller);
+		finReport= new FinestraReport(controller);
+		finCreaNotifica= new FinestraCreaNotifica(controller);
+		finVisualizzaNotifiche= new FinestraVisualizzaNotifiche(controller);
+		finVisualizzaAttivita=new FinestraVisualizzaAttivita(controller);
 		setLayout(new BorderLayout());
 		JPanel pnlNord= new JPanel(new FlowLayout());
 		pnlNord.setBackground(new Color(245,235,220));
 		Dimension area= new Dimension(400,150);
 		pnlNord.setPreferredSize(area);
 		add(pnlNord, BorderLayout.NORTH);
-		// lato ovest
+	
 		JPanel pnlOvest= new JPanel();
-		creaProgetto= new JButton("Crea progetto");
-		creaProgetto.setAlignmentX(CENTER_ALIGNMENT);
-		//creaAttivita= new JButton("Crea attività");
-		//creaAttivita.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaAttivita= new JButton("Le mie attività");
-		visualizzaAttivita.setAlignmentX(CENTER_ALIGNMENT);
+		leMieAttivita= new JButton("Le mie attività");
+		leMieAttivita.setAlignmentX(CENTER_ALIGNMENT);
+		attivitaAssegnate= new JButton("Attività assegnate");
+		attivitaAssegnate.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaLotti= new JButton("I miei lotti");
 		visualizzaLotti.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaProgetti= new JButton("I miei progetti");
 		visualizzaProgetti.setAlignmentX(CENTER_ALIGNMENT);
+		visualizzaColture= new JButton("Lista colture");
+		visualizzaColture.setAlignmentX(CENTER_ALIGNMENT);
 		visualizzaReport= new JButton("Report raccolte");
 		visualizzaReport.setAlignmentX(CENTER_ALIGNMENT);
-		creaNotifiche= new JButton("Crea notifica");
+		creaNotifiche= new JButton("Visualizza notifiche");
 		creaNotifiche.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaNotifiche= new JButton("Visualizza Notifiche");
-		visualizzaNotifiche.setAlignmentX(CENTER_ALIGNMENT);
+		notificheRicevute= new JButton("Notifiche ricevute");
+		notificheRicevute.setAlignmentX(CENTER_ALIGNMENT);
 		esci= new JButton("Esci");
 		esci.setAlignmentX(CENTER_ALIGNMENT);
 		pnlOvest.setBackground(new Color(200,230,200));
 		pnlOvest.setLayout(new BoxLayout(pnlOvest,BoxLayout.Y_AXIS));
-		pnlOvest.setPreferredSize(new Dimension(250,0));	
+		pnlOvest.setPreferredSize(new Dimension(250,0));
 		pnlOvest.add(Box.createVerticalGlue());
-		pnlOvest.add(creaProgetto);
+		
+		pnlOvest.add(attivitaAssegnate);
 		pnlOvest.add(Box.createVerticalStrut(40));
-		//pnlOvest.add(creaAttivita);
-		//pnlOvest.add(Box.createVerticalStrut(40));
-		pnlOvest.add(visualizzaAttivita);
+		pnlOvest.add(leMieAttivita);
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaLotti);
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(visualizzaProgetti);
 		pnlOvest.add(Box.createVerticalStrut(40));
-		pnlOvest.add(visualizzaReport);
+		pnlOvest.add(visualizzaColture);
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(creaNotifiche);
 		pnlOvest.add(Box.createVerticalStrut(40));
-		pnlOvest.add(visualizzaNotifiche);
+		pnlOvest.add(notificheRicevute);
 		pnlOvest.add(Box.createVerticalStrut(40));
 		pnlOvest.add(esci);
 		pnlOvest.add(Box.createVerticalGlue());
 		add(pnlOvest,BorderLayout.WEST);
 		
-		JPanel pnlCard= new JPanel(new CardLayout());
+		layoutInterno= new CardLayout();
+		pnlCard= new JPanel(layoutInterno);
+		JPanel pnlBianco= new JPanel();
+		pnlBianco.setBackground(Color.WHITE);
+		pnlCard.add(pnlBianco,"prima carta");
+		pnlCard.add(finCreaProgetto,"crea progetto");
+		pnlCard.add(finAttivitaAssegnate,"attivita assegnate");
+		pnlCard.add(finVisualizzaAttivita,"visualizza attivita");
+		pnlCard.add(finVisualizzaLotti,"visualizza lotti");
+		pnlCard.add(finCreaLotto,"crea lotto");
+		pnlCard.add(finVisualizzaProgetti,"visualizza progetti");
+		pnlCard.add(finReport,"report");
+		pnlCard.add(finVisualizzaColture,"lista colture");
+		pnlCard.add(finVisualizzaNotifiche,"visualizza notifiche");
+		pnlCard.add(finCreaNotifica,"crea notifica");
+		
 		add(pnlCard,BorderLayout.CENTER);
-		//pnlCard.add(pnlCard)
+		
+		attivitaAssegnate.addActionListener(e->{
+			controller.caricaAttivitaAssegnate();
+			controller.mostraPanelInterno("attivita assegnate");
+		});
+		visualizzaLotti.addActionListener(e->{
+			controller.caricaLotti();
+			controller.mostraPanelInterno("visualizza lotti");
+		});
+		leMieAttivita.addActionListener(e->{
+			controller.caricaAttivitaColtivatore();
+			controller.mostraPanelInterno("visualizza attivita");
+		});
+		visualizzaProgetti.addActionListener(e->{
+			controller.caricaIMieiProgetti();
+			controller.mostraPanelInterno("visualizza progetti");
+		});
+		visualizzaColture.addActionListener(e->{
+			controller.caricaColture();
+			controller.mostraPanelInterno("lista colture");
+		});
+		creaNotifiche.addActionListener(e->{
+			controller.caricaNotificheInviate();
+			controller.mostraPanelInterno("visualizza notifiche");
+		});
+		notificheRicevute.addActionListener(e->{
+			controller.caricaNotificheRicevute();
+			controller.mostraPanelInterno("visualizza notifiche");
+		});
+		esci.addActionListener(e->{
+			controller.mostraPanelInterno("prima carta");
+			controller.mostraPanel("prima pagina");
+		});
+		
+		
 	}
-
+	public void mostraPanelInterno(String testo) {
+		layoutInterno.show(pnlCard, testo);
+	}
+	public FinestraCreaProgetto getFinCreaProgetto() {
+		return finCreaProgetto;
+	}
+	public FinestraAttivitaAssegnate getFinAttivitaAssegnate() {
+		return finAttivitaAssegnate;
+	}
+	public FinestraVisualizzaLotti getFinVisualizzaLotti() {
+		return finVisualizzaLotti;
+	}
+	public FinestraCreaLotto getFinCreaLotto() {
+		return finCreaLotto;
+	}
+	public FinestraVisualizzaProgetti getFinVisualizzaProgetti() {
+		return finVisualizzaProgetti;
+	}
+	public FinestraVisualizzaColture getFinVisualizzaColture() {
+		return finVisualizzaColture;
+	}
+	public FinestraReport getFinReport() {
+		return finReport;
+	}
+	public FinestraCreaNotifica getFinCreaNotifica() {
+		return finCreaNotifica;
+	}
+	public FinestraVisualizzaNotifiche getFinVisualizzaNotifiche() {
+		return finVisualizzaNotifiche;
+	}
+	public FinestraVisualizzaAttivita getFinVisualizzaAttivita() {
+		return finVisualizzaAttivita;
+	}
+	public void setFinVisualizzaAttivita(FinestraVisualizzaAttivita finVisualizzaAttivita) {
+		this.finVisualizzaAttivita = finVisualizzaAttivita;
+	}
 	
 }
