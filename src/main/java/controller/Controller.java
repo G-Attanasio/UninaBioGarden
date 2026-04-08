@@ -1089,7 +1089,7 @@ public class Controller {
     	return "ok";
     }
     
-    public String CreaNotifica() {
+    public String creaNotifica() {
     	String descrizioneVeloce= finestraCreaNotifica.getCmpDescrizioneVeloce();
     	String descrizione= finestraCreaNotifica.getCmpDescrizione();
     	String tipoNotifica= finestraCreaNotifica.getSceltaNotifica();
