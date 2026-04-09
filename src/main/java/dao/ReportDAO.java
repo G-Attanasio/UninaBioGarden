@@ -10,7 +10,7 @@ import database.DBConnection;
 import exceptions.RisorsaNonTrovataException;
 import model.DatiReport;
 
-public class ReportDao {
+public class ReportDAO {
 
 	public ArrayList<DatiReport> prelevaDatiReport(int codProgetto) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<DatiReport> datiReport= new ArrayList<DatiReport>();

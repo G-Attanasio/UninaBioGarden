@@ -19,7 +19,7 @@ import model.SeminaColtura;
 import model.Stagione;
 import model.Stato;
 
-public class ProgettoDao {
+public class ProgettoDAO {
 
 	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int codLotto) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
@@ -67,7 +67,7 @@ public class ProgettoDao {
 		            cs.execute();
 		            codProgettoGenerato = cs.getInt(8); 
 		        }
-			 AttivitaDao attivitaDao = new AttivitaDao();
+			 AttivitaDAO attivitaDao = new AttivitaDAO();
 		        for (Attivita a : listaAttivita) {
 		            attivitaDao.salvaAttivita(a, codProgettoGenerato, conn,semine);
 		}

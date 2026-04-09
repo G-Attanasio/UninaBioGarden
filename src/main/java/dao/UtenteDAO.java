@@ -15,7 +15,7 @@ import model.LottoColtivabile;
 import model.TipoRuolo;
 import model.Utente;
 
-public class UtenteDao {
+public class UtenteDAO {
 
 	public boolean salva(Utente u) throws SQLException {
 		String sql= "INSERT INTO UTENTE (NOME,COGNOME,USERNAME,PASSWORD,EMAIL,DATANASCITA,RUOLO) VALUES(?,?,?,?,?,?,?::TipoRuolo) ";
@@ -93,7 +93,7 @@ public class UtenteDao {
 		                }
 		            }
 		        }	       
-		        LottoDao lottoDao = new LottoDao();
+		        LottoDAO lottoDao = new LottoDAO();
 		        lc.getProprietario().setIdUtente(u.getIdUtente()); 
 		        lottoDao.salvaInTransazione(lc, conn);
 		        conn.commit();

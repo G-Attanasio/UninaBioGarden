@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import database.DBConnection;
 import model.Coltura;
 
-public class ColturaDao {
+public class ColturaDAO {
 
 	public ArrayList<Coltura> preleva() throws SQLException {
 		ArrayList<Coltura> listaColture= new ArrayList<Coltura>();

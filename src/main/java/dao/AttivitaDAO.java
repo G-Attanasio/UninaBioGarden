@@ -23,7 +23,7 @@ import model.TipoRuolo;
 import model.TipoSemina;
 import model.Utente;
 
-public class AttivitaDao {
+public class AttivitaDAO {
 
 	public ArrayList<Attivita> prelevaTutteAttivitaPerColtivatore(String username )throws SQLException,RisorsaNonTrovataException{
 		ArrayList<Attivita> lista= new ArrayList<>();  

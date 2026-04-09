@@ -15,7 +15,7 @@ import model.TipoMorfologia;
 import model.TipoTessitura;
 import model.Utente;
 
-public class LottoDao {
+public class LottoDAO {
 
 	public boolean salva(LottoColtivabile lc) throws SQLException {
 		String sql="INSERT INTO LOTTOCOLTIVABILE (TESSITURA,DIMENSIONI,PH,MORFOLOGIA,ALTITUDINE,LOCALITA,COMUNE,PROVINCIA,FK_IDPROPRIETARIO) VALUES (?::tipotessitura,?,?,?::tipomorfologia,?,?,?,?,?)";

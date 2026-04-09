@@ -16,7 +16,7 @@ import model.LivelloGravita;
 import model.Notifica;
 import model.Utente;
 
-public class NotificaDao {
+public class NotificaDAO {
 
 	public void salvaNotifica(Notifica n) throws SQLException{
 		 Connection conn = DBConnection.getConnection();
