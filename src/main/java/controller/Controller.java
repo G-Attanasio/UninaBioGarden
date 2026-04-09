@@ -1,7 +1,7 @@
 package controller;
 
 import model.*;
-
+import service.Service;
 import view.*;
 
 import java.sql.SQLException;
@@ -10,6 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import dao.*;
+import dto.UtenteDTO;
 import exceptions.RisorsaNonTrovataException;
 import exceptions.UtenteNonTrovatoException;
 
@@ -19,7 +20,8 @@ import org.jfree.chart.JFreeChart;
 
 public class Controller {
 
-	private static Utente utenteLoggato;
+	
+	private Service service;
 	private LottoColtivabile lottoSelezionato;
 	private ArrayList<Attivita> attivitaTemporanee;
 	private ArrayList<Attivita> attivitaTotali;
@@ -57,6 +59,7 @@ public class Controller {
 
     public Controller() {
           	
+    	this.service= new Service();
         this.frame= new MainFrame(this);
         this.cardPanel= frame.getCardPanel();
         this.finestraLogin= frame.getCardPanel().getFinestraLogin();
@@ -98,12 +101,11 @@ public class Controller {
     	
     	if(username.isEmpty() || password.isEmpty()) {
     		finestraLogin.erroreLogin();
-    	}
-    	Utente u;
+    		return;
+    	}    	
 		try {
-			u = utenteDao.preleva(username, password);
-			if(u != null) {
-	    		setUtenteLoggato(u);
+			UtenteDTO u= service.effettuaLogin(username, password);
+			
 	    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
 	    			inizializzaFinestraProprietario();
 	    		}
@@ -113,7 +115,6 @@ public class Controller {
 	    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
 	    			inizializzaFinestraProprietarioColtivatore();
 	    		}	    		
-	    	}
 		}catch(UtenteNonTrovatoException e) {
 			finestraLogin.nonTrovato();
     	} catch (SQLException e) {			
@@ -122,7 +123,7 @@ public class Controller {
     }
     
     public void mostraPanelInterno(String testo) {
-    	String ruolo = utenteLoggato.getRuolo().toString();     
+    	String ruolo = Service.getUtenteLoggato().getRuolo().toString();     
         if (ruolo.equalsIgnoreCase("COLTIVATORE")) {            
             finestraColtivatore.mostraPanelInterno(testo);
         } else if (ruolo.equalsIgnoreCase("PROPRIETARIO")) {           
@@ -207,7 +208,7 @@ public class Controller {
     	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
     	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(morfologia.toUpperCase());
     			
-    	LottoColtivabile lc= new LottoColtivabile(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,utenteLoggato);
+    	LottoColtivabile lc= new LottoColtivabile(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,Service.getUtenteLoggato());
     	
     	try{
     		if(lottoDao.salva(lc)) { 
@@ -224,7 +225,7 @@ public class Controller {
     public void caricaLotti() {
     	try{
     		ArrayList<LottoColtivabile> listaLotti;
-    	int idUtente= utenteLoggato.getIdUtente();
+    	int idUtente= Service.getUtenteLoggato().getIdUtente();
     	listaLotti= lottoDao.prelevaLottiPerProprietario(idUtente);
     	finestraVisualizzaLotti.svuotaTabella();
     	
@@ -253,7 +254,7 @@ public class Controller {
     public void caricaAttivitaAssegnate() {  	
     	   try { 
     		   progettoDao.sincronizzaSistema();
-    	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaAssegnateDaProprietario(utenteLoggato.getIdUtente());
+    	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaAssegnateDaProprietario(Service.getUtenteLoggato().getIdUtente());
     	        finestraAttivitaAssegnate.svuotaTabella(); 	         	       
     	        for (Attivita a : tutte) {   	            
     	        	String tipo = "";
@@ -292,8 +293,8 @@ public class Controller {
     public void caricaAttivitaColtivatore() {
     	  try { 
    		   progettoDao.sincronizzaSistema();
-   	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaColtivatore(utenteLoggato.getIdUtente());
-   	        ArrayList<SeminaColtura> lista= attivitaDao.prelevaDettagliColturePerColtivatore(utenteLoggato.getIdUtente());
+   	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaColtivatore(Service.getUtenteLoggato().getIdUtente());
+   	        ArrayList<SeminaColtura> lista= attivitaDao.prelevaDettagliColturePerColtivatore(Service.getUtenteLoggato().getIdUtente());
    	        finestraVisualizzaAttivita.svuotaTabella(); 	         	       
    	        for (Attivita a : tutte) {   	            
    	        	String tipo = "";
@@ -354,7 +355,7 @@ public class Controller {
     public void caricaIMieiProgetti() {  	
     	try {
     		progettoDao.sincronizzaSistema();
-    		ArrayList<ProgettoStagionale> lista= progettoDao.prelevaProgettiPerProprietario(utenteLoggato.getIdUtente());
+    		ArrayList<ProgettoStagionale> lista= progettoDao.prelevaProgettiPerProprietario(Service.getUtenteLoggato().getIdUtente());
     		finestraVisualizzaProgetti.svuotaTabella();
     		 for (ProgettoStagionale p : lista) {
     	            Object[] riga = {
@@ -469,7 +470,7 @@ public class Controller {
     public void caricaNotificheInviate() {
     	try{
     		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
-    		listaNotifiche=notificaDao.prelevaNotificheInviate(utenteLoggato.getIdUtente());
+    		listaNotifiche=notificaDao.prelevaNotificheInviate(Service.getUtenteLoggato().getIdUtente());
     		finestraVisualizzaNotifiche.svuotaTabella();	
     		finestraVisualizzaNotifiche.onOffAggiungi(true);
     		for (Notifica n : listaNotifiche) {
@@ -524,7 +525,7 @@ public class Controller {
     public void caricaNotificheRicevute() {  	
     	try{
     		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
-    		listaNotifiche=notificaDao.prelevaNotificheRicevute(utenteLoggato.getIdUtente());
+    		listaNotifiche=notificaDao.prelevaNotificheRicevute(Service.getUtenteLoggato().getIdUtente());
     		finestraVisualizzaNotifiche.svuotaTabella();	
     		finestraVisualizzaNotifiche.onOffAggiungi(false);
     		for (Notifica n : listaNotifiche) {
@@ -582,7 +583,7 @@ public class Controller {
     		dati= reportDao.prelevaDatiReport(codProgetto);
     		ArrayList<Object[]> datiDaPassare= new ArrayList<>();   
     		FinestraReport vistaReale = null;
-            if (utenteLoggato.getRuolo() == TipoRuolo.PROPRIETARIO) {
+            if (Service.getUtenteLoggato().getRuolo() == TipoRuolo.PROPRIETARIO) {
                 vistaReale = finestraProprietario.getFinReport();
             } else {
                 vistaReale = finestraProprietarioColtivatore.getFinReport();
@@ -733,7 +734,7 @@ public class Controller {
     		boolean salvato=utenteDao.salva(u);
     		if(salvato) {
     			finestraIscrizioneColtivatore.pulisciCampi();
-    			setUtenteLoggato(u);
+    			Service.setUtenteLoggato(u);
     			cardPanel.mostraPanel("coltivatore");  			
     		}
     		
@@ -894,7 +895,7 @@ public class Controller {
     	
     		boolean salvato=utenteDao.salvaConLotto(u, lc);
     		if(salvato) {
-    			setUtenteLoggato(u);
+    			Service.setUtenteLoggato(u);
     			if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
     				finestraIscrizioneProprietario.pulisciCampi();
     				cardPanel.mostraPanel("proprietario");
@@ -960,7 +961,7 @@ public class Controller {
     	}
     	 try{
     		 ArrayList<ProgettoStagionale> listaAggiornata = progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
-    		 ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durataInt,dataInizioProgetto,utenteLoggato,lottoSelezionato);
+    		 ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durataInt,dataInizioProgetto,Service.getUtenteLoggato(),lottoSelezionato);
     	    	if(!sovrapposizioneProgetti(nuovoProgetto, listaAggiornata)) {
     				return"errore sovr progetti";
     			}
@@ -1107,7 +1108,7 @@ public class Controller {
     	 try {
     	        if (tipoNotifica.equals("Attività Imminente")) {
     	            LocalDate scadenza = LocalDate.parse(finestraCreaNotifica.getCmpDataScadenza());
-    	            n = new AttivitaImminente(oggi, utenteLoggato,descrizioneVeloce,descrizione,scadenza, destinatari);
+    	            n = new AttivitaImminente(oggi, Service.getUtenteLoggato(),descrizioneVeloce,descrizione,scadenza, destinatari);
     	        } else {
     	            if(estensione!= null && !estensione.trim().isEmpty()) {
     	            	try{
@@ -1118,7 +1119,7 @@ public class Controller {
     	            }else {
     	            	estensioneInt=0;
     	            }
-    	            n = new Anomalia(oggi, utenteLoggato, descrizioneVeloce, descrizione, livelloEnum, estensioneInt,destinatari);
+    	            n = new Anomalia(oggi, Service.getUtenteLoggato(), descrizioneVeloce, descrizione, livelloEnum, estensioneInt,destinatari);
     	        }
     	 }catch(DateTimeParseException e) {
     		 return"errore formato data";
@@ -1190,7 +1191,7 @@ public class Controller {
     		e.printStackTrace();
     		return"errore db";
     	}
-    	ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,utenteLoggato,lottoSelezionato);
+    	ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,Service.getUtenteLoggato(),lottoSelezionato);
     	try{
     		progettiperLotto=progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
     		
@@ -1310,14 +1311,7 @@ public class Controller {
     	}
     	return true;
     }
-
-	public static Utente getUtenteLoggato() {
-		return utenteLoggato;
-	}
-
-	public static void setUtenteLoggato(Utente utenteLoggato) {
-		Controller.utenteLoggato = utenteLoggato;
-	}
+    
 	public void inizializzaFinestraProprietario() {
 		this.finestraVisualizzaLotti= finestraProprietario.getFinVisualizzaLotti();
         this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
@@ -1331,12 +1325,14 @@ public class Controller {
 		finestraLogin.pulisciCampi();
 		cardPanel.mostraPanel("proprietario");
 	}
+	
 	public void inizializzaFinestraColtivatore() {
 		 this.finestraVisualizzaNotifiche=finestraColtivatore.getFinVisualizzaNotifiche();	    	       
 	        this.finestraVisualizzaAttivita= finestraColtivatore.getFinVisualizzaAttivita();	    	    
 			finestraLogin.pulisciCampi();
 			cardPanel.mostraPanel("coltivatore");
 	}
+	
 	public void inizializzaFinestraProprietarioColtivatore() {
 		this.finestraVisualizzaLotti= finestraProprietarioColtivatore.getFinVisualizzaLotti();
         this.finestraCreaLotto=finestraProprietarioColtivatore.getFinCreaLotto();

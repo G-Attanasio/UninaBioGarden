@@ -97,7 +97,7 @@ public class FinestraLogin extends JPanel {
 		inserisciUsername.setToolTipText("Username o Password non corretto");
 		ToolTipManager.sharedInstance().setInitialDelay(0);
 		inserisciPassword.setBorder(BorderFactory.createLineBorder(Color.RED,1));
-		inserisciPassword.setToolTipText("Username o password non corretto");
+		inserisciPassword.setToolTipText("Username o Password non corretto");
 		ToolTipManager.sharedInstance().setInitialDelay(0);
 	}
 	
