@@ -94,7 +94,8 @@ public class Controller {
     
     public void validaLogin()  {
     	String username= finestraLogin.getUsername();
-    	String password= new String(finestraLogin.getPassword());   
+    	String password= new String(finestraLogin.getPassword());  
+    	
     	if(username.isEmpty() || password.isEmpty()) {
     		finestraLogin.erroreLogin();
     	}
@@ -104,37 +105,13 @@ public class Controller {
 			if(u != null) {
 	    		setUtenteLoggato(u);
 	    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
-	    			this.finestraVisualizzaLotti= finestraProprietario.getFinVisualizzaLotti();
-	    	        this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
-	    	        this.finestraVisualizzaColture=finestraProprietario.getFinVisualizzaColture();
-	    	        this.finestraCreaProgetto= finestraProprietario.getFinCreaProgetto();
-	    	        this.finestraAttivitaAssegnate=finestraProprietario.getFinAttivitaAssegnate();
-	    	        this.finestraVisualizzaProgetti=finestraProprietario.getFinVisualizzaProgetti();
-	    	        this.finestraCreaNotifica=finestraProprietario.getFinCreaNotifica();
-	    	        this.finestraVisualizzaNotifiche=finestraProprietario.getFinVisualizzaNotifiche();
-	    	        this.finestraReport= finestraProprietario.getFinReport();
-	    			finestraLogin.pulisciCampi();
-	    			cardPanel.mostraPanel("proprietario");
+	    			inizializzaFinestraProprietario();
 	    		}
 	    		if (u.getRuolo()==TipoRuolo.COLTIVATORE) {		
-	    	        this.finestraVisualizzaNotifiche=finestraColtivatore.getFinVisualizzaNotifiche();	    	       
-	    	        this.finestraVisualizzaAttivita= finestraColtivatore.getFinVisualizzaAttivita();	    	    
-	    			finestraLogin.pulisciCampi();
-	    			cardPanel.mostraPanel("coltivatore");
+	    	       inizializzaFinestraColtivatore();
 	    		}
 	    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
-	    			this.finestraVisualizzaLotti= finestraProprietarioColtivatore.getFinVisualizzaLotti();
-	    	        this.finestraCreaLotto=finestraProprietarioColtivatore.getFinCreaLotto();
-	    	        this.finestraVisualizzaColture=finestraProprietarioColtivatore.getFinVisualizzaColture();
-	    	        this.finestraCreaProgetto= finestraProprietarioColtivatore.getFinCreaProgetto();
-	    	        this.finestraAttivitaAssegnate=finestraProprietarioColtivatore.getFinAttivitaAssegnate();
-	    	        this.finestraVisualizzaProgetti=finestraProprietarioColtivatore.getFinVisualizzaProgetti();
-	    	        this.finestraCreaNotifica=finestraProprietarioColtivatore.getFinCreaNotifica();
-	    	        this.finestraVisualizzaNotifiche=finestraProprietarioColtivatore.getFinVisualizzaNotifiche();
-	    	        this.finestraReport= finestraProprietarioColtivatore.getFinReport();
-	    	        this.finestraVisualizzaAttivita= finestraProprietarioColtivatore.getFinVisualizzaAttivita();    	    
-	    			finestraLogin.pulisciCampi();
-	    			cardPanel.mostraPanel("proprietario-coltivatore");
+	    			inizializzaFinestraProprietarioColtivatore();
 	    		}	    		
 	    	}
 		}catch(UtenteNonTrovatoException e) {
@@ -1340,5 +1317,38 @@ public class Controller {
 
 	public static void setUtenteLoggato(Utente utenteLoggato) {
 		Controller.utenteLoggato = utenteLoggato;
+	}
+	public void inizializzaFinestraProprietario() {
+		this.finestraVisualizzaLotti= finestraProprietario.getFinVisualizzaLotti();
+        this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
+        this.finestraVisualizzaColture=finestraProprietario.getFinVisualizzaColture();
+        this.finestraCreaProgetto= finestraProprietario.getFinCreaProgetto();
+        this.finestraAttivitaAssegnate=finestraProprietario.getFinAttivitaAssegnate();
+        this.finestraVisualizzaProgetti=finestraProprietario.getFinVisualizzaProgetti();
+        this.finestraCreaNotifica=finestraProprietario.getFinCreaNotifica();
+        this.finestraVisualizzaNotifiche=finestraProprietario.getFinVisualizzaNotifiche();
+        this.finestraReport= finestraProprietario.getFinReport();
+		finestraLogin.pulisciCampi();
+		cardPanel.mostraPanel("proprietario");
+	}
+	public void inizializzaFinestraColtivatore() {
+		 this.finestraVisualizzaNotifiche=finestraColtivatore.getFinVisualizzaNotifiche();	    	       
+	        this.finestraVisualizzaAttivita= finestraColtivatore.getFinVisualizzaAttivita();	    	    
+			finestraLogin.pulisciCampi();
+			cardPanel.mostraPanel("coltivatore");
+	}
+	public void inizializzaFinestraProprietarioColtivatore() {
+		this.finestraVisualizzaLotti= finestraProprietarioColtivatore.getFinVisualizzaLotti();
+        this.finestraCreaLotto=finestraProprietarioColtivatore.getFinCreaLotto();
+        this.finestraVisualizzaColture=finestraProprietarioColtivatore.getFinVisualizzaColture();
+        this.finestraCreaProgetto= finestraProprietarioColtivatore.getFinCreaProgetto();
+        this.finestraAttivitaAssegnate=finestraProprietarioColtivatore.getFinAttivitaAssegnate();
+        this.finestraVisualizzaProgetti=finestraProprietarioColtivatore.getFinVisualizzaProgetti();
+        this.finestraCreaNotifica=finestraProprietarioColtivatore.getFinCreaNotifica();
+        this.finestraVisualizzaNotifiche=finestraProprietarioColtivatore.getFinVisualizzaNotifiche();
+        this.finestraReport= finestraProprietarioColtivatore.getFinReport();
+        this.finestraVisualizzaAttivita= finestraProprietarioColtivatore.getFinVisualizzaAttivita();    	    
+		finestraLogin.pulisciCampi();
+		cardPanel.mostraPanel("proprietario-coltivatore");
 	}
 }
