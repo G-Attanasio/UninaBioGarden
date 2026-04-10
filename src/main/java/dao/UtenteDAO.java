@@ -71,7 +71,7 @@ public class UtenteDAO {
 	    return null; 
 	}
 	
-	public boolean salvaConLotto(Utente u, LottoColtivabile lc) {
+	public boolean salvaConLotto(Utente u, LottoColtivabile lc) throws SQLException {
 		 Connection conn = null;
 		    try {
 		        conn = DBConnection.getConnection();
@@ -98,24 +98,15 @@ public class UtenteDAO {
 		        lottoDao.salvaInTransazione(lc, conn);
 		        conn.commit();
 		        return true;
-		    } catch (SQLException e) {
-		        try {
+		    } catch (SQLException e) {	        
 		            if (conn != null) conn.rollback(); 
-		        } catch (SQLException ex) {
-		        	ex.printStackTrace();
-		        	}
-		        e.printStackTrace();
-		        return false;
-		    } finally {
-		        try {
+		            throw e;	        
+		    } finally {   
 		            if (conn != null) {
 		                conn.setAutoCommit(true);
 		                conn.close();
-		            }
-		        } catch (SQLException e) {
-		        	e.printStackTrace(); 
-		        }
-		    }
+		       }
+		 }   
 	}
 	
 	public ArrayList<String> prelevaPerProgetto()throws SQLException,UtenteNonTrovatoException{

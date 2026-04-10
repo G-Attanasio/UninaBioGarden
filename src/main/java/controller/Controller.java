@@ -10,7 +10,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import dao.*;
+import dto.LottoDTO;
 import dto.UtenteDTO;
+import exceptions.EmailUsernameGiàEsistentiException;
 import exceptions.RisorsaNonTrovataException;
 import exceptions.UtenteNonTrovatoException;
 
@@ -20,7 +22,7 @@ import org.jfree.chart.JFreeChart;
 
 public class Controller {
 
-	
+	private static UtenteDTO utenteLoggato;
 	private Service service;
 	private LottoColtivabile lottoSelezionato;
 	private ArrayList<Attivita> attivitaTemporanee;
@@ -105,7 +107,8 @@ public class Controller {
     	}    	
 		try {
 			UtenteDTO u= service.effettuaLogin(username, password);
-			
+			if(u!= null) {
+				setUtenteLoggato(u);
 	    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
 	    			inizializzaFinestraProprietario();
 	    		}
@@ -114,7 +117,8 @@ public class Controller {
 	    		}
 	    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
 	    			inizializzaFinestraProprietarioColtivatore();
-	    		}	    		
+	    		}	
+			}
 		}catch(UtenteNonTrovatoException e) {
 			finestraLogin.nonTrovato();
     	} catch (SQLException e) {			
@@ -123,7 +127,7 @@ public class Controller {
     }
     
     public void mostraPanelInterno(String testo) {
-    	String ruolo = Service.getUtenteLoggato().getRuolo().toString();     
+    	String ruolo = getUtenteLoggato().getRuolo().toString();     
         if (ruolo.equalsIgnoreCase("COLTIVATORE")) {            
             finestraColtivatore.mostraPanelInterno(testo);
         } else if (ruolo.equalsIgnoreCase("PROPRIETARIO")) {           
@@ -208,7 +212,7 @@ public class Controller {
     	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
     	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(morfologia.toUpperCase());
     			
-    	LottoColtivabile lc= new LottoColtivabile(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,Service.getUtenteLoggato());
+    	LottoColtivabile lc= new LottoColtivabile(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,getUtenteLoggato());
     	
     	try{
     		if(lottoDao.salva(lc)) { 
@@ -225,7 +229,7 @@ public class Controller {
     public void caricaLotti() {
     	try{
     		ArrayList<LottoColtivabile> listaLotti;
-    	int idUtente= Service.getUtenteLoggato().getIdUtente();
+    	int idUtente= getUtenteLoggato().getIdUtente();
     	listaLotti= lottoDao.prelevaLottiPerProprietario(idUtente);
     	finestraVisualizzaLotti.svuotaTabella();
     	
@@ -254,7 +258,7 @@ public class Controller {
     public void caricaAttivitaAssegnate() {  	
     	   try { 
     		   progettoDao.sincronizzaSistema();
-    	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaAssegnateDaProprietario(Service.getUtenteLoggato().getIdUtente());
+    	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaAssegnateDaProprietario(getUtenteLoggato().getIdUtente());
     	        finestraAttivitaAssegnate.svuotaTabella(); 	         	       
     	        for (Attivita a : tutte) {   	            
     	        	String tipo = "";
@@ -293,8 +297,8 @@ public class Controller {
     public void caricaAttivitaColtivatore() {
     	  try { 
    		   progettoDao.sincronizzaSistema();
-   	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaColtivatore(Service.getUtenteLoggato().getIdUtente());
-   	        ArrayList<SeminaColtura> lista= attivitaDao.prelevaDettagliColturePerColtivatore(Service.getUtenteLoggato().getIdUtente());
+   	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaColtivatore(getUtenteLoggato().getIdUtente());
+   	        ArrayList<SeminaColtura> lista= attivitaDao.prelevaDettagliColturePerColtivatore(getUtenteLoggato().getIdUtente());
    	        finestraVisualizzaAttivita.svuotaTabella(); 	         	       
    	        for (Attivita a : tutte) {   	            
    	        	String tipo = "";
@@ -355,7 +359,7 @@ public class Controller {
     public void caricaIMieiProgetti() {  	
     	try {
     		progettoDao.sincronizzaSistema();
-    		ArrayList<ProgettoStagionale> lista= progettoDao.prelevaProgettiPerProprietario(Service.getUtenteLoggato().getIdUtente());
+    		ArrayList<ProgettoStagionale> lista= progettoDao.prelevaProgettiPerProprietario(getUtenteLoggato().getIdUtente());
     		finestraVisualizzaProgetti.svuotaTabella();
     		 for (ProgettoStagionale p : lista) {
     	            Object[] riga = {
@@ -470,7 +474,7 @@ public class Controller {
     public void caricaNotificheInviate() {
     	try{
     		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
-    		listaNotifiche=notificaDao.prelevaNotificheInviate(Service.getUtenteLoggato().getIdUtente());
+    		listaNotifiche=notificaDao.prelevaNotificheInviate(getUtenteLoggato().getIdUtente());
     		finestraVisualizzaNotifiche.svuotaTabella();	
     		finestraVisualizzaNotifiche.onOffAggiungi(true);
     		for (Notifica n : listaNotifiche) {
@@ -525,7 +529,7 @@ public class Controller {
     public void caricaNotificheRicevute() {  	
     	try{
     		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
-    		listaNotifiche=notificaDao.prelevaNotificheRicevute(Service.getUtenteLoggato().getIdUtente());
+    		listaNotifiche=notificaDao.prelevaNotificheRicevute(getUtenteLoggato().getIdUtente());
     		finestraVisualizzaNotifiche.svuotaTabella();	
     		finestraVisualizzaNotifiche.onOffAggiungi(false);
     		for (Notifica n : listaNotifiche) {
@@ -583,7 +587,7 @@ public class Controller {
     		dati= reportDao.prelevaDatiReport(codProgetto);
     		ArrayList<Object[]> datiDaPassare= new ArrayList<>();   
     		FinestraReport vistaReale = null;
-            if (Service.getUtenteLoggato().getRuolo() == TipoRuolo.PROPRIETARIO) {
+            if (getUtenteLoggato().getRuolo() == TipoRuolo.PROPRIETARIO) {
                 vistaReale = finestraProprietario.getFinReport();
             } else {
                 vistaReale = finestraProprietarioColtivatore.getFinReport();
@@ -704,6 +708,7 @@ public class Controller {
     	 }
     	 if(Utente.isLunghezzaValida(email)==false) {
     		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(),"La lunghezza dell'email deve essere inferiore di 30 caratteri.");
+    		 return;
     	 }
  
     	 LocalDate dataNascitaParse = null;
@@ -729,17 +734,17 @@ public class Controller {
     		    return;
     		}
     	
-    	Utente u = new Utente(nome, cognome, username, password, email, dataNascitaParse, TipoRuolo.COLTIVATORE);
+    	UtenteDTO u = new UtenteDTO(nome, cognome, username, password, email, dataNascitaParse, TipoRuolo.COLTIVATORE);
     	try{
-    		boolean salvato=utenteDao.salva(u);
-    		if(salvato) {
+    		
+    		if(service.registraColtivatore(u)!=null) {
+    			setUtenteLoggato(u);
     			finestraIscrizioneColtivatore.pulisciCampi();
-    			Service.setUtenteLoggato(u);
     			cardPanel.mostraPanel("coltivatore");  			
     		}
     		
     	}
-    	catch(SQLException e) {
+    	catch(EmailUsernameGiàEsistentiException e) {
     		finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "Email o Username già esistenti.");
     		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneColtivatore.getCmpUsername(), "Email o Username già esistenti");
     	}
@@ -813,7 +818,7 @@ public class Controller {
     		}
     	TipoRuolo tipoRuoloEnum= TipoRuolo.valueOf(ruoloComeEnum.toUpperCase());
     	
-    	Utente u = new Utente(nome, cognome, username, password, email, dataNascitaParse, tipoRuoloEnum);
+    	UtenteDTO u = new UtenteDTO(nome, cognome, username, password, email, dataNascitaParse, tipoRuoloEnum);
     	
     	String tessitura= finestraIscrizioneLotto.getTipoTessitura();
     	String dimensioni= finestraIscrizioneLotto.getDimensioni();
@@ -889,29 +894,26 @@ public class Controller {
     	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
     	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(morfologia.toUpperCase());
     			
-    	LottoColtivabile lc= new LottoColtivabile(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,u);
+    	LottoDTO lc= new LottoDTO(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,u.getIdUtente());
     	
-    	
-    	
-    		boolean salvato=utenteDao.salvaConLotto(u, lc);
-    		if(salvato) {
-    			Service.setUtenteLoggato(u);
+    		try{
+    			UtenteDTO uDto= service.registraProprietario(u, lc);
+    			if(uDto!=null) {
+    			setUtenteLoggato(uDto);
+    			finestraIscrizioneProprietario.pulisciCampi();
+    			finestraIscrizioneLotto.pulisciCampi();
+    			
     			if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
-    				finestraIscrizioneProprietario.pulisciCampi();
     				cardPanel.mostraPanel("proprietario");
     			}
     			else if (u.getRuolo()== TipoRuolo.PROPRIETARIO_COLTIVATORE) {
-    				finestraIscrizioneProprietario.pulisciCampi();
-    				cardPanel.mostraPanel("proprietario-coltivatore");
-    				
+    				cardPanel.mostraPanel("proprietario-coltivatore");	
     			}
-    			
     		}
-    		else {
-    			finestraIscrizioneLotto.messaggioErroreBottone(finestraIscrizioneLotto.getSalva(), "Salvataggio non riuscito");
-    			return;
-    		
-    	}
+    		}catch(EmailUsernameGiàEsistentiException e) {
+    			finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneProprietario.getCmpEmail(),"Email o Username già esistenti");
+    			finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpUsername(), "Email o Username già esistenti");
+    		}
     	
     }
     
@@ -961,7 +963,7 @@ public class Controller {
     	}
     	 try{
     		 ArrayList<ProgettoStagionale> listaAggiornata = progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
-    		 ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durataInt,dataInizioProgetto,Service.getUtenteLoggato(),lottoSelezionato);
+    		 ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durataInt,dataInizioProgetto,getUtenteLoggato(),lottoSelezionato);
     	    	if(!sovrapposizioneProgetti(nuovoProgetto, listaAggiornata)) {
     				return"errore sovr progetti";
     			}
@@ -1108,7 +1110,7 @@ public class Controller {
     	 try {
     	        if (tipoNotifica.equals("Attività Imminente")) {
     	            LocalDate scadenza = LocalDate.parse(finestraCreaNotifica.getCmpDataScadenza());
-    	            n = new AttivitaImminente(oggi, Service.getUtenteLoggato(),descrizioneVeloce,descrizione,scadenza, destinatari);
+    	            n = new AttivitaImminente(oggi,getUtenteLoggato(),descrizioneVeloce,descrizione,scadenza, destinatari);
     	        } else {
     	            if(estensione!= null && !estensione.trim().isEmpty()) {
     	            	try{
@@ -1119,7 +1121,7 @@ public class Controller {
     	            }else {
     	            	estensioneInt=0;
     	            }
-    	            n = new Anomalia(oggi, Service.getUtenteLoggato(), descrizioneVeloce, descrizione, livelloEnum, estensioneInt,destinatari);
+    	            n = new Anomalia(oggi, getUtenteLoggato(), descrizioneVeloce, descrizione, livelloEnum, estensioneInt,destinatari);
     	        }
     	 }catch(DateTimeParseException e) {
     		 return"errore formato data";
@@ -1191,7 +1193,7 @@ public class Controller {
     		e.printStackTrace();
     		return"errore db";
     	}
-    	ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,Service.getUtenteLoggato(),lottoSelezionato);
+    	ProgettoStagionale nuovoProgetto= new ProgettoStagionale(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,getUtenteLoggato(),lottoSelezionato);
     	try{
     		progettiperLotto=progettoDao.prelevaProgettiPerLotto(lottoSelezionato.getCodLotto());
     		
@@ -1347,4 +1349,14 @@ public class Controller {
 		finestraLogin.pulisciCampi();
 		cardPanel.mostraPanel("proprietario-coltivatore");
 	}
+	public void validaDatiUtente() {
+		
+	}
+	public static UtenteDTO getUtenteLoggato() {
+		return utenteLoggato;
+	}
+	public static void setUtenteLoggato(UtenteDTO utenteLoggato) {
+		Controller.utenteLoggato = utenteLoggato;
+	}
+	
 }

@@ -39,8 +39,6 @@ public class LottoDAO {
 				}
 				return true;
 			}
-	}catch(SQLException e) {
-		throw e;
 	}
 	return false;
 	}
@@ -79,7 +77,7 @@ public class LottoDAO {
 	    String sql = "INSERT INTO LOTTOCOLTIVABILE (TESSITURA, DIMENSIONI, PH, MORFOLOGIA, ALTITUDINE, LOCALITA, COMUNE, PROVINCIA, FK_IDPROPRIETARIO, ATTIVO) "
 	                    + "VALUES (?::tipotessitura, ?, ?, ?::tipomorfologia, ?, ?, ?, ?, ?, ?)";
 
-	    try (PreparedStatement psL = conn.prepareStatement(sql)) {
+	    try (PreparedStatement psL = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
 	        psL.setString(1, lc.getTessitura().toString());
 	        psL.setDouble(2, lc.getDimensioni());
 	        psL.setDouble(3, lc.getPh());
@@ -91,9 +89,15 @@ public class LottoDAO {
 	        psL.setInt(9, lc.getProprietario().getIdUtente()); 
 	        psL.setBoolean(10, true);
 
-	        psL.executeUpdate();
-	    }
-	    
+	        int righe=psL.executeUpdate();
+	        if(righe>0) {
+	        	try (ResultSet rs=psL.getGeneratedKeys()) {
+	        		if(rs.next()) {
+	        			lc.setCodLotto(rs.getInt(1));
+	        		}
+	        	}
+	        }
+	    } 
 	}
 	
 	public ArrayList<LottoColtivabile> prelevaLottiPerProprietario(int idUtente) throws SQLException,RisorsaNonTrovataException {
