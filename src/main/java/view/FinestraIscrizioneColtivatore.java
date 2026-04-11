@@ -170,6 +170,12 @@ public class FinestraIscrizioneColtivatore extends JPanel {
 		ToolTipManager.sharedInstance().setInitialDelay(0);
 	}
 	
+	public void messaggioErroreBottone(JButton campo, String messaggio) {
+		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
+		campo.setToolTipText(messaggio);
+		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
 	public void resetBordi() {
 		Border bordo= UIManager.getBorder("TextField.border");
 		cmpNome.setBorder(bordo);
@@ -300,9 +306,11 @@ public class FinestraIscrizioneColtivatore extends JPanel {
 	public JTextField getCmpCognome() {
 		return cmpCognome;
 	}
-	
-	
-	 @Override
+	 public JButton getIscriviti() {
+		return iscriviti;
+	}
+
+	@Override
 	    protected void paintComponent(Graphics g) {
 	        Graphics2D g2d = (Graphics2D) g;
 	        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);	        

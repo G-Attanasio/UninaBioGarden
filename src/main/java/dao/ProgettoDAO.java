@@ -21,7 +21,7 @@ import model.Stato;
 
 public class ProgettoDAO {
 
-	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int codLotto) throws SQLException,RisorsaNonTrovataException {
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int codLotto) throws SQLException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
 	    String sql = "SELECT * FROM PROGETTOSTAGIONALE WHERE FK_CODLOTTO = ?";
 	    

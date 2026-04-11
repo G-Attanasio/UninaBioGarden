@@ -90,6 +90,13 @@ public class FinestraVisualizzaLotti extends JPanel {
 		
 	}
 	
+	public void mostraErroreDB() {
+		JOptionPane.showMessageDialog(this, "Errore dal database.");
+	}
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
+	}
+	
 	public void aggiungiRigaTabella(Object[] riga) {
 	    modello.addRow(riga);
 	}
