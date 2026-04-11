@@ -11,11 +11,10 @@ import dao.NotificaDAO;
 import dao.ProgettoDAO;
 import dao.ReportDAO;
 import dao.UtenteDAO;
-import dto.AttivitaDTO;
+import dto.IrrigazioneDTO;
 import dto.LottoDTO;
 import dto.ProgettoDTO;
 import dto.RaccoltaDTO;
-import dto.SeminaColturaDTO;
 import dto.SeminaDTO;
 import dto.UtenteDTO;
 import exceptions.EmailUsernameGiàEsistentiException;
@@ -38,7 +37,7 @@ import model.Utente;
 
 public class Service {
 
-	private static Utente utenteLoggato;
+
 	private UtenteDAO utenteDAO;
 	private LottoDAO lottoDAO;
 	private ColturaDAO colturaDAO;
@@ -57,20 +56,20 @@ public class Service {
 		this.reportDAO= new ReportDAO();
 	}
 	
-	public UtenteDTO effettuaLogin(String username, String password) throws UtenteNonTrovatoException {
+	public Utente effettuaLogin(String username, String password) throws UtenteNonTrovatoException {
         try{
         	Utente u = utenteDAO.preleva(username, password);   
         if(u == null) {
         	throw new UtenteNonTrovatoException();
             }
-        return new UtenteDTO(u.getIdUtente(), u.getNome(), u.getCognome(),u.getUsername(),u.getPassword(),u.getEmail(),u.getDataNascita(),u.getRuolo());
+        return u;
         }catch(SQLException e) {
         	e.printStackTrace();
         	return null;
         }
     }
 	
-	public UtenteDTO registraColtivatore(UtenteDTO dto) throws EmailUsernameGiàEsistentiException {
+	public Utente registraColtivatore(UtenteDTO dto) throws EmailUsernameGiàEsistentiException {
 		if(!Utente.isEtaCoerente(dto.getDataNascita())) {
 			throw new ValidazioneException("data nascita");
 		}
@@ -80,9 +79,8 @@ public class Service {
 	    );
 	    try {
 	    boolean salvato = utenteDAO.salva(u);
-	    if (salvato) {
-	        dto.setIdUtente(u.getIdUtente()); 
-	        return dto;
+	    if (salvato) { 
+	        return u;
 	        }
 	    throw new EmailUsernameGiàEsistentiException();
 	    }catch(SQLException e){
@@ -91,7 +89,7 @@ public class Service {
 	    	}
 	}
 	
-	public UtenteDTO registraProprietario(UtenteDTO uDto,LottoDTO lDto) throws EmailUsernameGiàEsistentiException {
+	public Utente registraProprietario(UtenteDTO uDto,LottoDTO lDto) throws EmailUsernameGiàEsistentiException {
 		if(!Utente.isEtaCoerente(uDto.getDataNascita())){
 			throw new ValidazioneException("data nascita");
 		}
@@ -112,9 +110,7 @@ public class Service {
 		try {
 		boolean salvato= utenteDAO.salvaConLotto(u, lc);
 		if(salvato) {
-			uDto.setIdUtente(u.getIdUtente());
-			lDto.setCodLotto(lc.getCodLotto());
-			return uDto;
+			return u;
 		    }
 		throw new EmailUsernameGiàEsistentiException();
 		}catch(SQLException e) {
@@ -160,8 +156,14 @@ public class Service {
 	public void validaAttivitaSeminaRaccolta(String nomeColtura, String coltS, String coltR, SeminaDTO sDTO, RaccoltaDTO rDTO,double quantitaSemi, ArrayList<Attivita> attivitaTemporanee,ArrayList<SeminaColtura> listaSeminaColtura,int durataProgetto, LocalDate dataInizioProgetto, LottoColtivabile lotto)throws UtenteNonTrovatoException,RisorsaNonTrovataException {
 		try{
 			Coltura coltura= colturaDAO.prelevaColturaDaNome(nomeColtura);
+			if(coltura== null) {
+				throw new RisorsaNonTrovataException();
+			}
 			Utente coltivatoreS= utenteDAO.prelevaDaUsername(coltS);
 			Utente coltivatoreR= utenteDAO.prelevaDaUsername(coltR);
+			if(coltivatoreS== null || coltivatoreR == null ) {
+				throw new UtenteNonTrovatoException();
+			}
 			Semina semina= new Semina(sDTO.getDataInizio(),sDTO.getDataFine(),coltivatoreS,null,sDTO.getMetodoSemina());
 			Raccolta raccolta= new Raccolta(rDTO.getDataInizio(),rDTO.getDataFine(),coltivatoreR, null, rDTO.getMetodoRaccolta(),rDTO.getQuantitaPrevista(),coltura);
 			SeminaColtura seminaColtura= new SeminaColtura(coltura,semina,quantitaSemi);
@@ -190,6 +192,41 @@ public class Service {
 			attivitaTemporanee.add(raccolta);
 			listaSeminaColtura.add(seminaColtura);
 			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void validaAttivitaIrrigazione(String coltI, IrrigazioneDTO iDTO, LocalDate dataInizioP, int durataP, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee )throws UtenteNonTrovatoException {
+		try {
+		Utente coltivatoreI= utenteDAO.prelevaDaUsername(coltI);
+		if(coltivatoreI== null) {
+			throw new UtenteNonTrovatoException();
+		}
+		Irrigazione irrigazione= new Irrigazione(iDTO.getDataInizio(),iDTO.getDataFine(),coltivatoreI,null,iDTO.getMetodoIrrigazione());
+		if(!isAttivitaNonSovrapposta(coltI, irrigazione, attivitaTemporanee)) {
+			throw new ValidazioneException("colt irrigazione sovr attivita");
+		}
+		if(!durataAttivitaProgetto(irrigazione, dataInizioP, durataP)) {
+			throw new ValidazioneException("errore irrigazione sovr progetto");
+		}
+		if(!metodoIrrigazionePendenza(lottoSelezionato, irrigazione)) {
+			throw new ValidazioneException("errore pendenza sommersione");
+		}
+		attivitaTemporanee.add(irrigazione);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void salvaProgetto(ProgettoDTO pDTO, Utente utenteLoggato, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee, ArrayList<SeminaColtura> listaSeminaColtura) {
+		try {
+			ProgettoStagionale ps= new ProgettoStagionale(pDTO.getNomeProgetto(),pDTO.getStagioneDiRiferimento(),pDTO.getDurata(),pDTO.getDataInizio(),utenteLoggato,lottoSelezionato);
+			boolean salvataggio= progettoDAO.salvaProgettoCompleto(ps, attivitaTemporanee, listaSeminaColtura);
+			if(salvataggio) {
+				attivitaTemporanee.clear();
+				listaSeminaColtura.clear();
+			}
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -257,12 +294,6 @@ public class Service {
     	return true;
     }
     
-    public boolean metodoIrrigazioneCollinaMontagna(LottoColtivabile lc, Irrigazione irrigazione) {
-    	if(irrigazione.getMetodoIrrigazione()==TipoIrrigazione.SOMMERSIONE && (lc.getMorfologia()==TipoMorfologia.COLLINARE || lc.getMorfologia()==TipoMorfologia.MONTUOSO)) {
-    		return false;
-    	}
-    	return true;
-    }
     
     public boolean metodoIrrigazionePendenza(LottoColtivabile lc, Irrigazione i) {
     	if(i.getMetodoIrrigazione()==TipoIrrigazione.SOMMERSIONE && (lc.getMorfologia()==TipoMorfologia.COLLINARE || lc.getMorfologia()==TipoMorfologia.MONTUOSO)) {

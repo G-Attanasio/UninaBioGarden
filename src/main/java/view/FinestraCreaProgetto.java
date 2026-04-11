@@ -482,8 +482,11 @@ public class FinestraCreaProgetto extends JPanel {
 		if(errore.equals("errore meccanica montagna")) {
 			messaggioErroreCombo(metodiRaccolta, "Raccolta meccanica non consentita su lotto a morfologia montuosa");
 		}
-		if(errore.equals("utente non trovato")) {
-			
+		if(errore.equals("coltivatore non trovato")) {
+			JOptionPane.showMessageDialog(this, "Coltivatore non trovato.");
+		}
+		if(errore.equals("coltura non trovata")) {
+			JOptionPane.showMessageDialog(this, "Coltura non trovata.");
 		}
 		
 	}
