@@ -159,10 +159,6 @@ public class Controller {
     	try {
     	   
     	    dimensioniInt = Integer.parseInt(dimensioni);
-    	    if (!LottoColtivabile.isValidDimensioni(dimensioniInt)) {
-    	        finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
-    	        return; 
-    	    }
     	} catch (NumberFormatException e) {
     	    finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpDimensioni(), "Inserire un numero intero.");
     	    return;
@@ -171,10 +167,6 @@ public class Controller {
     	double phDouble=0.0;
     	try {
     		phDouble= Double.parseDouble(ph);
-    		if(!LottoColtivabile.isPhValidoMioDominio(phDouble)) {
-    			finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
-    			return;
-    		}
     	}catch(NumberFormatException e) {
     		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpPh(), "Inserire un numero.");
     		return;
@@ -183,10 +175,6 @@ public class Controller {
     	int altitudineInt=0;
     	try {
     		altitudineInt= Integer.parseInt(altitudine);
-    		if(!LottoColtivabile.isAltitudineValida(altitudineInt)) {
-    			finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
-    			return;
-    		}
     	}catch(NumberFormatException e) {
     		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpAltitudine(), "Inserire un numero intero.");
     		return;
@@ -219,18 +207,27 @@ public class Controller {
     	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
     	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(morfologia.toUpperCase());
     			
-    	LottoColtivabile lc= new LottoColtivabile(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,getUtenteLoggato());
+    	LottoDTO lDTO= new LottoDTO(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,getUtenteLoggato().getIdUtente());
     	
     	try{
-    		if(lottoDao.salva(lc)) { 
+    		if(service.salvaLotto(lDTO)) { 
     		caricaLotti();
     		finestraCreaLotto.pulisciCampi();
     		mostraPanelInterno("visualizza lotti");
     		}
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    		return;
-    	}
+    	}catch(ValidazioneException v) {
+			switch(v.getErrore()) {
+			case "dimensioni":
+				finestraCreaLotto.messaggioErrore(finestraIscrizioneLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
+				break;
+			case "ph":
+				finestraCreaLotto.messaggioErrore(finestraIscrizioneLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
+				break;
+			case "altitudine":
+				finestraCreaLotto.messaggioErrore(finestraIscrizioneLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
+				break;
+			}
+		}
     }
     
     public void caricaLotti() {
@@ -666,10 +663,10 @@ public class Controller {
     }
     
     public void gestisciSceltaRuolo(String ruolo) {
-    	if(ruolo=="PROPRIETARIO") {
+    	if(ruolo.equals("PROPRIETARIO")) {
     		cardPanel.mostraPanel("iscrizione proprietario");
     	}
-    	else if(ruolo=="COLTIVATORE") {
+    	else if(ruolo.equals("COLTIVATORE")) {
     		cardPanel.mostraPanel("iscrizione coltivatore");
     	}
     	else {

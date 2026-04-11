@@ -119,6 +119,30 @@ public class Service {
 		}
 	}
 	
+	public boolean salvaLotto(LottoDTO lDTO) {
+		if(!LottoColtivabile.isValidDimensioni(lDTO.getDimensioni())) {
+			throw new ValidazioneException("dimensioni");
+		}
+		if(!LottoColtivabile.isPhValidoMioDominio(lDTO.getPh())) {
+			throw new ValidazioneException("ph");
+		}
+		if(!LottoColtivabile.isAltitudineValida(lDTO.getAltitudine())) {
+			throw new ValidazioneException("altitudine");
+		}
+		LottoColtivabile lc= new LottoColtivabile( lDTO.getTessitura(),lDTO.getDimensioni(),lDTO.getPh(),
+				lDTO.getMorfologia(),lDTO.getAltitudine(),lDTO.getLocalita(),lDTO.getComune(),lDTO.getProvincia(),null);
+		try {
+		boolean salvato= lottoDAO.salva(lc, lDTO.getIdProprietario());
+		if(salvato) {
+			return true;
+		    }
+		}catch(SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return false;
+	}
+	
 	public LottoColtivabile avviaProgetto(int codLotto) throws RisorsaNonTrovataException {
 		try{
 			LottoColtivabile lc=lottoDAO.preleva(codLotto);
@@ -230,6 +254,10 @@ public class Service {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void salvaNotifica() {
+		
 	}
     
     public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {

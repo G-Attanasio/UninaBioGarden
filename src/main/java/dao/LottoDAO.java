@@ -17,7 +17,7 @@ import model.Utente;
 
 public class LottoDAO {
 
-	public boolean salva(LottoColtivabile lc) throws SQLException {
+	public boolean salva(LottoColtivabile lc, int idProprietario) throws SQLException {
 		String sql="INSERT INTO LOTTOCOLTIVABILE (TESSITURA,DIMENSIONI,PH,MORFOLOGIA,ALTITUDINE,LOCALITA,COMUNE,PROVINCIA,FK_IDPROPRIETARIO) VALUES (?::tipotessitura,?,?,?::tipomorfologia,?,?,?,?,?)";
 		try (Connection conn= DBConnection.getConnection();
 			PreparedStatement ps= conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {	
@@ -29,7 +29,7 @@ public class LottoDAO {
 			ps.setString(6, lc.getLocalita());
 			ps.setString(7, lc.getComune());
 			ps.setString(8, lc.getProvincia());
-			ps.setInt(9, lc.getProprietario().getIdUtente());		
+			ps.setInt(9, idProprietario);		
 			int righe= ps.executeUpdate();		
 			if (righe > 0) {
 				try (ResultSet rs = ps.getGeneratedKeys()) {
