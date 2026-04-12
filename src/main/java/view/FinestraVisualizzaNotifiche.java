@@ -24,6 +24,7 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 	private JTable tabella;
 	private String[] titoli= {"Tipo","Titolo","Data Scadenza","Livello gravità","Estensione","Codice","Descrizione"};
 	private DefaultTableModel modello;
+	private boolean inviata;
 	
 	
 	public FinestraVisualizzaNotifiche(Controller controller) {
@@ -68,7 +69,7 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		            JOptionPane.WARNING_MESSAGE
 		        );
 		        if (scelta == JOptionPane.YES_OPTION) {
-		            controller.eliminaNotifica(codNotifica);
+		            controller.eliminaNotifica(codNotifica,inviata);
 		            controller.mostraPanelInterno("visualizza notifiche");
 		        }
 		    } else {
@@ -106,6 +107,7 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 	
 	public void onOffAggiungi(boolean scelta) {
 		aggiungi.setVisible(scelta);
+		inviata=scelta;
 	}
 	
 	
@@ -139,6 +141,14 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 
 	public JButton getAggiungi() {
 		return aggiungi;
+	}
+
+	public boolean isInviata() {
+		return inviata;
+	}
+
+	public void setInviata(boolean inviata) {
+		this.inviata = inviata;
 	}
 	
 }

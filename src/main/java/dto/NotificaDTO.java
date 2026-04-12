@@ -8,16 +8,16 @@ public class NotificaDTO {
 	private int codNotifica;
 	private LocalDate dataInvio;
 	private int idCreatore;
-    ArrayList<UtenteDTO> destinatari;
+    ArrayList<String> destinatari;
 	
 	
-	public NotificaDTO(LocalDate dataInvio, int idCreatore, ArrayList<UtenteDTO> destinatari) {
+	public NotificaDTO(LocalDate dataInvio, int idCreatore, ArrayList<String> destinatari) {
 		this.dataInvio=dataInvio;
 		this.idCreatore=idCreatore;
 		this.destinatari=destinatari;
 	}
 	
-	public NotificaDTO(int codNotifica, LocalDate dataInvio,int idCreatore, ArrayList<UtenteDTO> destinatari) {
+	public NotificaDTO(int codNotifica, LocalDate dataInvio,int idCreatore, ArrayList<String> destinatari) {
 		this(dataInvio,idCreatore, destinatari);
 		this.codNotifica=codNotifica;
 	}
@@ -34,7 +34,7 @@ public class NotificaDTO {
 	public void setDataInvio(LocalDate dataInvio) {
 		this.dataInvio = dataInvio;
 	}
-	public ArrayList<UtenteDTO> getDestinatari() {
+	public ArrayList<String> getDestinatari() {
 		return destinatari;
 	}
 	public int getIdCreatore() {

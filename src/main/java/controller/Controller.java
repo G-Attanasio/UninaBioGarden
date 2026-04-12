@@ -10,6 +10,8 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import dao.*;
+import dto.AnomaliaDTO;
+import dto.AttivitaImminenteDTO;
 import dto.IrrigazioneDTO;
 import dto.LottoDTO;
 import dto.ProgettoDTO;
@@ -144,7 +146,6 @@ public class Controller {
         }
     }
     
-    
     public void aggiungiLotto()  {
     	String tessitura= finestraCreaLotto.getTipoTessitura().replace(" ", "_");
     	String dimensioni= finestraCreaLotto.getDimensioni();
@@ -218,13 +219,13 @@ public class Controller {
     	}catch(ValidazioneException v) {
 			switch(v.getErrore()) {
 			case "dimensioni":
-				finestraCreaLotto.messaggioErrore(finestraIscrizioneLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
+				finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
 				break;
 			case "ph":
-				finestraCreaLotto.messaggioErrore(finestraIscrizioneLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
+				finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
 				break;
 			case "altitudine":
-				finestraCreaLotto.messaggioErrore(finestraIscrizioneLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
+				finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
 				break;
 			}
 		}
@@ -359,7 +360,6 @@ public class Controller {
         }
     }
     
-    
     public void caricaIMieiProgetti() {  	
     	try {
     		progettoDao.sincronizzaSistema();
@@ -477,6 +477,7 @@ public class Controller {
     
     public void caricaNotificheInviate() {
     	try{
+    		this.notifiche.clear();
     		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
     		listaNotifiche=notificaDao.prelevaNotificheInviate(getUtenteLoggato().getIdUtente());
     		finestraVisualizzaNotifiche.svuotaTabella();	
@@ -532,6 +533,7 @@ public class Controller {
     
     public void caricaNotificheRicevute() {  	
     	try{
+    		this.notifiche.clear();
     		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
     		listaNotifiche=notificaDao.prelevaNotificheRicevute(getUtenteLoggato().getIdUtente());
     		finestraVisualizzaNotifiche.svuotaTabella();	
@@ -606,8 +608,7 @@ public class Controller {
     			datiDaPassare.add(riga);
     		}
     		if (vistaReale != null) {
-                vistaReale.costruisciGrafico(datiDaPassare);
-                System.out.println("DEBUG: Disegnato su " + vistaReale.hashCode());
+                vistaReale.costruisciGrafico(datiDaPassare);               
             }
     		mostraPanelInterno("report");
     	}catch(RisorsaNonTrovataException e) {   		
@@ -646,12 +647,17 @@ public class Controller {
         	}
     }
     
-    public void eliminaNotifica(int codNotifica) {
+    public void eliminaNotifica(int codNotifica, boolean inviata) {
     		try {
-    			boolean successo= notificaDao.eliminaNotifica(codNotifica);
-    			if(successo) {
+    			if(inviata) {
+    				notificaDao.eliminaNotificaInviata(codNotifica);
     				caricaNotificheInviate();
     			}
+    			else {
+    				notificaDao.eliminaNotificaRicevuta(codNotifica,getUtenteLoggato().getIdUtente());
+    				caricaNotificheRicevute();
+    			}
+    			
     		}catch(SQLException e) {
     			e.printStackTrace();
     		}
@@ -1047,69 +1053,42 @@ public class Controller {
     	String estensione= finestraCreaNotifica.getCmpEstensione();
     	ArrayList<String> nomi= finestraCreaNotifica.getNomiDestinatariSelezionati();
     	
-    	LivelloGravita livelloEnum= LivelloGravita.valueOf(livelloGravita.toString().toUpperCase());
-    	
-    	
-    	
-    	 if(!Notifica.isNotificaLunghezzaValida(descrizioneVeloce)) {
-    		 return"errore descrizione veloce";
-    	 }
-    	 if(!Notifica.isDescrizioneLunghezzaValida(descrizione)) {
-    		 return"errore descrizione";
-    	 }
-    	 
+    	LivelloGravita livelloEnum= LivelloGravita.valueOf(livelloGravita.toString().toUpperCase());   	 
     	 if (nomi.isEmpty()) {
-    	        return "errore destinatari vuoti";
-    	    }
-    	 
-    	 ArrayList<Utente> destinatari = new ArrayList<>();
-    	 try {
-    	    for (String username : nomi) {
-    	        Utente u = utenteDao.prelevaDaUsername(username);
-    	        if (u != null) destinatari.add(u);
-    	    }
-    	 }catch(UtenteNonTrovatoException e) {
-    		 return"destinatario non trovato";
-    	 }catch(SQLException e) {
-    		 return"errore dal db";
-    	 }
-    	 
-    	 Notifica n = null;
+    	      return "errore destinatari vuoti";
+    	 } 
     	 LocalDate oggi = LocalDate.now();
     	 int estensioneInt;
     	 try {
     	        if (tipoNotifica.equals("Attività Imminente")) {
     	            LocalDate scadenza = LocalDate.parse(finestraCreaNotifica.getCmpDataScadenza());
-    	            n = new AttivitaImminente(oggi,getUtenteLoggato(),descrizioneVeloce,descrizione,scadenza, destinatari);
+    	            AttivitaImminenteDTO attDTO = new AttivitaImminenteDTO(oggi,getUtenteLoggato().getIdUtente(),descrizioneVeloce,descrizione,scadenza, nomi);
+    	            service.salvaAttivitaImminente(attDTO);
     	        } else {
     	            if(estensione!= null && !estensione.trim().isEmpty()) {
     	            	try{
     	            		estensioneInt = Integer.parseInt(finestraCreaNotifica.getCmpEstensione());
+    	            		if(!Anomalia.isEstensioneValida(estensioneInt)) {
+    	            			return "estensione <0";
+    	            		}
     	            	}catch(NumberFormatException e) {
     	            		return"errore formato estensione";
     	            	}
     	            }else {
     	            	estensioneInt=0;
     	            }
-    	            n = new Anomalia(oggi, getUtenteLoggato(), descrizioneVeloce, descrizione, livelloEnum, estensioneInt,destinatari);
+    	            AnomaliaDTO anomDTO = new AnomaliaDTO(oggi, getUtenteLoggato().getIdUtente(), descrizioneVeloce, descrizione, livelloEnum, estensioneInt,nomi);
+    	            service.salvaAnomalia(anomDTO);
     	        }
     	 }catch(DateTimeParseException e) {
     		 return"errore formato data";
+    	 }catch(UtenteNonTrovatoException u) {
+    		 return "utenti non trovati";
+    	 }catch(ValidazioneException v) {
+    		 return v.getErrore();
     	 }
-    	 
-    	 try {
-    		 
-    	 notificaDao.salvaNotifica(n);
-    	 finestraCreaNotifica.getModelloScelti().clear();
-          
+    	  finestraCreaNotifica.getModelloScelti().clear();
          return "ok";
-
-     } catch (SQLException e) {
-    	 e.printStackTrace();
-        
-     }
-    	 return"errore";
-		
     }
     	   
     public String salvaProgetto() {
@@ -1162,44 +1141,6 @@ public class Controller {
         finestraProprietarioColtivatore.mostraPanelInterno("visualizza lotti");
     }
     
-    public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {
-    	LocalDate dataFineProgetto = dataInizioProgetto.plusDays(durataProgetto);     
-        if (attivita.getDataFine().isAfter(dataFineProgetto)) {
-            return false;
-        }
-        if(attivita.getDataFine().isBefore(dataInizioProgetto)){
-        	return false;
-        }
-        if(attivita.getDataInizio().isAfter(dataFineProgetto)) {
-        	return false;
-        }
-        if (attivita.getDataInizio().isBefore(dataInizioProgetto)) {
-            return false;
-        }
-        return true;
-    }
-    
-    public boolean isAttivitaNonSovrapposta(String username,Attivita attivita) {
-    	try {	
-    	ArrayList<Attivita> tutteLeAttivita=new ArrayList<Attivita>();
-    	tutteLeAttivita=attivitaDao.prelevaTutteAttivitaPerColtivatore(username);
-    	tutteLeAttivita.addAll(attivitaTemporanee);
-    	 for (Attivita a : tutteLeAttivita) {  	     
-    	        if (a.getColtivatore().getUsername().equals(username)) {  
-    	            if (!attivita.getDataInizio().isAfter(a.getDataFine()) && !attivita.getDataFine().isBefore(a.getDataInizio())) {
-    	                return false; 
-    	            }
-    	        }
-    	    }
-    	    
-    }catch(RisorsaNonTrovataException e) {
-    	
-    }catch(SQLException e) {
-    	return false;
-    	}
-    	return true;
-    }
-    
 	public void inizializzaFinestraProprietario() {
 		this.finestraVisualizzaLotti= finestraProprietario.getFinVisualizzaLotti();
         this.finestraCreaLotto=finestraProprietario.getFinCreaLotto();
@@ -1239,6 +1180,7 @@ public class Controller {
 	public static Utente getUtenteLoggato() {
 		return utenteLoggato;
 	}
+	
 	public static void setUtenteLoggato(Utente utenteLoggato) {
 		Controller.utenteLoggato = utenteLoggato;
 	}

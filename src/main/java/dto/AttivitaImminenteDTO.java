@@ -9,14 +9,14 @@ public class AttivitaImminenteDTO extends NotificaDTO {
 	private String descrizione;
 	private LocalDate dataScadenza;
 
-	public AttivitaImminenteDTO( LocalDate dataInvio, int idCreatore, String tipoAttivitaImminente, String descrizione,LocalDate dataScadenza, ArrayList<UtenteDTO> destinatari) {
+	public AttivitaImminenteDTO( LocalDate dataInvio, int idCreatore, String tipoAttivitaImminente, String descrizione,LocalDate dataScadenza, ArrayList<String> destinatari) {
 		super(dataInvio, idCreatore,destinatari);
 		this.tipoAttivitaImminente=tipoAttivitaImminente;
 		this.descrizione=descrizione;
 		this.dataScadenza=dataScadenza;
 	}
 	
-	public AttivitaImminenteDTO(int codNotifica, LocalDate dataInvio,int idCreatore, String tipoAttivitaImminente, String descrizione, LocalDate dataScadenza, ArrayList<UtenteDTO> destinatari) {
+	public AttivitaImminenteDTO(int codNotifica, LocalDate dataInvio,int idCreatore, String tipoAttivitaImminente, String descrizione, LocalDate dataScadenza, ArrayList<String> destinatari) {
 		super(codNotifica,dataInvio,idCreatore,destinatari);
 		this.tipoAttivitaImminente=tipoAttivitaImminente;
 		this.descrizione=descrizione;

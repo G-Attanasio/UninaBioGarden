@@ -264,6 +264,8 @@ public class FinestraCreaNotifica extends JPanel {
 		cmpDataScadenza.setToolTipText(null);	
 		cmpEstensione.setBorder(bordo);
 		cmpEstensione.setToolTipText(null);
+		scrollScelti.setBorder(bordo);
+		scrollScelti.setToolTipText(null);
 		
 	}
 	
@@ -295,7 +297,13 @@ public class FinestraCreaNotifica extends JPanel {
 		}
 		if(errore.equals("errore formato estensione")) {
 			messaggioErrore(cmpEstensione, "Inserire un numero intero.");
-		}		
+		}	
+		if(errore.equals("estensione <0")) {
+			messaggioErrore(cmpEstensione, "Inserire numero positivo");
+		}
+		if(errore.equals("utenti non trovati")) {
+			JOptionPane.showMessageDialog(this, "Alcuni o tutti Utenti non trovati");
+		}
 	}
 	
 	public void messaggioErroreTextArea(JTextArea campo,String testo) {

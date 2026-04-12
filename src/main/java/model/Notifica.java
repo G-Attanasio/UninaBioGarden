@@ -14,7 +14,7 @@ public abstract class Notifica {
 	public Notifica(LocalDate dataInvio, Utente creatore, ArrayList<Utente> destinatari) {
 		this.dataInvio=dataInvio;
 		this.creatore=creatore;
-		this.destinatari=new ArrayList<Utente>();
+		this.destinatari=destinatari;
 	}
 	
 	public Notifica(int codNotifica, LocalDate dataInvio,Utente creatore, ArrayList<Utente> destinatari) {

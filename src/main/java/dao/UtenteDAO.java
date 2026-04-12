@@ -48,7 +48,7 @@ public class UtenteDAO {
 			
 
 	
-	public Utente preleva(String username, String password) throws SQLException,UtenteNonTrovatoException {
+	public Utente prelevaPerLogin(String username, String password) throws SQLException,UtenteNonTrovatoException {
 	    String sql = "SELECT * FROM UTENTE WHERE USERNAME = ? AND PASSWORD = ?";    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {        
@@ -69,6 +69,30 @@ public class UtenteDAO {
 	        }
 	    } 
 	    return null; 
+	}
+	
+	public Utente prelevaPerId(int id) throws SQLException,UtenteNonTrovatoException {
+	    String sql = "SELECT * FROM UTENTE WHERE IDUTENTE=?";    
+	    try (Connection conn = DBConnection.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {        
+	        ps.setInt(1, id);        
+	        ResultSet rs = ps.executeQuery(); 
+	        if (rs.next()) {	            
+	            return new Utente(
+	                rs.getInt("IDUTENTE"),
+	                rs.getString("NOME"),
+	                rs.getString("COGNOME"),
+	                rs.getString("USERNAME"),
+	                rs.getString("PASSWORD"), 
+	                rs.getString("EMAIL"),
+	                rs.getDate("DATANASCITA").toLocalDate(),
+	                TipoRuolo.valueOf(rs.getString("RUOLO").toUpperCase())
+	            );
+	        }else {
+	        	throw new UtenteNonTrovatoException();
+	        }
+	    } 
+	     
 	}
 	
 	public boolean salvaConLotto(Utente u, LottoColtivabile lc) throws SQLException {

@@ -11,8 +11,11 @@ import dao.NotificaDAO;
 import dao.ProgettoDAO;
 import dao.ReportDAO;
 import dao.UtenteDAO;
+import dto.AnomaliaDTO;
+import dto.AttivitaImminenteDTO;
 import dto.IrrigazioneDTO;
 import dto.LottoDTO;
+import dto.NotificaDTO;
 import dto.ProgettoDTO;
 import dto.RaccoltaDTO;
 import dto.SeminaDTO;
@@ -21,10 +24,14 @@ import exceptions.EmailUsernameGiàEsistentiException;
 import exceptions.RisorsaNonTrovataException;
 import exceptions.UtenteNonTrovatoException;
 import exceptions.ValidazioneException;
+import model.Anomalia;
 import model.Attivita;
+import model.AttivitaImminente;
 import model.Coltura;
 import model.Irrigazione;
+import model.LivelloGravita;
 import model.LottoColtivabile;
+import model.Notifica;
 import model.ProgettoStagionale;
 import model.Raccolta;
 import model.Semina;
@@ -58,7 +65,7 @@ public class Service {
 	
 	public Utente effettuaLogin(String username, String password) throws UtenteNonTrovatoException {
         try{
-        	Utente u = utenteDAO.preleva(username, password);   
+        	Utente u = utenteDAO.prelevaPerLogin(username, password);   
         if(u == null) {
         	throw new UtenteNonTrovatoException();
             }
@@ -256,8 +263,47 @@ public class Service {
 		}
 	}
 	
-	public void salvaNotifica() {
+	public void salvaAttivitaImminente(AttivitaImminenteDTO attDTO) throws UtenteNonTrovatoException {
+		if(!Notifica.isNotificaLunghezzaValida(attDTO.getTipoAttivitaImminente())) {
+   		 	throw new ValidazioneException("errore descrizione veloce");
+   	    }
+   	    if(!Notifica.isDescrizioneLunghezzaValida(attDTO.getDescrizione())) {
+   		 throw new ValidazioneException("errore descrizione");
+   	    }
+		ArrayList<Utente> destinatari= new ArrayList<Utente>();
+		try {
+			Utente creatore= utenteDAO.prelevaPerId(attDTO.getIdCreatore());
+		for(String username: attDTO.getDestinatari()) {
+			Utente u= utenteDAO.prelevaDaUsername(username);
+			destinatari.add(u);
+		}
+		AttivitaImminente att= new AttivitaImminente(attDTO.getDataInvio(),creatore,attDTO.getTipoAttivitaImminente(),attDTO.getDescrizione(),attDTO.getDataScadenza(),destinatari);
+		notificaDAO.salvaNotifica(att);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void salvaAnomalia(AnomaliaDTO anomDTO)throws UtenteNonTrovatoException{
+		if(!Notifica.isNotificaLunghezzaValida(anomDTO.getTipoAnomalia())) {
+   		 	throw new ValidazioneException("errore descrizione veloce");
+   	    }
+   	    if(!Notifica.isDescrizioneLunghezzaValida(anomDTO.getDescrizione())) {
+   		 throw new ValidazioneException("errore descrizione");
+   	    }
 		
+		ArrayList<Utente> destinatari= new ArrayList<Utente>();
+		try {
+			Utente creatore= utenteDAO.prelevaPerId(anomDTO.getIdCreatore());
+		for(String username: anomDTO.getDestinatari()) {
+			Utente u= utenteDAO.prelevaDaUsername(username);
+			destinatari.add(u);
+		}
+		Anomalia anom= new Anomalia(anomDTO.getDataInvio(),creatore,anomDTO.getTipoAnomalia(),anomDTO.getDescrizione(),anomDTO.getGravita(),anomDTO.getEstensione(),destinatari);
+		notificaDAO.salvaNotifica(anom);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
 	}
     
     public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {
@@ -321,8 +367,7 @@ public class Service {
     	}
     	return true;
     }
-    
-    
+
     public boolean metodoIrrigazionePendenza(LottoColtivabile lc, Irrigazione i) {
     	if(i.getMetodoIrrigazione()==TipoIrrigazione.SOMMERSIONE && (lc.getMorfologia()==TipoMorfologia.COLLINARE || lc.getMorfologia()==TipoMorfologia.MONTUOSO)) {
     		return false;

@@ -13,7 +13,7 @@ public class AnomaliaDTO extends NotificaDTO {
 	private LivelloGravita gravita;
 	private int estensione;
 	
-	public AnomaliaDTO(LocalDate dataInvio, int idCreatore,String tipoAnomalia,String descrizione, LivelloGravita gravita, int estensione, ArrayList<UtenteDTO> destinatari) {
+	public AnomaliaDTO(LocalDate dataInvio, int idCreatore,String tipoAnomalia,String descrizione, LivelloGravita gravita, int estensione, ArrayList<String> destinatari) {
 		super(dataInvio, idCreatore, destinatari);
 		this.tipoAnomalia=tipoAnomalia;
 		this.descrizione=descrizione;
@@ -21,7 +21,7 @@ public class AnomaliaDTO extends NotificaDTO {
 		this.estensione=estensione;
 	}
 	
-	public AnomaliaDTO( int codNotifica, LocalDate dataInvio, int idCreatore,String tipoAnomalia, String descrizione, LivelloGravita gravita, int estensione, ArrayList<UtenteDTO> destinatari) {
+	public AnomaliaDTO( int codNotifica, LocalDate dataInvio, int idCreatore,String tipoAnomalia, String descrizione, LivelloGravita gravita, int estensione, ArrayList<String> destinatari) {
 		super(codNotifica, dataInvio,idCreatore,destinatari);
 		this.tipoAnomalia=tipoAnomalia;
 		this.descrizione=descrizione;

@@ -49,7 +49,6 @@ public class NotificaDAO {
 		                id = cs.getInt(5);
 		            }
 		        }
-		        
 		        String sqlPonte = "CALL P_INVIA_A_DESTINATARIO(?, ?)";
 		        try (CallableStatement csPonte = conn.prepareCall(sqlPonte)) {
 		            for (Utente u : n.getDestinatari()) {
@@ -67,7 +66,6 @@ public class NotificaDAO {
 		    } finally {
 		        conn.setAutoCommit(true);
 		        conn.close();
-		        
 		    }
 	}
 	
@@ -117,7 +115,7 @@ public class NotificaDAO {
 	
 	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws SQLException,RisorsaNonTrovataException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
-	    String sql = "SELECT N.*, A.TIPOANOMALIA, A.GRAVITA, A.ESTENSIONE,A.DESCRIZIONE,I.DESCRIZIONE, I.TIPOATTIVITAIMMINENTE, I.DATASCADENZA " +
+	    String sql = "SELECT N.*, A.TIPOANOMALIA, A.GRAVITA, A.ESTENSIONE,A.DESCRIZIONE AS DESC_A,I.DESCRIZIONE AS DESC_I, I.TIPOATTIVITAIMMINENTE, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +
 	                 "JOIN NOTIFICADESTINATARIO ND ON N.CODNOTIFICA = ND.FK_CODNOTIFICA " +
 	                 "LEFT JOIN ANOMALIA A ON N.CODNOTIFICA = A.FK_CODNOTIFICA " +
@@ -129,24 +127,27 @@ public class NotificaDAO {
 	        ps.setInt(1, idColtivatore);
 	        ResultSet rs = ps.executeQuery();
 	        while (rs.next()) {
+	        	 int codNotifica = rs.getInt("CODNOTIFICA"); 
 	        	 LocalDate dataInvio = rs.getDate("DATAINVIO").toLocalDate();
 	             ArrayList<Utente> u= new ArrayList<Utente>();
 	             if (rs.getString("TIPOANOMALIA") != null) {
 	                 lista.add(new Anomalia(
+	                	 codNotifica,
 	                	 dataInvio,
 	                     null,
 	                     rs.getString("TIPOANOMALIA"), 
-	                     rs.getString("DESCRIZIONE"),
+	                     rs.getString("DESC_A"),
 	                     LivelloGravita.valueOf(rs.getString("GRAVITA").toUpperCase()),
 	                     rs.getInt("ESTENSIONE"),
 	                     u
 	                 ));
 	             } else {
 	                 lista.add(new AttivitaImminente(
+	                	 codNotifica,
 	                     dataInvio,
 	                     null,
 	                     rs.getString("TIPOATTIVITAIMMINENTE"),
-	                     rs.getString("DESCRIZIONE"),
+	                     rs.getString("DESC_I"),
 	                     rs.getDate("DATASCADENZA").toLocalDate(),
 	                     u
 	                 ));
@@ -156,15 +157,24 @@ public class NotificaDAO {
 	    return lista;
 	}
 	
-	public boolean eliminaNotifica(int codNotifica) throws SQLException {
+	public void eliminaNotificaInviata(int codNotifica) throws SQLException {
 	    String sql = "DELETE FROM NOTIFICA WHERE CODNOTIFICA = ?";	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setInt(1, codNotifica);
-	        int righeCancellate = ps.executeUpdate();
-	        return righeCancellate > 0;
+	        ps.executeUpdate();
 	    }
 	}
 	
+	public void eliminaNotificaRicevuta(int codNotifica, int idUtente) throws SQLException {
+	    String sql = "DELETE FROM NOTIFICADESTINATARIO WHERE FK_CODNOTIFICA = ? AND FK_DESTINATARIO = ?";
+	    try (Connection conn = DBConnection.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setInt(1, codNotifica);
+	        ps.setInt(2, idUtente);
+	        ps.executeUpdate();
+	    }
+	}
+
 	
 }
