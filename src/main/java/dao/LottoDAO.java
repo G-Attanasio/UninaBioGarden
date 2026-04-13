@@ -67,9 +67,11 @@ public class LottoDAO {
 		        		 );
 		        		 
 		        		 return lotto;
-		        	 }	        	 
+		        	 }
+		        	 else {
+		        		 throw new RisorsaNonTrovataException();
+		        	 }
 		}
-		return null;
 	}
 	
 	public void salvaInTransazione(LottoColtivabile lc, Connection conn) throws SQLException {
@@ -133,9 +135,9 @@ public class LottoDAO {
 		 try (Connection conn = DBConnection.getConnection();
 		 CallableStatement cs= conn.prepareCall(sql)){		
 		 cs.setInt(1, codLotto);
-	     cs.execute();
-	     return true;	        		
-	}
-	}
+	     int righeModificate= cs.executeUpdate();
+	     return righeModificate>0;
+		 }
+	 }
 }
 	

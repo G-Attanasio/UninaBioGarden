@@ -110,9 +110,12 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		inviata=scelta;
 	}
 	
-	
 	public void mostraMessaggioNotifica(String titolo, String messaggio) {
 	    JOptionPane.showMessageDialog(null, messaggio, "Descrizione Notifica: " + titolo, JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 	
 	public void aggiungiRigaTabella(Object[] riga) {

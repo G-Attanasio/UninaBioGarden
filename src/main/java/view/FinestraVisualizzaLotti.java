@@ -54,16 +54,16 @@ public class FinestraVisualizzaLotti extends JPanel {
 		cancella.addActionListener(e -> {	    
 		    int rigaSelezionata = tabella.getSelectedRow();
 		    if (rigaSelezionata != -1) { 
-		        int idLotto = (int) modello.getValueAt(rigaSelezionata, 0);
+		        int codLotto = (int) modello.getValueAt(rigaSelezionata, 0);
 		        int scelta = JOptionPane.showConfirmDialog(
 		            this, 
-		            "Sei sicuro di voler eliminare il lotto con codice: " + idLotto + "?", 
+		            "Sei sicuro di voler eliminare il lotto con codice: " + codLotto + "?", 
 		            "Conferma", 
 		            JOptionPane.YES_NO_OPTION, 
 		            JOptionPane.WARNING_MESSAGE
 		        );
 		        if (scelta == JOptionPane.YES_OPTION) {
-		            controller.eliminaLotto();
+		            controller.eliminaLotto(codLotto);
 		        }
 		    } else {
 		        JOptionPane.showMessageDialog(this, "Seleziona un lotto dalla tabella.", "Nessuna selezione", JOptionPane.INFORMATION_MESSAGE);
@@ -90,9 +90,7 @@ public class FinestraVisualizzaLotti extends JPanel {
 		
 	}
 	
-	public void mostraErroreDB() {
-		JOptionPane.showMessageDialog(this, "Errore dal database.");
-	}
+	
 	public void mostraMessaggio(String testo) {
 		JOptionPane.showMessageDialog(this, testo);
 	}

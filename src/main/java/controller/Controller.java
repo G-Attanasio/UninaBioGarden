@@ -20,6 +20,7 @@ import dto.SeminaColturaDTO;
 import dto.SeminaDTO;
 import dto.UtenteDTO;
 import exceptions.EmailUsernameGiàEsistentiException;
+import exceptions.ErroreDatabaseException;
 import exceptions.RisorsaNonTrovataException;
 import exceptions.UtenteNonTrovatoException;
 import exceptions.ValidazioneException;
@@ -409,15 +410,13 @@ public class Controller {
     
     public void avviaProgetto(int codLotto) {
     	 try {
-    	        this.lottoSelezionato = service.avviaProgetto(codLotto);
-    	        if (this.lottoSelezionato != null) {
+    	        this.lottoSelezionato = service.avviaProgetto(codLotto);   	        
     	            caricaColtureInCreaProgetto();
-    	            finestraCreaProgetto.pulisciCampi();
-    	        }else {
-    	        	finestraVisualizzaLotti.mostraErroreDB();
-    	        }
+    	            finestraCreaProgetto.pulisciCampi();	        
     	    } catch(RisorsaNonTrovataException e) {
     	    	 finestraVisualizzaLotti.mostraMessaggio("Lotto non trovato.");  	
+    	    }catch(ErroreDatabaseException e) {
+    	    	finestraVisualizzaLotti.mostraMessaggio(e.getMessage());
     	    }
     }
     
@@ -618,50 +617,43 @@ public class Controller {
     	}
     }
     
-    public void eliminaLotto() {
-    	 int riga = finestraVisualizzaLotti.getTabella().getSelectedRow();
-    	    if (riga != -1) {    	        
-    	        int codLotto = (int) finestraVisualizzaLotti.getModello().getValueAt(riga, 0);
-    	        try {
-    	            boolean successo = lottoDao.cancellaLotto(codLotto);
-    	            if (successo) {
-    	                caricaLotti();    	                
-    	            }
-    	        } catch (SQLException e) {
-    	            e.printStackTrace();
-    	        }
-    	    }   	
+    public void eliminaLotto(int codLotto) {
+        try {
+            service.eliminaLotto(codLotto);  	            
+                caricaLotti();    	                
+        } catch (RisorsaNonTrovataException e) {
+            finestraVisualizzaLotti.mostraMessaggio("Lotto non trovato nel database.");
+        } catch(ErroreDatabaseException e) {
+        	finestraVisualizzaLotti.mostraMessaggio(e.getMessage());
+        }
     }
     
-    public void eliminaProgetto(int codProgetto) { 	
-    	try {      
-            boolean cancellato = progettoDao.eliminaProgetto(codProgetto);
-            if (cancellato) {
-                caricaIMieiProgetti(); 
-            } else {
-            	System.out.println("errore cancellazione progetto");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            
-        	}
+    public void eliminaProgetto(int codProgetto) { 	   	
+	    try {
+	        service.eliminaProgetto(codProgetto);
+	        caricaIMieiProgetti();
+	    } catch (RisorsaNonTrovataException e) {
+	        finestraVisualizzaProgetti.mostraMessaggio("Progetto non trovato.");
+	    } catch(ErroreDatabaseException e) {
+	    	finestraVisualizzaProgetti.mostraMessaggio(e.getMessage());
+	    }
     }
     
     public void eliminaNotifica(int codNotifica, boolean inviata) {
-    		try {
-    			if(inviata) {
-    				notificaDao.eliminaNotificaInviata(codNotifica);
-    				caricaNotificheInviate();
-    			}
-    			else {
-    				notificaDao.eliminaNotificaRicevuta(codNotifica,getUtenteLoggato().getIdUtente());
-    				caricaNotificheRicevute();
-    			}
-    			
-    		}catch(SQLException e) {
-    			e.printStackTrace();
-    		}
-    	
+        try {
+            if (inviata) {
+                service.eliminaNotificaInviata(codNotifica);
+                caricaNotificheInviate();
+            } else {
+                service.eliminaNotificaRicevuta(codNotifica, getUtenteLoggato().getIdUtente());
+                caricaNotificheRicevute();
+            }
+
+        } catch (RisorsaNonTrovataException e) {
+            finestraVisualizzaNotifiche.mostraMessaggio("Notifica non trovata.");
+        } catch(ErroreDatabaseException e) {
+        	finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
+        }
     }
     
     public void mostraPanel(String testo) {
@@ -1068,9 +1060,6 @@ public class Controller {
     	            if(estensione!= null && !estensione.trim().isEmpty()) {
     	            	try{
     	            		estensioneInt = Integer.parseInt(finestraCreaNotifica.getCmpEstensione());
-    	            		if(!Anomalia.isEstensioneValida(estensioneInt)) {
-    	            			return "estensione <0";
-    	            		}
     	            	}catch(NumberFormatException e) {
     	            		return"errore formato estensione";
     	            	}

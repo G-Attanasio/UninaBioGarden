@@ -157,22 +157,24 @@ public class NotificaDAO {
 	    return lista;
 	}
 	
-	public void eliminaNotificaInviata(int codNotifica) throws SQLException {
+	public boolean eliminaNotificaInviata(int codNotifica) throws SQLException {
 	    String sql = "DELETE FROM NOTIFICA WHERE CODNOTIFICA = ?";	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setInt(1, codNotifica);
-	        ps.executeUpdate();
+	        int righeCancellate=ps.executeUpdate();
+	        return righeCancellate>0;
 	    }
 	}
 	
-	public void eliminaNotificaRicevuta(int codNotifica, int idUtente) throws SQLException {
+	public boolean eliminaNotificaRicevuta(int codNotifica, int idUtente) throws SQLException {
 	    String sql = "DELETE FROM NOTIFICADESTINATARIO WHERE FK_CODNOTIFICA = ? AND FK_DESTINATARIO = ?";
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setInt(1, codNotifica);
 	        ps.setInt(2, idUtente);
-	        ps.executeUpdate();
+	        int righeCancellate=ps.executeUpdate();
+	        return righeCancellate>0;
 	    }
 	}
 

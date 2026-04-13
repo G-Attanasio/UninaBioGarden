@@ -21,6 +21,7 @@ import dto.RaccoltaDTO;
 import dto.SeminaDTO;
 import dto.UtenteDTO;
 import exceptions.EmailUsernameGiàEsistentiException;
+import exceptions.ErroreDatabaseException;
 import exceptions.RisorsaNonTrovataException;
 import exceptions.UtenteNonTrovatoException;
 import exceptions.ValidazioneException;
@@ -150,16 +151,13 @@ public class Service {
 		return false;
 	}
 	
-	public LottoColtivabile avviaProgetto(int codLotto) throws RisorsaNonTrovataException {
+	public LottoColtivabile avviaProgetto(int codLotto) throws RisorsaNonTrovataException,ErroreDatabaseException {
 		try{
 			LottoColtivabile lc=lottoDAO.preleva(codLotto);
-			if(lc==null) {
-				throw new RisorsaNonTrovataException();
-			}
 			return lc;
 		}catch(SQLException e) {
 			e.printStackTrace();
-			return null;
+			throw new ErroreDatabaseException();
 		}
 	}
 	
@@ -289,9 +287,11 @@ public class Service {
    		 	throw new ValidazioneException("errore descrizione veloce");
    	    }
    	    if(!Notifica.isDescrizioneLunghezzaValida(anomDTO.getDescrizione())) {
-   		 throw new ValidazioneException("errore descrizione");
+   	    	throw new ValidazioneException("errore descrizione");
    	    }
-		
+   	    if(!Anomalia.isEstensioneValida(anomDTO.getEstensione())) {
+			throw new ValidazioneException("estensione <0");
+		}
 		ArrayList<Utente> destinatari= new ArrayList<Utente>();
 		try {
 			Utente creatore= utenteDAO.prelevaPerId(anomDTO.getIdCreatore());
@@ -304,6 +304,50 @@ public class Service {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void eliminaLotto(int codLotto) throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {	        
+	        if (!lottoDAO.cancellaLotto(codLotto)) {
+	            throw new RisorsaNonTrovataException();
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public void eliminaProgetto(int codProgetto) throws RisorsaNonTrovataException,ErroreDatabaseException {
+	    try {	       
+	        if (!progettoDAO.eliminaProgetto(codProgetto)) {
+	            throw new RisorsaNonTrovataException();
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();	
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public void eliminaNotificaInviata(int codNotifica)throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {
+	        if(!notificaDAO.eliminaNotificaInviata(codNotifica)) {
+	        	throw new RisorsaNonTrovataException();
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace(); 
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public void eliminaNotificaRicevuta(int codNotifica, int idUtente)throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {
+	        if(!notificaDAO.eliminaNotificaRicevuta(codNotifica, idUtente)) {
+	        	throw new RisorsaNonTrovataException();
+        	}
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
 	}
     
     public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {

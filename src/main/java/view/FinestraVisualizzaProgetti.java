@@ -89,6 +89,11 @@ public class FinestraVisualizzaProgetti extends JPanel {
 		
 	}
 	
+	
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
+	}
+	
 	public void aggiungiRigaTabella(Object[] riga) {
 	    modello.addRow(riga);
 	}
