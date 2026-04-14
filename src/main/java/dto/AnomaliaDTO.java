@@ -12,6 +12,7 @@ public class AnomaliaDTO extends NotificaDTO {
 	private String descrizione;
 	private LivelloGravita gravita;
 	private int estensione;
+	private String tipo;
 	
 	public AnomaliaDTO(LocalDate dataInvio, int idCreatore,String tipoAnomalia,String descrizione, LivelloGravita gravita, int estensione, ArrayList<String> destinatari) {
 		super(dataInvio, idCreatore, destinatari);
@@ -52,5 +53,13 @@ public class AnomaliaDTO extends NotificaDTO {
 	}
 	public void setEstensione(int estensione) {
 		this.estensione = estensione;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
 	}
 }

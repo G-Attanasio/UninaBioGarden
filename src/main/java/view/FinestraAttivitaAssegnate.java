@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -41,5 +42,8 @@ public class FinestraAttivitaAssegnate extends JPanel {
 	}
 	public void svuotaTabella() {
 	    modello.setRowCount(0);
+	}
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 }

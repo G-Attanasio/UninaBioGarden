@@ -603,6 +603,9 @@ public class FinestraCreaProgetto extends JPanel {
 	        cmpListaColture.addItem(nome);
 	    }
 	}
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
+	}
 	
 	 @Override
 	    protected void paintComponent(Graphics g) {

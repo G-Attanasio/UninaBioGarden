@@ -183,7 +183,7 @@ public class AttivitaDAO {
     	    }
 	}
     
-    public ArrayList<Attivita> prelevaAttivitaAssegnateDaProprietario(int idProprietario) throws SQLException,RisorsaNonTrovataException {
+    public ArrayList<Attivita> prelevaAttivitaAssegnateDaProprietario(int idProprietario) throws SQLException {
         ArrayList<Attivita> lista = new ArrayList<>();
         String sql = "SELECT A.*, U.USERNAME, PS.NOMEPROGETTO, S.METODOSEMINA, R.METODORACCOLTA, I.METODOIRRIGAZIONE " +
                 "FROM ATTIVITA A " +
@@ -237,14 +237,13 @@ public class AttivitaDAO {
                          prog,
                          TipoIrrigazione.valueOf(rs.getString("METODOIRRIGAZIONE").toUpperCase())
                      ));
-                 }
-           
+                 }         
         }
         return lista;
     }
 }
         
-        public ArrayList<Attivita> prelevaAttivitaColtivatore(int idColtivatore) throws SQLException,RisorsaNonTrovataException{
+        public ArrayList<Attivita> prelevaAttivitaColtivatore(int idColtivatore) throws SQLException{
             ArrayList<Attivita> lista = new ArrayList<>();
             String sql = "SELECT A.*, PS.NOMEPROGETTO, U.USERNAME, S.METODOSEMINA, R.METODORACCOLTA, I.METODOIRRIGAZIONE, " +
                     "COALESCE(C_R.NOME, C_S.NOME) AS COLT " + 
@@ -310,7 +309,7 @@ public class AttivitaDAO {
     }
     
             
-      public ArrayList<SeminaColtura> prelevaDettagliColturePerColtivatore (int idColtivatore) throws SQLException,RisorsaNonTrovataException {
+      public ArrayList<SeminaColtura> prelevaDettagliColturePerColtivatore (int idColtivatore) throws SQLException {
                 ArrayList<SeminaColtura> lista = new ArrayList<>();
                 String sql = "SELECT SC.FK_CODATTIVITA, C.NOME " +
                              "FROM SEMINACOLTURA SC " +

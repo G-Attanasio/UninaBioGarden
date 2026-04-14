@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -18,6 +19,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import controller.Controller;
+import dto.DatiReportDTO;
 
 public class FinestraReport extends JPanel {
 
@@ -46,13 +48,13 @@ public class FinestraReport extends JPanel {
 		
 	}
 	
-	public void costruisciGrafico(ArrayList<Object[]> datiDaPassare) {	
+	public void costruisciGrafico(ArrayList<DatiReportDTO> datiDaPassare) {	
 	    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-	    for (Object[] d : datiDaPassare) {
-	    	 String nome = d[0].toString();
-	         double semi = Double.parseDouble(d[1].toString());
-	         double prevista = Double.parseDouble(d[2].toString());
-	         double reale = Double.parseDouble(d[3].toString());
+	    for (DatiReportDTO d : datiDaPassare) {
+	    	 String nome = d.getNomeColtura();
+	         double semi = d.getQuantitaSemi();
+	         double prevista = d.getPrevista();
+	         double reale = d.getReale();
 	        dataset.addValue(semi, "Quantità semi (Kg)", nome);
 	        dataset.addValue(prevista, "Quantità prevista (Kg)", nome);
 	        dataset.addValue(reale, "Quantità reale (Kg)", nome);
@@ -71,5 +73,9 @@ public class FinestraReport extends JPanel {
 	    pnlGrafico.add(cp, BorderLayout.CENTER);	    
 	    revalidate();
 	    repaint();
+	}
+	
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 }

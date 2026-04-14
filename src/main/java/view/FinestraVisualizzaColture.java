@@ -3,6 +3,7 @@ package view;
 import java.awt.BorderLayout;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -44,6 +45,9 @@ public class FinestraVisualizzaColture extends JPanel {
 	}
 	public void svuotaTabella() {
 	    modello.setRowCount(0);
+	}
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 	public Controller getController() {
 		return controller;

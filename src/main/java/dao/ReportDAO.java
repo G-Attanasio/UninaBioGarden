@@ -12,7 +12,7 @@ import model.DatiReport;
 
 public class ReportDAO {
 
-	public ArrayList<DatiReport> prelevaDatiReport(int codProgetto) throws SQLException,RisorsaNonTrovataException {
+	public ArrayList<DatiReport> prelevaDatiReport(int codProgetto) throws SQLException {
 	    ArrayList<DatiReport> datiReport= new ArrayList<DatiReport>();
 	     
 	    String sql ="SELECT NOME, SUM(SEMI) AS S, SUM(PREVISTA) AS P, SUM(REALE) AS R FROM (" +

@@ -11,9 +11,13 @@ import java.util.ArrayList;
 
 import dao.*;
 import dto.AnomaliaDTO;
+import dto.AttivitaDTO;
 import dto.AttivitaImminenteDTO;
+import dto.ColturaDTO;
+import dto.DatiReportDTO;
 import dto.IrrigazioneDTO;
 import dto.LottoDTO;
+import dto.NotificaDTO;
 import dto.ProgettoDTO;
 import dto.RaccoltaDTO;
 import dto.SeminaColturaDTO;
@@ -35,11 +39,8 @@ public class Controller {
 	private Service service;
 	private LottoColtivabile lottoSelezionato;
 	private ArrayList<Attivita> attivitaTemporanee;
-	private ArrayList<Attivita> attivitaTotali;
 	private ArrayList<SeminaColtura> listaSeminaColtura;
-	private ArrayList<ProgettoStagionale> progettiperLotto;
-	private ArrayList<ProgettoStagionale> progettiTotaliEsistenti;
-	private ArrayList<Notifica> notifiche;
+	private ArrayList<NotificaDTO> notifiche;
 	private MainFrame frame;
 	private CardPanel cardPanel;
 	private FinestraLogin finestraLogin;
@@ -83,10 +84,10 @@ public class Controller {
         this.notificaDao= new NotificaDAO();
         this.reportDao= new ReportDAO();
         this.attivitaTemporanee= new ArrayList<Attivita>();
-        this.attivitaTotali= new ArrayList<Attivita>();
+        new ArrayList<Attivita>();
         this.listaSeminaColtura= new ArrayList<SeminaColtura>();
-        this.progettiperLotto= new ArrayList<ProgettoStagionale>();
-        this.notifiche= new ArrayList<Notifica>();
+        new ArrayList<ProgettoStagionale>();
+        this.notifiche= new ArrayList<NotificaDTO>();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
         this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
@@ -133,7 +134,9 @@ public class Controller {
 			}
 		}catch(UtenteNonTrovatoException e) {
 			finestraLogin.nonTrovato();
-    	} 
+    	}catch(ErroreDatabaseException e) {
+    		finestraLogin.mostraMessaggio(e.getMessage());
+    	}
     }
     
     public void mostraPanelInterno(String testo) {
@@ -233,121 +236,75 @@ public class Controller {
     }
     
     public void caricaLotti() {
-    	try{
-    		ArrayList<LottoColtivabile> listaLotti;
-    	int idUtente= getUtenteLoggato().getIdUtente();
-    	listaLotti= lottoDao.prelevaLottiPerProprietario(idUtente);
     	finestraVisualizzaLotti.svuotaTabella();
-    	
-    	for(LottoColtivabile lc : listaLotti) {
-    		Object[] riga= {
-    				lc.getCodLotto(),      
-    	            lc.getTessitura(),     
-    	            lc.getDimensioni(),    
-    	            lc.getPh(),            
-    	            lc.getMorfologia(),
-    	            lc.getAltitudine(),
-    	            lc.getLocalita(),
-    	            lc.getComune(),
-    	            lc.getProvincia()
-    		};
-    		finestraVisualizzaLotti.aggiungiRigaTabella(riga);
-    	}
-    	
-    	}catch(RisorsaNonTrovataException e) {
-    		
-    	}catch(SQLException e){
-    		e.printStackTrace();
-    	}
+        try {
+            int idUtente = getUtenteLoggato().getIdUtente();
+            ArrayList<LottoDTO> listaLotti = service.caricaLottiUtente(idUtente);          
+            for (LottoDTO lc : listaLotti) {
+                Object[] riga = {
+                    lc.getCodLotto(),
+                    lc.getTessitura().toString().replace("_", " "),
+                    lc.getDimensioni(),
+                    lc.getPh(),
+                    lc.getMorfologia(),
+                    lc.getAltitudine(),
+                    lc.getLocalita(),
+                    lc.getComune(),
+                    lc.getProvincia()
+                };
+                finestraVisualizzaLotti.aggiungiRigaTabella(riga);
+            }
+        } catch (RisorsaNonTrovataException e) {
+            finestraVisualizzaLotti.mostraMessaggio("Nessun lotto trovato.");
+        } catch (ErroreDatabaseException e) {
+            finestraVisualizzaLotti.mostraMessaggio(e.getMessage());
+        }
     }
     
-    public void caricaAttivitaAssegnate() {  	
-    	   try { 
-    		   progettoDao.sincronizzaSistema();
-    	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaAssegnateDaProprietario(getUtenteLoggato().getIdUtente());
-    	        finestraAttivitaAssegnate.svuotaTabella(); 	         	       
-    	        for (Attivita a : tutte) {   	            
-    	        	String tipo = "";
-    	        	String metodo="";
-    	        	if (a instanceof Semina) {
-    	                tipo = "Semina";
-    	                metodo = ((Semina) a).getMetodoSemina().toString(); 
-    	            } 
-    	            else if (a instanceof Raccolta) {
-    	                tipo = "Raccolta";
-    	                metodo = ((Raccolta) a).getMetodoRaccolta().toString(); 
-    	            } 
-    	            else if (a instanceof Irrigazione) {
-    	                tipo = "Irrigazione";
-    	                metodo = ((Irrigazione) a).getMetodoIrrigazione().toString();
-    	            }
-    	            Object[] riga = {
-    	            	tipo,
-    	                a.getColtivatore().getUsername(),
-    	                a.getProgetto().getNomeProgetto(),
-    	                metodo,
-    	                a.getDataInizio(),
-    	                a.getDataFine(),
-    	                a.getStatoEsecuzione()
-    	            };
-    	            finestraAttivitaAssegnate.aggiungiRigaTabella(riga);
-    	        }
-    	    }catch(RisorsaNonTrovataException e) {
-    	    	 
-    	    }catch (SQLException e) {
-    	        e.printStackTrace();
-    	       
-    	    }
+    public void caricaAttivitaAssegnate() {
+    	finestraAttivitaAssegnate.svuotaTabella();
+        try {
+            ArrayList<AttivitaDTO> lista = service.caricaAttivitaAssegnate(utenteLoggato.getIdUtente());
+            for (AttivitaDTO dto : lista) {
+                Object[] riga = {
+                    dto.getTipo(),
+                    dto.getUsernameColtivatore(),
+                    dto.getNomeProgetto(),
+                    dto.getMetodo(),
+                    dto.getDataInizio(),
+                    dto.getDataFine(),
+                    dto.getStatoEsecuzione()
+                };
+                finestraAttivitaAssegnate.aggiungiRigaTabella(riga);
+            }
+        } catch (RisorsaNonTrovataException e) {
+            finestraAttivitaAssegnate.mostraMessaggio("Nessuna attività trovata");
+        } catch (ErroreDatabaseException e) {
+            finestraAttivitaAssegnate.mostraMessaggio(e.getMessage());
+        }
     }
     
     public void caricaAttivitaColtivatore() {
-    	  try { 
-   		   progettoDao.sincronizzaSistema();
-   	        ArrayList<Attivita> tutte = attivitaDao.prelevaAttivitaColtivatore(getUtenteLoggato().getIdUtente());
-   	        ArrayList<SeminaColtura> lista= attivitaDao.prelevaDettagliColturePerColtivatore(getUtenteLoggato().getIdUtente());
-   	        finestraVisualizzaAttivita.svuotaTabella(); 	         	       
-   	        for (Attivita a : tutte) {   	            
-   	        	String tipo = "";
-   	        	String metodo="";
-   	        	String progetto="";
-   	        	String coltura="";
-   	        	if (a instanceof Semina) {
-   	                tipo = "Semina";
-   	                metodo = ((Semina)a).getMetodoSemina().toString(); 
-   	                progetto= ((Semina)a).getProgetto().getNomeProgetto();
-   	                for(SeminaColtura sc: lista) {
-   	                	if(sc.getSemina().getCodAttivita()== ((Semina)a).getCodAttivita()) {
-   	                		coltura= sc.getColtura().getNome();
-   	                	}
-   	                }
-   	            } 
-   	            else if (a instanceof Raccolta) {
-   	                tipo = "Raccolta";
-   	                metodo = ((Raccolta)a).getMetodoRaccolta().toString(); 
-   	                coltura=((Raccolta)a).getColtura().getNome();
-   	            } 
-   	            else if (a instanceof Irrigazione) {
-   	                tipo = "Irrigazione";
-   	                metodo = ((Irrigazione)a).getMetodoIrrigazione().toString();
-   	            }
-   	            Object[] riga = {
-   	            	a.getCodAttivita(),	
-   	            	tipo,
-   	                coltura,
-   	                a.getProgetto().getNomeProgetto(),
-   	                metodo,
-   	                a.getDataInizio(),
-   	                a.getDataFine(),
-   	                a.getStatoEsecuzione()
-   	            };
-   	            finestraVisualizzaAttivita.aggiungiRigaTabella(riga);
-   	        }
-   	    }catch(RisorsaNonTrovataException e) {
-   	    	
-   	    }catch (SQLException e) {
-   	        e.printStackTrace();
-   	       
-   	    }
+    	 finestraVisualizzaAttivita.svuotaTabella();
+        try {
+            ArrayList<AttivitaDTO> lista = service.caricaAttivitaColtivatore(getUtenteLoggato().getIdUtente());          
+            for (AttivitaDTO dto : lista) {
+                Object[] riga = {
+                    dto.getCodAttivita(),
+                    dto.getTipo(),
+                    dto.getColtura(),
+                    dto.getNomeProgetto(),
+                    dto.getMetodo(),
+                    dto.getDataInizio(),
+                    dto.getDataFine(),
+                    dto.getStatoEsecuzione()
+                };
+
+                finestraVisualizzaAttivita.aggiungiRigaTabella(riga);
+            }
+        }catch (ErroreDatabaseException e) {
+            finestraVisualizzaAttivita.mostraMessaggio(e.getMessage());
+        }
     }
     
     public void registraRaccolta(int codAttivita,double quantita) {
@@ -361,51 +318,49 @@ public class Controller {
         }
     }
     
-    public void caricaIMieiProgetti() {  	
-    	try {
-    		progettoDao.sincronizzaSistema();
-    		ArrayList<ProgettoStagionale> lista= progettoDao.prelevaProgettiPerProprietario(getUtenteLoggato().getIdUtente());
-    		finestraVisualizzaProgetti.svuotaTabella();
-    		 for (ProgettoStagionale p : lista) {
-    	            Object[] riga = {
-    	            	p.getCodProgetto(),	
-    	                p.getNomeProgetto(),
-    	                p.getLottoImpegnato().getCodLotto(),
-    	                p.getStagioneDiRiferimento(),
-    	                p.getDataInizio(),
-    	                p.getDurata() + " giorni",
-    	                p.getStatoEsecuzione()
-    	            };
-    	            finestraVisualizzaProgetti.aggiungiRigaTabella(riga);
-    	        }
-    	    }catch(RisorsaNonTrovataException e) {
-    	    	
-    	    } catch (SQLException e) {
-    	        e.printStackTrace();
-    	    }
+    public void caricaIMieiProgetti() {
+        finestraVisualizzaProgetti.svuotaTabella(); 
+        try {
+            ArrayList<ProgettoDTO> lista =
+                service.caricaProgettiProprietario(getUtenteLoggato().getIdUtente());
+            for (ProgettoDTO p : lista) {
+                Object[] riga = {
+                    p.getCodProgetto(),
+                    p.getNomeProgetto(),
+                    p.getLottoImpegnato(),
+                    p.getStagioneDiRiferimento(),
+                    p.getDataInizio(),
+                    p.getDurata(),
+                    p.getStatoEsecuzione()
+                };
+                finestraVisualizzaProgetti.aggiungiRigaTabella(riga);
+            }
+        } catch (ErroreDatabaseException e) {
+            finestraVisualizzaProgetti.mostraMessaggio(e.getMessage());
+        }
     }
     
     public void caricaColture() {
-    	try {
-    		ArrayList<Coltura> listaColture;
-    		finestraVisualizzaColture.svuotaTabella();
-    		listaColture=colturaDao.preleva();
-    		for(Coltura c : listaColture) {
-    			Object[] riga= {
-    					c.getCodColtura(),
-    					c.getNome(),
-    					c.getSpecie(),
-    					c.getFamiglia(),
-    					c.getTempoMaturazione(),
-    					c.getDestinazioneUso(),
-    					c.getPeriodoIdeale()
-    			};
-    			finestraVisualizzaColture.aggiungiRigaTabella(riga);
-    		}
-    		
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    	}
+        finestraVisualizzaColture.svuotaTabella();
+        try {
+            ArrayList<ColturaDTO> lista = service.caricaColture();
+            for (ColturaDTO c : lista) {
+                Object[] riga = {
+                    c.getCodColtura(),
+                    c.getNome(),
+                    c.getSpecie(),
+                    c.getFamiglia(),
+                    c.getTempoMaturazione(),
+                    c.getDestinazioneUso(),
+                    c.getPeriodoIdeale()
+                };
+                finestraVisualizzaColture.aggiungiRigaTabella(riga);
+            }
+        }catch(RisorsaNonTrovataException e) {
+        	finestraVisualizzaColture.mostraMessaggio("Nessuna coltura trovata.");
+        }catch (ErroreDatabaseException e) {
+            finestraVisualizzaColture.mostraMessaggio(e.getMessage());
+        }
     }
     
     public void avviaProgetto(int codLotto) {
@@ -421,200 +376,111 @@ public class Controller {
     }
     
     public void caricaColtureInCreaProgetto() {
-    	try {
-    		ArrayList<Coltura> listaColture;
-    		ArrayList<String> lista= new ArrayList<>();
-    		listaColture= colturaDao.preleva();
-    		for(Coltura c : listaColture) {
-    			 lista.add(c.getNome());
-    	}
-    		finestraCreaProgetto.popolaColture(lista);
-    }catch(SQLException e) {
-    	e.printStackTrace();
-    }
+        try {
+            ArrayList<String> lista = service.caricaNomiColture();
+            finestraCreaProgetto.popolaColture(lista);
+        }catch(RisorsaNonTrovataException e) {
+        	finestraCreaProgetto.mostraMessaggio("Colture non trovate.");
+        }catch (ErroreDatabaseException e) {
+            finestraCreaProgetto.mostraMessaggio(e.getMessage());
+        } 
     }
     
     public void caricaColtivatoriInProgetto() {
-    	try{
-    		ArrayList<String> listaColtivatori= new ArrayList<String>();
-    		listaColtivatori=utenteDao.prelevaPerProgetto();
-    		finestraCreaProgetto.setElencoColtivatori(listaColtivatori); 		
-    	}catch(UtenteNonTrovatoException e) {
-    		
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    		
+        try {
+            ArrayList<String> listaColtivatori =
+                service.caricaUsernameColtivatori();
+            finestraCreaProgetto.setElencoColtivatori(listaColtivatori);
+        } catch (ErroreDatabaseException e) {
+            finestraCreaProgetto.mostraMessaggio(e.getMessage());
         }
     }
     
-    public void caricaColtivatoriInAttivitaProgetto(String coltura){
-    	try{
-    		ArrayList<String> listaColtivatori= new ArrayList<String>();
-    		listaColtivatori=utenteDao.prelevaPerProgetto();
-    		finestraCreaProgetto.setElencoColtivatori(listaColtivatori);
-    		finestraCreaProgetto.pianificaAttivita(listaColtivatori,coltura);  		
-    	}catch(UtenteNonTrovatoException e) {
-    		
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    		
+    public void caricaColtivatoriInAttivitaProgetto(String coltura) {
+        try {
+            ArrayList<String> lista =
+                service.caricaUsernameColtivatori();
+            finestraCreaProgetto.setElencoColtivatori(lista);
+            finestraCreaProgetto.pianificaAttivita(lista, coltura);
+        } catch (ErroreDatabaseException e) {
+            finestraCreaProgetto.mostraMessaggio(e.getMessage());
         }
     }
     	
     public void caricaColtivatoriComeDestinatari() {
-    	try{
-    		ArrayList<String> listaColtivatori= new ArrayList<String>();
-    		listaColtivatori=utenteDao.prelevaPerProgetto();
-    		finestraCreaNotifica.setElencoColtivatori(listaColtivatori);  		
-    	}catch(UtenteNonTrovatoException e) {
-    		finestraCreaNotifica.gestisciErrori("destinatari non trovati");
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    		
+        try {
+            ArrayList<String> lista =
+                service.caricaUsernameColtivatori();
+            finestraCreaNotifica.setElencoColtivatori(lista);
+        } catch (ErroreDatabaseException e) {
+            finestraCreaNotifica.gestisciErrori(e.getMessage());
         }
     }
     
     public void caricaNotificheInviate() {
-    	try{
-    		this.notifiche.clear();
-    		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
-    		listaNotifiche=notificaDao.prelevaNotificheInviate(getUtenteLoggato().getIdUtente());
-    		finestraVisualizzaNotifiche.svuotaTabella();	
-    		finestraVisualizzaNotifiche.onOffAggiungi(true);
-    		for (Notifica n : listaNotifiche) {
-                String tipo = "";
-                String scadenza = "---";
-                String descrizioneVeloce= "---";
-                String gravita = "---";
-                String estensione = "---";
-                String descrizione="---";
+        notifiche.clear();
+        finestraVisualizzaNotifiche.svuotaTabella();
+        try {
+            ArrayList<NotificaDTO> lista = service.caricaNotificheInviate(getUtenteLoggato().getIdUtente());        
+            finestraVisualizzaNotifiche.onOffAggiungi(true);
+            for (NotificaDTO n : lista) {
 
-              
-                if (n instanceof AttivitaImminente) {
-                    tipo = "IMMINENTE";
-                    AttivitaImminente imm = (AttivitaImminente) n;
-                    scadenza = imm.getDataScadenza().toString();
-                    descrizioneVeloce=imm.getTipoAttivitaImminente();
-                    descrizione=imm.getDescrizione();
-                } 
-                else if (n instanceof Anomalia) {
-                    tipo = "ANOMALIA";
-                    Anomalia ano = (Anomalia) n;
-                    gravita = ano.getGravita().toString();
-                    descrizioneVeloce= ano.getTipoAnomalia();
-                    descrizione=ano.getDescrizione();
-                    if(ano.getEstensione() > 0) {
-                    	estensione= ano.getEstensione()+" MQ";
-                    }else {
-                    	estensione="N.D";
-                    }
-                }                        
                 Object[] riga = {
-                    tipo,                       
-                    descrizioneVeloce,                   
-                    scadenza,                   
-                    gravita,                  
-                    estensione,
+                    n.getTipo(),
+                    n.getDescrizioneVeloce(),
+                    n.getDataScadenza(),
+                    n.getGravità(),                
+                    n.getEstensione(),
                     n.getCodNotifica(),
-                    descrizione
-                    
+                    n.getDescrizione()
                 };
                 notifiche.add(n);
                 finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
             }
-    		
-    	}catch(RisorsaNonTrovataException e) {
-    		
-        }catch(SQLException e) {
-    		e.printStackTrace();
+        } catch (ErroreDatabaseException e) {
+            finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
         }
     }
     
-    public void caricaNotificheRicevute() {  	
-    	try{
-    		this.notifiche.clear();
-    		ArrayList<Notifica> listaNotifiche= new ArrayList<Notifica>();
-    		listaNotifiche=notificaDao.prelevaNotificheRicevute(getUtenteLoggato().getIdUtente());
-    		finestraVisualizzaNotifiche.svuotaTabella();	
-    		finestraVisualizzaNotifiche.onOffAggiungi(false);
-    		for (Notifica n : listaNotifiche) {
-                String tipo = "";
-                String scadenza = "---";
-                String descrizioneVeloce= "---";
-                String gravita = "---";
-                String estensione = "---";
-                String descrizione="---";
-              
-                if (n instanceof AttivitaImminente) {
-                    tipo = "IMMINENTE";
-                    AttivitaImminente imm = (AttivitaImminente) n;
-                    scadenza = imm.getDataScadenza().toString();
-                    descrizioneVeloce=imm.getTipoAttivitaImminente();
-                    descrizione=imm.getDescrizione();
-                } 
-                else if (n instanceof Anomalia) {
-                    tipo = "ANOMALIA";
-                    Anomalia ano = (Anomalia) n;
-                    gravita = ano.getGravita().toString();
-                    descrizioneVeloce= ano.getTipoAnomalia();
-                    descrizione=ano.getDescrizione();
-                    if(ano.getEstensione() > 0) {
-                    	estensione= ano.getEstensione()+" MQ";
-                    }else {
-                    	estensione="N.D";
-                    }
-                }                        
+    public void caricaNotificheRicevute() {
+        notifiche.clear();
+        finestraVisualizzaNotifiche.svuotaTabella();
+        try {
+            ArrayList<NotificaDTO> lista = service.caricaNotificheRicevute(getUtenteLoggato().getIdUtente());
+            finestraVisualizzaNotifiche.onOffAggiungi(false);
+            for (NotificaDTO n : lista) {
                 Object[] riga = {
-                    tipo,                       
-                    descrizioneVeloce,                   
-                    scadenza,                   
-                    gravita,                  
-                    estensione,
+                    n.getTipo(),
+                    n.getDescrizioneVeloce(),
+                    n.getDataScadenza(),
+                    n.getGravità(),
+                    n.getEstensione(),
                     n.getCodNotifica(),
-                    descrizione
-                    
+                    n.getDescrizione()
                 };
                 notifiche.add(n);
                 finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
             }
-    		
-    	}catch(RisorsaNonTrovataException e) {
-    		
-    	
-    	}catch(SQLException e) {
-    		e.printStackTrace();   		
-    	}
+        } catch (ErroreDatabaseException e) {
+            finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
+        }
     }
     
     public void caricaDatiReport(int codProgetto) {
-    	try {
-    		ArrayList<DatiReport> dati= new ArrayList<DatiReport>();
-    		dati= reportDao.prelevaDatiReport(codProgetto);
-    		ArrayList<Object[]> datiDaPassare= new ArrayList<>();   
-    		FinestraReport vistaReale = null;
+
+        try {
+            ArrayList<DatiReportDTO> dati =
+                service.caricaDatiReport(codProgetto);
             if (getUtenteLoggato().getRuolo() == TipoRuolo.PROPRIETARIO) {
-                vistaReale = finestraProprietario.getFinReport();
+                finestraReport = finestraProprietario.getFinReport();
             } else {
-                vistaReale = finestraProprietarioColtivatore.getFinReport();
+                finestraReport = finestraProprietarioColtivatore.getFinReport();
             }
-    		for(DatiReport r: dati) {
-    			Object[] riga= {
-    				r.getNomeColtura(),
-    				r.getSemi(),
-    				r.getPrevista(),
-    				r.getReale()
-    			};
-    			datiDaPassare.add(riga);
-    		}
-    		if (vistaReale != null) {
-                vistaReale.costruisciGrafico(datiDaPassare);               
-            }
-    		mostraPanelInterno("report");
-    	}catch(RisorsaNonTrovataException e) {   		
-    	
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    	}
+            finestraReport.costruisciGrafico(dati);
+            mostraPanelInterno("report");
+        } catch (ErroreDatabaseException e) {
+            finestraReport.mostraMessaggio(e.getMessage());
+        }
     }
     
     public void eliminaLotto(int codLotto) {
@@ -679,10 +545,8 @@ public class Controller {
     	 String email = finestraIscrizioneColtivatore.getEmail();
     	 String dataNascita= finestraIscrizioneColtivatore.getDataNascita();
     	 String password = finestraIscrizioneColtivatore.getPassword();
-    	 String confermaPassword = finestraIscrizioneColtivatore.getConfermaPassword();
-    	 
-    	 finestraIscrizioneColtivatore.resetBordi();
-    	 
+    	 String confermaPassword = finestraIscrizioneColtivatore.getConfermaPassword();    	 
+    	 finestraIscrizioneColtivatore.resetBordi();   	 
     	 
     	 if(!Utente.isSoloLettere(nome)) {
     		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpNome(),"Il nome deve essere di sole lettere.");
@@ -749,8 +613,7 @@ public class Controller {
     		finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpUsername(), "Email o Username già esistenti.");
     	}catch(ValidazioneException v) {
     		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpDataNascita(), "Devi avere tra 18 e 120 anni!");
-    	}
-    	
+    	}   	
     }
     
     public void validaIscrizioneUtenteProprietario() {
@@ -761,10 +624,8 @@ public class Controller {
     	 String dataNascita= finestraIscrizioneProprietario.getDataNascita();
     	 String password = finestraIscrizioneProprietario.getPassword();
     	 String confermaPassword = finestraIscrizioneProprietario.getConfermaPassword();
-    	 String ruolo= finestraSceltaRuolo.getSceltaRuolo();
-    	 
-    	 String ruoloComeEnum= ruolo.replace("/", "_").trim().toString();
-    	 
+    	 String ruolo= finestraSceltaRuolo.getSceltaRuolo();  	 
+    	 String ruoloComeEnum= ruolo.replace("/", "_").trim().toString();    	 
     	 finestraIscrizioneProprietario.resetBordi();
     	   	 
     	 if(!Utente.isSoloLettere(nome)) {
@@ -925,11 +786,9 @@ public class Controller {
     	String nome= finestraCreaProgetto.getCmpNome();
     	String periodo= finestraCreaProgetto.getStagioneDiRiferimento();;
     	String durata= finestraCreaProgetto.getCmpDurata();
-    	String dataInizioP= finestraCreaProgetto.getCmpDataInizio();
-    	
+    	String dataInizioP= finestraCreaProgetto.getCmpDataInizio();  	
     	String periodoComeEnum=periodo.replace("-", "_");
-    	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase());
-    	
+    	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase());  	
     	String quantitaS=finestraCreaProgetto.getCmpQuantitaSemi();
     	String quantitaR=finestraCreaProgetto.getCmpQuantitaPrevista();
     	String inizioS=finestraCreaProgetto.getCmpDataInizioSemina();
@@ -969,8 +828,7 @@ public class Controller {
 				return"errore sovr progetti";
 			}
     	double quantitaSemi=0.0;
-    	double quantitaPrevistaRaccolta=0.0;
-    	
+    	double quantitaPrevistaRaccolta=0.0;    	
     	try {
     		quantitaSemi= Double.parseDouble(quantitaS.replace(",", "."));
     		if(!SeminaColtura.isQuantitaSemiValida(quantitaSemi)) {
@@ -987,8 +845,7 @@ public class Controller {
     	}
     	
     	LocalDate dataInizioSemina= null;
-    	LocalDate dataFineSemina= null;
-    	
+    	LocalDate dataFineSemina= null;  	
     	try{
     		dataInizioSemina=LocalDate.parse(inizioS);
     		dataFineSemina=LocalDate.parse(fineS);
@@ -1004,8 +861,7 @@ public class Controller {
     	}
     	
     	LocalDate dataInizioRaccolta=null; 
-    	LocalDate dataFineRaccolta=null; 
-    	
+    	LocalDate dataFineRaccolta=null;     	
     	try{
     		dataInizioRaccolta=LocalDate.parse(inizioR);
     		dataFineRaccolta= LocalDate.parse(fineR);
@@ -1020,8 +876,7 @@ public class Controller {
     	}
     	
     	TipoSemina seminaEnum= TipoSemina.valueOf(metodoS.toString().toUpperCase());
-    	TipoRaccolta raccoltaEnum= TipoRaccolta.valueOf(metodoR.toString().toUpperCase());
-    	
+    	TipoRaccolta raccoltaEnum= TipoRaccolta.valueOf(metodoR.toString().toUpperCase());  	
     	try{
     			SeminaDTO sDTO= new SeminaDTO(dataInizioSemina,dataFineSemina,0,0,seminaEnum);
     			RaccoltaDTO rDTO= new RaccoltaDTO(dataInizioRaccolta,dataFineRaccolta,0,0,raccoltaEnum,quantitaPrevistaRaccolta,0);
@@ -1043,8 +898,7 @@ public class Controller {
     	String tipoNotifica= finestraCreaNotifica.getSceltaNotifica();
     	String livelloGravita=finestraCreaNotifica.getCmpLivelloGravita();
     	String estensione= finestraCreaNotifica.getCmpEstensione();
-    	ArrayList<String> nomi= finestraCreaNotifica.getNomiDestinatariSelezionati();
-    	
+    	ArrayList<String> nomi= finestraCreaNotifica.getNomiDestinatariSelezionati();	
     	LivelloGravita livelloEnum= LivelloGravita.valueOf(livelloGravita.toString().toUpperCase());   	 
     	 if (nomi.isEmpty()) {
     	      return "errore destinatari vuoti";

@@ -133,7 +133,7 @@ public class UtenteDAO {
 		 }   
 	}
 	
-	public ArrayList<String> prelevaPerProgetto()throws SQLException,UtenteNonTrovatoException{
+	public ArrayList<String> prelevaPerProgetto()throws SQLException{
 		ArrayList<String> usernames= new ArrayList<>();
 		String sql= "SELECT USERNAME FROM UTENTE WHERE RUOLO::text IN ('PROPRIETARIO_COLTIVATORE','COLTIVATORE')";
 		try(Connection conn= DBConnection.getConnection();

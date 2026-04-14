@@ -56,7 +56,4 @@ public abstract class Notifica {
 	public ArrayList<Utente> getDestinatari() {
 		return destinatari;
 	}
-	
-
-	
 }

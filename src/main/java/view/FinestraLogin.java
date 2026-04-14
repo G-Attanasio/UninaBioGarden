@@ -14,6 +14,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -108,6 +109,10 @@ public class FinestraLogin extends JPanel {
 		inserisciPassword.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		inserisciPassword.setToolTipText("Utente non trovato");
 		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 	
 	public void pulisciCampi() {

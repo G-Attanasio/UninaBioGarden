@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import model.Stato;
 
 
-public abstract class AttivitaDTO {
+public class AttivitaDTO {
 
 	private int codAttivita;
 	private Stato statoEsecuzione;
@@ -13,6 +13,11 @@ public abstract class AttivitaDTO {
 	private LocalDate dataFine;
 	private int idColtivatore;
 	private int codProgetto;
+	private String usernameColtivatore;
+	private String nomeProgetto;
+	private String tipo;
+	private String metodo;
+	private String coltura;
 	
 	public AttivitaDTO( LocalDate dataInizio, LocalDate dataFine, int idColtivatore,int codProgetto) {
 		this.setCodAttivita(0);
@@ -78,5 +83,45 @@ public abstract class AttivitaDTO {
 
 	public void setCodProgetto(int codProgetto) {
 		this.codProgetto = codProgetto;
+	}
+
+	public String getUsernameColtivatore() {
+		return usernameColtivatore;
+	}
+
+	public void setUsernameColtivatore(String usernameColtivatore) {
+		this.usernameColtivatore = usernameColtivatore;
+	}
+
+	public String getNomeProgetto() {
+		return nomeProgetto;
+	}
+
+	public void setNomeProgetto(String nomeProgetto) {
+		this.nomeProgetto = nomeProgetto;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+	public String getMetodo() {
+		return metodo;
+	}
+
+	public void setMetodo(String metodo) {
+		this.metodo = metodo;
+	}
+
+	public String getColtura() {
+		return coltura;
+	}
+
+	public void setColtura(String coltura) {
+		this.coltura = coltura;
 	}
 }

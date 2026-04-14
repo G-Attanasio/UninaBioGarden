@@ -8,6 +8,7 @@ public class AttivitaImminenteDTO extends NotificaDTO {
 	private String tipoAttivitaImminente;
 	private String descrizione;
 	private LocalDate dataScadenza;
+	private String tipo;
 
 	public AttivitaImminenteDTO( LocalDate dataInvio, int idCreatore, String tipoAttivitaImminente, String descrizione,LocalDate dataScadenza, ArrayList<String> destinatari) {
 		super(dataInvio, idCreatore,destinatari);
@@ -43,5 +44,13 @@ public class AttivitaImminenteDTO extends NotificaDTO {
 	}
 	public void setDataScadenza(LocalDate dataScadenza) {
 		this.dataScadenza=dataScadenza;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
 	}
 }

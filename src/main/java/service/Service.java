@@ -12,7 +12,10 @@ import dao.ProgettoDAO;
 import dao.ReportDAO;
 import dao.UtenteDAO;
 import dto.AnomaliaDTO;
+import dto.AttivitaDTO;
 import dto.AttivitaImminenteDTO;
+import dto.ColturaDTO;
+import dto.DatiReportDTO;
 import dto.IrrigazioneDTO;
 import dto.LottoDTO;
 import dto.NotificaDTO;
@@ -29,6 +32,7 @@ import model.Anomalia;
 import model.Attivita;
 import model.AttivitaImminente;
 import model.Coltura;
+import model.DatiReport;
 import model.Irrigazione;
 import model.LivelloGravita;
 import model.LottoColtivabile;
@@ -64,8 +68,9 @@ public class Service {
 		this.reportDAO= new ReportDAO();
 	}
 	
-	public Utente effettuaLogin(String username, String password) throws UtenteNonTrovatoException {
+	public Utente effettuaLogin(String username, String password) throws UtenteNonTrovatoException, ErroreDatabaseException {
         try{
+        	progettoDAO.sincronizzaSistema();
         	Utente u = utenteDAO.prelevaPerLogin(username, password);   
         if(u == null) {
         	throw new UtenteNonTrovatoException();
@@ -73,7 +78,7 @@ public class Service {
         return u;
         }catch(SQLException e) {
         	e.printStackTrace();
-        	return null;
+        	throw new ErroreDatabaseException();
         }
     }
 	
@@ -282,7 +287,7 @@ public class Service {
 		}
 	}
 	
-	public void salvaAnomalia(AnomaliaDTO anomDTO)throws UtenteNonTrovatoException{
+	public void salvaAnomalia(AnomaliaDTO anomDTO) throws UtenteNonTrovatoException{
 		if(!Notifica.isNotificaLunghezzaValida(anomDTO.getTipoAnomalia())) {
    		 	throw new ValidazioneException("errore descrizione veloce");
    	    }
@@ -304,6 +309,299 @@ public class Service {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public ArrayList<LottoDTO> caricaLottiUtente(int idUtente) throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {
+	        ArrayList<LottoColtivabile> lotti =
+	            lottoDAO.prelevaLottiPerProprietario(idUtente);
+	        if (lotti == null || lotti.isEmpty()) {
+	            throw new RisorsaNonTrovataException();
+	        }
+	        ArrayList<LottoDTO> lista = new ArrayList<>();
+
+	        for (LottoColtivabile l : lotti) {
+	            LottoDTO dto = new LottoDTO(
+	                l.getCodLotto(),
+	                l.getTessitura(),
+	                l.getDimensioni(),
+	                l.getPh(),
+	                l.getMorfologia(),
+	                l.getAltitudine(),
+	                l.getLocalita(),
+	                l.getComune(),
+	                l.getProvincia(),
+	                idUtente,
+	                l.isAttivo()
+	            );
+
+	            lista.add(dto);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<AttivitaDTO> caricaAttivitaAssegnate(int idUtente) throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {
+	        ArrayList<Attivita> tutte = attivitaDAO.prelevaAttivitaAssegnateDaProprietario(idUtente);
+	        if(tutte==null || tutte.isEmpty()) {
+	        	throw new RisorsaNonTrovataException();
+	        }
+	        ArrayList<AttivitaDTO> lista = new ArrayList<>();
+	        for (Attivita a : tutte) {
+	            AttivitaDTO attDTO = new AttivitaDTO(
+	            a.getCodAttivita(),
+	            a.getStatoEsecuzione(),
+	            a.getDataInizio(),
+	            a.getDataFine(),
+	            a.getColtivatore().getIdUtente(),
+	            a.getProgetto().getCodProgetto()
+	            );
+	            attDTO.setUsernameColtivatore(a.getColtivatore().getUsername());
+	            attDTO.setNomeProgetto(a.getProgetto().getNomeProgetto());
+	            if (a instanceof Semina s) {
+	                attDTO.setTipo("Semina");
+	                attDTO.setMetodo(s.getMetodoSemina().toString());
+	            } else if (a instanceof Raccolta r) {
+	                attDTO.setTipo("Raccolta");
+	                attDTO.setMetodo(r.getMetodoRaccolta().toString());
+	            } else if (a instanceof Irrigazione i) {
+	                attDTO.setTipo("Irrigazione");
+	                attDTO.setMetodo(i.getMetodoIrrigazione().toString());
+	            }            		
+	            lista.add(attDTO);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<AttivitaDTO> caricaAttivitaColtivatore(int idUtente) throws ErroreDatabaseException {
+	    try {
+	        ArrayList<Attivita> tutte = attivitaDAO.prelevaAttivitaColtivatore(idUtente);
+	        ArrayList<SeminaColtura> dettagli = attivitaDAO.prelevaDettagliColturePerColtivatore(idUtente);
+	        ArrayList<AttivitaDTO> lista = new ArrayList<>();
+	        for (Attivita a : tutte) {
+	            AttivitaDTO attDTO = new AttivitaDTO(
+	            		a.getCodAttivita(),
+	            		a.getStatoEsecuzione(),
+	            		a.getDataInizio(),
+	            		a.getDataFine(),
+	            		idUtente,
+	            		a.getProgetto().getCodProgetto()
+	            		);
+
+	            if (a instanceof Semina s) {
+	                attDTO.setTipo("Semina");
+	                attDTO.setMetodo(s.getMetodoSemina().toString());
+	                for (SeminaColtura sc : dettagli) {
+	                    if (sc.getSemina().getCodAttivita() == s.getCodAttivita()) {
+	                        attDTO.setColtura(sc.getColtura().getNome());
+	                    }
+	                }
+	                attDTO.setNomeProgetto(s.getProgetto().getNomeProgetto());
+	            }
+	            else if (a instanceof Raccolta r) {
+	                attDTO.setTipo("Raccolta");
+	                attDTO.setMetodo(r.getMetodoRaccolta().toString());
+	                attDTO.setColtura(r.getColtura().getNome());
+	                attDTO.setNomeProgetto(r.getProgetto().getNomeProgetto());
+	            }
+	            else if (a instanceof Irrigazione i) {
+	                attDTO.setTipo("Irrigazione");
+	                attDTO.setMetodo(i.getMetodoIrrigazione().toString());
+	                attDTO.setNomeProgetto(i.getProgetto().getNomeProgetto());
+	            }
+	            lista.add(attDTO);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<ProgettoDTO> caricaProgettiProprietario(int idUtente) throws ErroreDatabaseException {
+	    try {	        
+	        ArrayList<ProgettoStagionale> progetti = progettoDAO.prelevaProgettiPerProprietario(idUtente);
+	        ArrayList<ProgettoDTO> lista = new ArrayList<>();
+	        for (ProgettoStagionale p : progetti) {
+	            ProgettoDTO dto = new ProgettoDTO(
+	            		p.getCodProgetto(),
+	            		p.getNomeProgetto(),
+	            		p.getStagioneDiRiferimento(),
+	            		p.getDurata(),
+	            		p.getDataInizio(),
+	            		p.getDataFine(),
+	            		p.getStatoEsecuzione(),
+	            		p.getLottoImpegnato().getCodLotto(),
+	            		idUtente
+	            		);
+
+	            lista.add(dto);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<ColturaDTO> caricaColture() throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {
+	        ArrayList<Coltura> colture = colturaDAO.preleva();
+	        if(colture== null) {
+	        	throw new RisorsaNonTrovataException();
+	        }
+	        ArrayList<ColturaDTO> lista = new ArrayList<>();
+	        for (Coltura c : colture) {
+	            ColturaDTO dto = new ColturaDTO(
+	                c.getCodColtura(),
+	                c.getNome(),
+	                c.getSpecie(),
+	                c.getFamiglia(),
+	                c.getTempoMaturazione(),
+	                c.getDestinazioneUso(),
+	                c.getPeriodoIdeale()
+	            );
+	            lista.add(dto);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<String> caricaNomiColture() throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {
+	        ArrayList<Coltura> lista = colturaDAO.preleva();
+	        if(lista==null) {
+	        	throw new RisorsaNonTrovataException();
+	        }
+
+	        ArrayList<String> nomi = new ArrayList<>();
+	        for (Coltura c : lista) {
+	            nomi.add(c.getNome());
+	        }
+	        return nomi;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<String> caricaUsernameColtivatori() throws ErroreDatabaseException {
+	    try {
+	        ArrayList<String> usernames = utenteDAO.prelevaPerProgetto();
+	        return usernames;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<NotificaDTO> caricaNotificheInviate(int idUtente) throws ErroreDatabaseException {
+	    try {
+	        ArrayList<Notifica> notifiche =  notificaDAO.prelevaNotificheInviate(idUtente);
+	        ArrayList<NotificaDTO> lista = new ArrayList<>();	              
+	        for (Notifica n : notifiche) {
+	        	 ArrayList<String> usernamesDestinatari = new ArrayList<>();	
+	        	 for (Utente u : n.getDestinatari()) {
+	 	            usernamesDestinatari.add(u.getUsername()); 
+	 	        }
+	        	 NotificaDTO dto = new NotificaDTO(
+	        			 n.getCodNotifica(),
+	        			 n.getDataInvio(),
+	        			 idUtente,
+	        			 usernamesDestinatari
+	        			 );        	 
+	            if (n instanceof AttivitaImminente ai) {
+	            		 dto.setTipo("Imminente");
+	            		 dto.setDescrizioneVeloce(ai.getTipoAttivitaImminente());
+	            		 dto.setDescrizione(ai.getDescrizione());
+	            		 dto.setDataScadenza(ai.getDataScadenza());	            		 
+	            		 dto.setGravità("---");
+	            		 
+	            }
+	            else if (n instanceof Anomalia an) {
+	                dto.setTipo("Anomalia");
+	                dto.setDescrizioneVeloce(an.getTipoAnomalia());
+	                dto.setDescrizione(an.getDescrizione());
+	                dto.setGravità(an.getGravita().toString());
+	                dto.setEstensione(an.getEstensione());
+	            }
+	            lista.add(dto);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<NotificaDTO> caricaNotificheRicevute(int idUtente) throws ErroreDatabaseException {
+	    try {
+	        ArrayList<Notifica> notifiche =
+	            notificaDAO.prelevaNotificheRicevute(idUtente);
+	        ArrayList<NotificaDTO> lista = new ArrayList<>();
+	        for (Notifica n : notifiche) {
+	        	ArrayList<String> usernamesDestinatari = new ArrayList<>();	
+	        	 for (Utente u : n.getDestinatari()) {
+	 	            usernamesDestinatari.add(u.getUsername()); 
+	 	        }
+	            NotificaDTO dto = new NotificaDTO(
+	                n.getCodNotifica(),
+	                n.getDataInvio(),
+	                0,
+	                usernamesDestinatari
+	            );
+	            if (n instanceof AttivitaImminente ai) {
+	                dto.setTipo("Imminente");
+	                dto.setDescrizioneVeloce(ai.getTipoAttivitaImminente());
+	                dto.setDescrizione(ai.getDescrizione());
+	                dto.setDataScadenza(ai.getDataScadenza());
+	                dto.setGravità("---");
+	                
+	            }
+	            else if (n instanceof Anomalia an) {
+	                dto.setTipo("Anomalia");
+	                dto.setDescrizioneVeloce(an.getTipoAnomalia());
+	                dto.setDescrizione(an.getDescrizione());
+	                dto.setGravità(an.getGravita().toString());
+	                dto.setEstensione(an.getEstensione());
+	            }
+	            lista.add(dto);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public ArrayList<DatiReportDTO> caricaDatiReport(int codProgetto) throws ErroreDatabaseException {
+	    try {
+	        ArrayList<DatiReport> dati = reportDAO.prelevaDatiReport(codProgetto);
+	        ArrayList<DatiReportDTO> lista = new ArrayList<>();
+	        for (DatiReport r : dati) {
+	            DatiReportDTO dto = new DatiReportDTO(
+	                r.getNomeColtura(),
+	                r.getSemi(),
+	                r.getPrevista(),
+	                r.getReale()
+	            );
+	            lista.add(dto);
+	        }
+	        return lista;
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	        throw new ErroreDatabaseException();
+	    }
 	}
 	
 	public void eliminaLotto(int codLotto) throws RisorsaNonTrovataException, ErroreDatabaseException {

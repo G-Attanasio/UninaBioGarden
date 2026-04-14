@@ -86,13 +86,13 @@ public class ProgettoDAO {
 		}
 	}
 	
-	public ArrayList<ProgettoStagionale> prelevaProgettiPerProprietario(int idProprietario) throws SQLException,RisorsaNonTrovataException {
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerProprietario(int idProprietario) throws SQLException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
 	    String sql = "SELECT * " +
 	                 "FROM PROGETTOSTAGIONALE  " +                
 	                 "WHERE FK_CREATORE = ? "+
 	                 "ORDER BY DATAINIZIO";
-
+	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setInt(1, idProprietario);

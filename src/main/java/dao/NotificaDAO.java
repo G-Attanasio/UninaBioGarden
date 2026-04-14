@@ -69,7 +69,7 @@ public class NotificaDAO {
 		    }
 	}
 	
-	public ArrayList<Notifica> prelevaNotificheInviate(int idProprietario) throws SQLException,RisorsaNonTrovataException {
+	public ArrayList<Notifica> prelevaNotificheInviate(int idProprietario) throws SQLException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
 	    String sql = "SELECT N.*, A.TIPOANOMALIA,A.DESCRIZIONE AS DESC_A, A.GRAVITA, A.ESTENSIONE, I.TIPOATTIVITAIMMINENTE,I.DESCRIZIONE AS DESC_I, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +
@@ -113,7 +113,7 @@ public class NotificaDAO {
 	    return lista;
 	}
 	
-	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws SQLException,RisorsaNonTrovataException {
+	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws SQLException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
 	    String sql = "SELECT N.*, A.TIPOANOMALIA, A.GRAVITA, A.ESTENSIONE,A.DESCRIZIONE AS DESC_A,I.DESCRIZIONE AS DESC_I, I.TIPOATTIVITAIMMINENTE, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +

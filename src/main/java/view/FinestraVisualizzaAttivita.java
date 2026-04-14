@@ -79,15 +79,16 @@ public class FinestraVisualizzaAttivita extends JPanel {
 		}
 		public void svuotaTabella() {
 		    modello.setRowCount(0);
-		}
+		}		
+		public void mostraMessaggio(String testo) {
+			JOptionPane.showMessageDialog(this, testo);
+		}		
 		public Controller getController() {
 			return controller;
 		}
-
 		public void setController(Controller controller) {
 			this.controller=controller;
 		}
-
 		public JTable getTabella() {
 			return tabella;
 		}
