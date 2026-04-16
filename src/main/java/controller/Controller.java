@@ -598,38 +598,32 @@ public class Controller {
     	return errori;
     }
     
-    public ArrayList<String> creaNotifica() {
+    public ArrayList<String> creaNotifica(InputNotificaDTO dto) {
     	ArrayList<String> errori= new ArrayList<String>();
-    	String descrizioneVeloce= finestraCreaNotifica.getCmpDescrizioneVeloce();
-    	String descrizione= finestraCreaNotifica.getCmpDescrizione();
-    	String tipoNotifica= finestraCreaNotifica.getSceltaNotifica();
-    	String livelloGravita=finestraCreaNotifica.getCmpLivelloGravita();
-    	String estensione= finestraCreaNotifica.getCmpEstensione();
-    	ArrayList<String> nomi= finestraCreaNotifica.getNomiDestinatariSelezionati();	
-    	LivelloGravita livelloEnum= LivelloGravita.valueOf(livelloGravita.toString().toUpperCase());   	 
-    	 if (nomi.isEmpty()) {
+    	LivelloGravita livelloEnum= LivelloGravita.valueOf(dto.getLivelloGravita().toString().toUpperCase());   	 
+    	 if (dto.getDestinatari().isEmpty()) {
     	      errori.add("errore destinatari vuoti");
     	 } 
     	 LocalDate oggi = LocalDate.now();
     	 Integer estensioneInt;
     	 try {
-    	        if (tipoNotifica.equals("Attività Imminente")) {
-    	            LocalDate scadenza = parseDate(finestraCreaNotifica.getCmpDataScadenza(), "errore formato data", errori);
+    	        if (dto.getTipoNotifica().equals("Attività Imminente")) {
+    	            LocalDate scadenza = parseDate(dto.getDataScadenza(), "errore formato data", errori);
     	            if(!errori.isEmpty()) {
     	            	return errori;
     	            }
-    	            AttivitaImminenteDTO attDTO = new AttivitaImminenteDTO(oggi,getUtenteLoggato().getIdUtente(),descrizioneVeloce,descrizione,scadenza, nomi);
+    	            AttivitaImminenteDTO attDTO = new AttivitaImminenteDTO(oggi,getUtenteLoggato().getIdUtente(),dto.getDescrizioneVeloce(),dto.getDescrizione(),scadenza, dto.getDestinatari());
     	            service.salvaAttivitaImminente(attDTO);
     	        } else {
-    	            if(estensione!= null && !estensione.trim().isEmpty()) {  	            	
-    	            		estensioneInt = parseInt(finestraCreaNotifica.getCmpEstensione(), "errore formato estensione", errori);
+    	            if(dto.getEstensione()!= null && !dto.getEstensione().trim().isEmpty()) {  	            	
+    	            		estensioneInt = parseInt(dto.getEstensione(), "errore formato estensione", errori);
     	            		if(!errori.isEmpty()) {
     	    	            	return errori;
     	    	            }
     	            }else {
     	            	estensioneInt=0;
     	            }
-    	            AnomaliaDTO anomDTO = new AnomaliaDTO(oggi, getUtenteLoggato().getIdUtente(), descrizioneVeloce, descrizione, livelloEnum, estensioneInt,nomi);
+    	            AnomaliaDTO anomDTO = new AnomaliaDTO(oggi, getUtenteLoggato().getIdUtente(), dto.getDescrizioneVeloce(), dto.getDescrizione(), livelloEnum, estensioneInt,dto.getDestinatari());
     	            service.salvaAnomalia(anomDTO);	        
     	        }
          }catch(UtenteNonTrovatoException u) {
@@ -637,9 +631,6 @@ public class Controller {
     	 }catch(ValidazioneException v) {
     		 return v.getErrori();
     	 }
-    	 if(errori.isEmpty()) {
-    	        finestraCreaNotifica.getModelloScelti().clear();
-    	    }
          return errori;
     }
     	   

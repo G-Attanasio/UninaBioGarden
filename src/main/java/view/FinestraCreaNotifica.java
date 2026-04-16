@@ -26,6 +26,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import controller.Controller;
+import dto.InputNotificaDTO;
 
 public class FinestraCreaNotifica extends JPanel {
 
@@ -209,11 +210,12 @@ public class FinestraCreaNotifica extends JPanel {
 		});
 		
 		invia.addActionListener(e->{
-			ArrayList<String> errori=controller.creaNotifica();
+			ArrayList<String> errori=controller.creaNotifica(getInputNotificaDTO());
 			if(!errori.isEmpty()) {
 				gestisciErrori(errori);
 				return;
 			}
+				getModelloScelti().clear();
 				pulisciCampi();
 				controller.caricaNotificheInviate();
 				controller.mostraPanelInterno("visualizza notifiche");
@@ -403,6 +405,8 @@ public class FinestraCreaNotifica extends JPanel {
 		this.listaScelti = listaScelti;
 	}
 	
-	
+	public InputNotificaDTO getInputNotificaDTO() {
+		return new InputNotificaDTO(getCmpDescrizioneVeloce(), getCmpDescrizione(), getSceltaNotifica(), getCmpLivelloGravita(), getCmpEstensione(), getCmpDataScadenza(), getNomiDestinatariSelezionati());
+	}
 	
 }
