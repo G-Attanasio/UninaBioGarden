@@ -151,24 +151,10 @@ public class Controller {
     }
     
     public void caricaLotti() {
-    	finestraVisualizzaLotti.svuotaTabella();
         try {
             int idUtente = getUtenteLoggato().getIdUtente();
-            ArrayList<LottoDTO> listaLotti = service.caricaLottiUtente(idUtente);          
-            for (LottoDTO lc : listaLotti) {
-                Object[] riga = {
-                    lc.getCodLotto(),
-                    lc.getTessitura().toString().replace("_", " "),
-                    lc.getDimensioni(),
-                    lc.getPh(),
-                    lc.getMorfologia(),
-                    lc.getAltitudine(),
-                    lc.getLocalita(),
-                    lc.getComune(),
-                    lc.getProvincia()
-                };
-                finestraVisualizzaLotti.aggiungiRigaTabella(riga);
-            }
+            ArrayList<LottoDTO> listaLotti = service.caricaLottiUtente(idUtente);   
+            finestraVisualizzaLotti.mostraLotti(listaLotti);
         } catch (RisorsaNonTrovataException e) {
             finestraVisualizzaLotti.mostraMessaggio("Nessun lotto trovato.");
         } catch (ErroreDatabaseException e) {
@@ -177,21 +163,9 @@ public class Controller {
     }
     
     public void caricaAttivitaAssegnate() {
-    	finestraAttivitaAssegnate.svuotaTabella();
         try {
             ArrayList<AttivitaDTO> lista = service.caricaAttivitaAssegnate(utenteLoggato.getIdUtente());
-            for (AttivitaDTO dto : lista) {
-                Object[] riga = {
-                    dto.getTipo(),
-                    dto.getUsernameColtivatore(),
-                    dto.getNomeProgetto(),
-                    dto.getMetodo(),
-                    dto.getDataInizio(),
-                    dto.getDataFine(),
-                    dto.getStatoEsecuzione()
-                };
-                finestraAttivitaAssegnate.aggiungiRigaTabella(riga);
-            }
+            finestraAttivitaAssegnate.mostraAttivita(lista);
         } catch (RisorsaNonTrovataException e) {
             finestraAttivitaAssegnate.mostraMessaggio("Nessuna attività trovata");
         } catch (ErroreDatabaseException e) {
@@ -200,23 +174,9 @@ public class Controller {
     }
     
     public void caricaAttivitaColtivatore() {
-    	 finestraVisualizzaAttivita.svuotaTabella();
         try {
             ArrayList<AttivitaDTO> lista = service.caricaAttivitaColtivatore(getUtenteLoggato().getIdUtente());          
-            for (AttivitaDTO dto : lista) {
-                Object[] riga = {
-                    dto.getCodAttivita(),
-                    dto.getTipo(),
-                    dto.getColtura(),
-                    dto.getNomeProgetto(),
-                    dto.getMetodo(),
-                    dto.getDataInizio(),
-                    dto.getDataFine(),
-                    dto.getStatoEsecuzione()
-                };
-
-                finestraVisualizzaAttivita.aggiungiRigaTabella(riga);
-            }
+            finestraVisualizzaAttivita.mostraAttivita(lista);
         }catch (ErroreDatabaseException e) {
             finestraVisualizzaAttivita.mostraMessaggio(e.getMessage());
         }
@@ -233,11 +193,10 @@ public class Controller {
         }
     }
     
-    public void caricaIMieiProgetti() {
+    public void caricaProgetti() {
         finestraVisualizzaProgetti.svuotaTabella(); 
         try {
-            ArrayList<ProgettoDTO> lista =
-                service.caricaProgettiProprietario(getUtenteLoggato().getIdUtente());
+            ArrayList<ProgettoDTO> lista = service.caricaProgettiProprietario(getUtenteLoggato().getIdUtente());
             for (ProgettoDTO p : lista) {
                 Object[] riga = {
                     p.getCodProgetto(),
@@ -408,7 +367,7 @@ public class Controller {
     public void eliminaProgetto(int codProgetto) { 	   	
 	    try {
 	        service.eliminaProgetto(codProgetto);
-	        caricaIMieiProgetti();
+	        caricaProgetti();
 	    } catch (RisorsaNonTrovataException e) {
 	        finestraVisualizzaProgetti.mostraMessaggio("Progetto non trovato.");
 	    } catch(ErroreDatabaseException e) {

@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -11,6 +12,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import controller.Controller;
+import dto.AttivitaDTO;
 
 public class FinestraVisualizzaAttivita extends JPanel {
 
@@ -72,6 +74,25 @@ public class FinestraVisualizzaAttivita extends JPanel {
 		    }
 		});
 				
+		}
+	
+		public void mostraAttivita(ArrayList<AttivitaDTO> lista) {
+	    	svuotaTabella();
+
+	    	for (AttivitaDTO dto : lista) {
+	        	Object[] riga = {
+	        		dto.getCodAttivita(),
+	            	dto.getTipo(),
+	            	dto.getColtura(),
+	            	dto.getNomeProgetto(),
+	            	dto.getMetodo(),
+	            	dto.getDataInizio(),
+	            	dto.getDataFine(),
+	            	dto.getStatoEsecuzione()
+	        	};
+
+	        	aggiungiRigaTabella(riga);
+	    	}
 		}
 		
 		public void aggiungiRigaTabella(Object[] riga) {

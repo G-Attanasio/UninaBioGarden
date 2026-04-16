@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -11,6 +12,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import controller.Controller;
+import dto.ProgettoDTO;
 
 public class FinestraVisualizzaProgetti extends JPanel {
 
@@ -92,6 +94,22 @@ public class FinestraVisualizzaProgetti extends JPanel {
 	
 	public void mostraMessaggio(String testo) {
 		JOptionPane.showMessageDialog(this, testo);
+	}
+	
+	public void mostraProgetti(ArrayList<ProgettoDTO> lista) {
+	    svuotaTabella();
+	    for (ProgettoDTO p : lista) {
+	        Object[] riga = {
+	            p.getCodProgetto(),
+	            p.getNomeProgetto(),
+	            p.getLottoImpegnato(),
+	            p.getStagioneDiRiferimento(),
+	            p.getDataInizio(),
+	            p.getDurata(),
+	            p.getStatoEsecuzione()
+	        };
+	        aggiungiRigaTabella(riga);
+	    }
 	}
 	
 	public void aggiungiRigaTabella(Object[] riga) {

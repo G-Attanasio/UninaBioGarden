@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -9,6 +10,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import controller.Controller;
+import dto.AttivitaDTO;
 
 public class FinestraAttivitaAssegnate extends JPanel {
 
@@ -37,6 +39,24 @@ public class FinestraAttivitaAssegnate extends JPanel {
 		scroll= new JScrollPane(tabella);
 		add(scroll,BorderLayout.CENTER);
 	}
+	
+	public void mostraAttivita(ArrayList<AttivitaDTO> lista) {
+	    svuotaTabella();
+
+	    for (AttivitaDTO dto : lista) {
+	        Object[] riga = {
+	            dto.getTipo(),
+	            dto.getUsernameColtivatore(),
+	            dto.getNomeProgetto(),
+	            dto.getMetodo(),
+	            dto.getDataInizio(),
+	            dto.getDataFine(),
+	            dto.getStatoEsecuzione()
+	        };
+	        aggiungiRigaTabella(riga);
+	    }
+	}
+	
 	public void aggiungiRigaTabella(Object[] riga) {
 	    modello.addRow(riga);
 	}

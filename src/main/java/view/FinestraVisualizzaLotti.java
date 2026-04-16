@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -11,6 +12,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import controller.Controller;
+import dto.LottoDTO;
 
 public class FinestraVisualizzaLotti extends JPanel {
 
@@ -88,6 +90,24 @@ public class FinestraVisualizzaLotti extends JPanel {
 		
 		
 		
+	}
+	
+	public void mostraLotti(ArrayList<LottoDTO> lista) {
+	    svuotaTabella();	    
+	    for (LottoDTO lc : lista) {
+	        Object[] riga = {
+	            lc.getCodLotto(),
+	            lc.getTessitura().toString().replace("_", " "),
+	            lc.getDimensioni(),
+	            lc.getPh(),
+	            lc.getMorfologia(),
+	            lc.getAltitudine(),
+	            lc.getLocalita(),
+	            lc.getComune(),
+	            lc.getProvincia()
+	        };
+	        aggiungiRigaTabella(riga);
+	    }
 	}
 	
 	

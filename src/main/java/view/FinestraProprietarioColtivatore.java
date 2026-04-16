@@ -191,7 +191,7 @@ public class FinestraProprietarioColtivatore extends JPanel{
 			controller.mostraPanelInterno("visualizza attivita");
 		});
 		visualizzaProgetti.addActionListener(e->{
-			controller.caricaIMieiProgetti();
+			controller.caricaProgetti();
 			controller.mostraPanelInterno("visualizza progetti");
 		});
 		visualizzaColture.addActionListener(e->{
