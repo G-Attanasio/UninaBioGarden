@@ -3,54 +3,25 @@ package controller;
 import model.*;
 import service.Service;
 import view.*;
-
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import dto.*;
+import exceptions.*;
 
-import dao.*;
-import dto.AnomaliaDTO;
-import dto.AttivitaDTO;
-import dto.AttivitaImminenteDTO;
-import dto.ColturaDTO;
-import dto.DatiReportDTO;
-import dto.IrrigazioneDTO;
-import dto.LottoDTO;
-import dto.NotificaDTO;
-import dto.ProgettoDTO;
-import dto.RaccoltaDTO;
-import dto.SeminaColturaDTO;
-import dto.SeminaDTO;
-import dto.UtenteDTO;
-import exceptions.EmailUsernameGiàEsistentiException;
-import exceptions.ErroreDatabaseException;
-import exceptions.RisorsaNonTrovataException;
-import exceptions.UtenteNonTrovatoException;
-import exceptions.ValidazioneException;
-
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.JFreeChart;
 
 
 public class Controller {
 
 	private static Utente utenteLoggato;
 	private Service service;
+	private InputUtenteDTO proprietarioInIscrizione;
 	private LottoColtivabile lottoSelezionato;
 	private ArrayList<Attivita> attivitaTemporanee;
 	private ArrayList<SeminaColtura> listaSeminaColtura;
-	private ArrayList<NotificaDTO> notifiche;
 	private MainFrame frame;
 	private CardPanel cardPanel;
 	private FinestraLogin finestraLogin;
-	private UtenteDAO utenteDao;
-	private LottoDAO lottoDao;
-	private ColturaDAO colturaDao;
-	private AttivitaDAO attivitaDao; 
-	private ProgettoDAO progettoDao;
-	private NotificaDAO notificaDao;
-	private ReportDAO reportDao;
 	private FinestraIscrizioneColtivatore finestraIscrizioneColtivatore;
 	private FinestraIscrizioneProprietario finestraIscrizioneProprietario;
 	private FinestraIscriviLotto finestraIscrizioneLotto;
@@ -75,19 +46,10 @@ public class Controller {
         this.frame= new MainFrame(this);
         this.cardPanel= frame.getCardPanel();
         this.finestraLogin= frame.getCardPanel().getFinestraLogin();
-        this.utenteDao= new UtenteDAO();
-        this.lottoDao= new LottoDAO();
-        this.colturaDao= new ColturaDAO();
-        this.attivitaDao= new AttivitaDAO();
-        this.progettoDao= new ProgettoDAO();
-        this.progettoDao.sincronizzaSistema();
-        this.notificaDao= new NotificaDAO();
-        this.reportDao= new ReportDAO();
         this.attivitaTemporanee= new ArrayList<Attivita>();
         new ArrayList<Attivita>();
         this.listaSeminaColtura= new ArrayList<SeminaColtura>();
         new ArrayList<ProgettoStagionale>();
-        this.notifiche= new ArrayList<NotificaDTO>();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
         this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
@@ -151,6 +113,7 @@ public class Controller {
     }
     
     public void aggiungiLotto()  {
+    	ArrayList<String> errori= new ArrayList<String>();
     	String tessitura= finestraCreaLotto.getTipoTessitura().replace(" ", "_");
     	String dimensioni= finestraCreaLotto.getDimensioni();
     	String ph= finestraCreaLotto.getPh().replace(",", ".");
@@ -160,53 +123,15 @@ public class Controller {
     	String comune= finestraCreaLotto.getComune();
     	String provincia= finestraCreaLotto.getProvincia().toUpperCase();
     	
-    	int dimensioniInt = 0;
-    	try {
-    	   
-    	    dimensioniInt = Integer.parseInt(dimensioni);
-    	} catch (NumberFormatException e) {
-    	    finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpDimensioni(), "Inserire un numero intero.");
-    	    return;
-    	}
+    	int dimensioniInt = parseInt(dimensioni, "dimensioni int", errori);
     	
-    	double phDouble=0.0;
-    	try {
-    		phDouble= Double.parseDouble(ph);
-    	}catch(NumberFormatException e) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpPh(), "Inserire un numero.");
-    		return;
-    	}
+    	double phDouble=parseDouble(ph, "ph numero", errori);
     	
-    	int altitudineInt=0;
-    	try {
-    		altitudineInt= Integer.parseInt(altitudine);
-    	}catch(NumberFormatException e) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpAltitudine(), "Inserire un numero intero.");
-    		return;
-    	}
+    	int altitudineInt=parseInt(altitudine, "altitudine int", errori);
     	
-    	if(!LottoColtivabile.isLunghezzaValida(localita)) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpLocalità(), "Inserire un numero di caratteri compreso tra 1 e 30.");
+    	if(!errori.isEmpty()) {
+    		finestraCreaLotto.gestisciErrori(errori);
     		return;
-    	}
-    	if(!LottoColtivabile.isSoloLettere(localita)) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpLocalità(), "Inserire solo lettere.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isLunghezzaValida(comune)) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpComune(), "Inserire un numero di caratteri compreso tra 1 e 30.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isSoloLettere(comune)) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpComune(),"Inserire solo lettere.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isLunghezzaProvinciaValida(provincia)) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpProvincia(), "Inserire 2 caratteri.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isSoloLettere(provincia)) {
-    		finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpProvincia(), "Inserire 2 caratteri.");
     	}
     	
     	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
@@ -221,17 +146,7 @@ public class Controller {
     		mostraPanelInterno("visualizza lotti");
     		}
     	}catch(ValidazioneException v) {
-			switch(v.getErrore()) {
-			case "dimensioni":
-				finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
-				break;
-			case "ph":
-				finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
-				break;
-			case "altitudine":
-				finestraCreaLotto.messaggioErrore(finestraCreaLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
-				break;
-			}
+			finestraCreaLotto.gestisciErrori(v.getErrori());
 		}
     }
     
@@ -307,14 +222,14 @@ public class Controller {
         }
     }
     
-    public void registraRaccolta(int codAttivita,double quantita) {
-    	try {
-            attivitaDao.aggiornaQuantitaReale(codAttivita, quantita);
-            caricaAttivitaColtivatore();            
-        }catch(RisorsaNonTrovataException e) {
-        	
-        }catch (SQLException e) {
-            e.printStackTrace();          
+    public void registraRaccolta(int codAttivita, double quantita) {
+        try {
+            service.registraRaccolta(codAttivita, quantita);
+            caricaAttivitaColtivatore();
+        } catch (RisorsaNonTrovataException e) {
+            finestraVisualizzaAttivita.mostraMessaggio("Attività non trovata");
+        } catch (ErroreDatabaseException e) {
+            finestraVisualizzaAttivita.mostraMessaggio(e.getMessage());
         }
     }
     
@@ -413,12 +328,11 @@ public class Controller {
                 service.caricaUsernameColtivatori();
             finestraCreaNotifica.setElencoColtivatori(lista);
         } catch (ErroreDatabaseException e) {
-            finestraCreaNotifica.gestisciErrori(e.getMessage());
+            finestraCreaNotifica.mostraMessaggio(e.getMessage());
         }
     }
     
     public void caricaNotificheInviate() {
-        notifiche.clear();
         finestraVisualizzaNotifiche.svuotaTabella();
         try {
             ArrayList<NotificaDTO> lista = service.caricaNotificheInviate(getUtenteLoggato().getIdUtente());        
@@ -434,7 +348,6 @@ public class Controller {
                     n.getCodNotifica(),
                     n.getDescrizione()
                 };
-                notifiche.add(n);
                 finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
             }
         } catch (ErroreDatabaseException e) {
@@ -443,7 +356,6 @@ public class Controller {
     }
     
     public void caricaNotificheRicevute() {
-        notifiche.clear();
         finestraVisualizzaNotifiche.svuotaTabella();
         try {
             ArrayList<NotificaDTO> lista = service.caricaNotificheRicevute(getUtenteLoggato().getIdUtente());
@@ -458,7 +370,6 @@ public class Controller {
                     n.getCodNotifica(),
                     n.getDescrizione()
                 };
-                notifiche.add(n);
                 finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
             }
         } catch (ErroreDatabaseException e) {
@@ -538,218 +449,61 @@ public class Controller {
     	}
     }
     
-    public void validaIscrizioneUtenteColtivatore()  {
-    	 String nome = finestraIscrizioneColtivatore.getNome();
-    	 String cognome = finestraIscrizioneColtivatore.getCognome();
-    	 String username= finestraIscrizioneColtivatore.getUsername();
-    	 String email = finestraIscrizioneColtivatore.getEmail();
-    	 String dataNascita= finestraIscrizioneColtivatore.getDataNascita();
-    	 String password = finestraIscrizioneColtivatore.getPassword();
-    	 String confermaPassword = finestraIscrizioneColtivatore.getConfermaPassword();    	 
-    	 finestraIscrizioneColtivatore.resetBordi();   	 
-    	 
-    	 if(!Utente.isSoloLettere(nome)) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpNome(),"Il nome deve essere di sole lettere.");
+    public void validaIscrizioneUtenteColtivatore(InputUtenteDTO dto)  {
+    	 ArrayList<String> errori= new ArrayList<String>(); 	   	 
+    	 finestraIscrizioneColtivatore.resetBordi();   	   	 
+    	 LocalDate dataNascitaParse = parseDate(dto.getDataNascita(), "formato data", errori);	   	 
+    	 if(!errori.isEmpty()) {
+    		 finestraIscrizioneColtivatore.gestisciErrori(errori);
     		 return;
     	 }
-    	 if(!Utente.isLunghezzaValida(nome)) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpNome(),"La lunghezza del nome deve essere inferiore alle 30 lettere e superiore ad 1.");
-    		 return;
-    	 }
-    	 if(!Utente.isSoloLettere(cognome)) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpCognome(), "Il cognome deve essere di sole lettere.");
-    		 return;
-    	 }
-    	 if (!Utente.isLunghezzaValida(cognome)) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpCognome(),"La lunghezza del cognome deve essere inferiore alle 30 lettere e superiore ad 1.");
-    		 return;
-    	 }
-    	 if(!Utente.isLunghezzaValida(username)) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpUsername(),"La lunghezza dell'username deve essere inferiore alle 30 lettere e superiore a 1.");
-    		 return;
-    	 }
-    	 if(!Utente.isEmailValida(email)) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "L'email deve contenere una @ e un punto al suo interno nell'ordine giusto.");
-    		 return;
-    	 }
-    	 if(!Utente.isLunghezzaValida(email)) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(),"La lunghezza dell'email deve essere inferiore di 30 caratteri.");
-    		 return;
-    	 }
- 
-    	 LocalDate dataNascitaParse = null;
-
-    	 try {
-    	     dataNascitaParse = LocalDate.parse(dataNascita); 
-    	 } catch (DateTimeParseException e) {
-    	     finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpDataNascita(), "Usa il formato YYYY-MM-DD (es. 1995-05-20)");
-    	     return; 
-    	 }
-    	 
-    	 if (password.isEmpty() || password.length() < 4) {
-    		    finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpPassword(), "Minimo 4 caratteri");
-    		    return;
-    		}
-
-    	if (!password.equals(confermaPassword)) {
-    		    finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpConfermaPassword(), "Le password non coincidono.");
-    		    return;
-    		}
-    	
-    	UtenteDTO uDTO = new UtenteDTO(nome, cognome, username, password, email, dataNascitaParse, TipoRuolo.COLTIVATORE);
+    	UtenteDTO uDTO = new UtenteDTO(dto.getNome(), dto.getCognome(), dto.getUsername(), dto.getPassword(), dto.getEmail(), dataNascitaParse, TipoRuolo.COLTIVATORE);
+    	uDTO.setConfermaPassword(dto.getConfermaPassword());
     	try{   		
     		Utente u=service.registraColtivatore(uDTO);
     		if(u!=null) {
     			setUtenteLoggato(u);
     			finestraIscrizioneColtivatore.pulisciCampi();
     			cardPanel.mostraPanel("coltivatore");  			
-    		}
-    		else {
-    			finestraIscrizioneColtivatore.messaggioErroreBottone(finestraIscrizioneLotto.getSalva(), "Errore salvataggio database.");
-    		}
+    		}    		
     	}
     	catch(EmailUsernameGiàEsistentiException e) {
     		finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpEmail(), "Email o Username già esistenti.");
     		finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpUsername(), "Email o Username già esistenti.");
     	}catch(ValidazioneException v) {
-    		 finestraIscrizioneColtivatore.messaggioErrore(finestraIscrizioneColtivatore.getCmpDataNascita(), "Devi avere tra 18 e 120 anni!");
-    	}   	
+    		finestraIscrizioneColtivatore.gestisciErrori(v.getErrori());
+    	}catch(ErroreDatabaseException e) {
+    		finestraIscrizioneColtivatore.mostraMessaggio(e.getMessage());
+    	}
     }
     
-    public void validaIscrizioneUtenteProprietario() {
-    	 String nome = finestraIscrizioneProprietario.getNome();
-    	 String cognome = finestraIscrizioneProprietario.getCognome();
-    	 String username= finestraIscrizioneProprietario.getUsername();
-    	 String email = finestraIscrizioneProprietario.getEmail();
-    	 String dataNascita= finestraIscrizioneProprietario.getDataNascita();
-    	 String password = finestraIscrizioneProprietario.getPassword();
-    	 String confermaPassword = finestraIscrizioneProprietario.getConfermaPassword();
+    public void validaIscrizioneUtenteProprietario(InputLottoDTO lDTO) {
+    	 ArrayList<String> errori= new ArrayList<String>();
     	 String ruolo= finestraSceltaRuolo.getSceltaRuolo();  	 
     	 String ruoloComeEnum= ruolo.replace("/", "_").trim().toString();    	 
-    	 finestraIscrizioneProprietario.resetBordi();
-    	   	 
-    	 if(!Utente.isSoloLettere(nome)) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpNome(),"Il nome deve essere di sole lettere.");
-    		 return;
-    	 }
-    	 if(!Utente.isLunghezzaValida(nome)) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpNome(),"La lunghezza del nome deve essere inferiore alle 30 lettere e superiore ad 1.");
-    		 return;
-    	 }
-    	 if(!Utente.isLunghezzaValida(cognome)) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpCognome(), "Il cognome deve essere di sole lettere.");
-    		 return;
-    	 }
-    	 if (!Utente.isSoloLettere(cognome)) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpCognome(),"La lunghezza del cognome deve essere inferiore alle 30 lettere e superiore ad 1.");
-    		 return;
-    	 }
-    	 if(!Utente.isLunghezzaValida(username)) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpUsername(),"La lunghezza dell'username deve essere inferiore alle 30 lettere e superiore a 1.");
-    		 return;
-    	 }
-    	 if(!Utente.isEmailValida(email)) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpEmail(), "L'email deve contenere una @ e un punto al suo interno nell'ordine giusto.");
-    		 return;
-    	 }
-    	 if(!Utente.isLunghezzaValida(email)) {
-    		 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpEmail(),"La lunghezza dell'email deve essere inferiore di 30 caratteri.");
-    		 return;
-    	 }
- 
-    	 LocalDate dataNascitaParse = null;
-
-    	 try {
-    	     dataNascitaParse = LocalDate.parse(dataNascita); 
-    	 } catch (DateTimeParseException e) {
-    	     finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpDataNascita(), "Usa il formato YYYY-MM-DD (es. 1995-05-20)");
-    	     return; 
-    	 }
-    	 
-    	 if (password.isEmpty() || password.length() < 4) {
-    		    finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpPassword(), "Minimo 4 caratteri");
-    		    return;
-    		}
-
-    	if (!password.equals(confermaPassword)) {
-    		    finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpConfermaPassword(), "Le password non coincidono.");
-    		    return;
-    		}
-    	TipoRuolo tipoRuoloEnum= TipoRuolo.valueOf(ruoloComeEnum.toUpperCase());
-    	
-    	UtenteDTO uDTO = new UtenteDTO(nome, cognome, username, password, email, dataNascitaParse, tipoRuoloEnum);
-    	
-    	String tessitura= finestraIscrizioneLotto.getTipoTessitura().replace(" ","_" );
-    	String dimensioni= finestraIscrizioneLotto.getDimensioni();
-    	String ph= finestraIscrizioneLotto.getPh().replace(",", ".");
-    	String morfologia= finestraIscrizioneLotto.getTipoMorfologia();
-    	String altitudine= finestraIscrizioneLotto.getAltitudine();
-    	String localita= finestraIscrizioneLotto.getLocalità();
-    	String comune= finestraIscrizioneLotto.getComune();
-    	String provincia= finestraIscrizioneLotto.getProvincia().toUpperCase();
-    	
-    	
-    	int dimensioniInt = 0;
-    	try {   
-    	    dimensioniInt = Integer.parseInt(dimensioni);
-    	} catch (NumberFormatException e) {
-    	    finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpDimensioni(), "Inserire un numero intero.");
-    	    return;
-    	}
-    	
-    	double phDouble=0.0;
-    	try {
-    		phDouble= Double.parseDouble(ph);
-    	}catch(NumberFormatException e) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpPh(), "Inserire un numero.");
+    	 finestraIscrizioneProprietario.resetBordi();  	 
+    	 LocalDate dataNascitaParse = parseDate(proprietarioInIscrizione.getDataNascita(),"formato data",errori);  	 
+    	 TipoRuolo tipoRuoloEnum= TipoRuolo.valueOf(ruoloComeEnum.toUpperCase());   	
+    	 UtenteDTO uDTO = new UtenteDTO(proprietarioInIscrizione.getNome(), proprietarioInIscrizione.getCognome(), proprietarioInIscrizione.getUsername(), proprietarioInIscrizione.getPassword(), proprietarioInIscrizione.getEmail(), dataNascitaParse, tipoRuoloEnum);
+    	 uDTO.setConfermaPassword(proprietarioInIscrizione.getConfermaPassword());   	
+    	 TipoTessitura tessituraEnum = TipoTessitura.valueOf(lDTO.getTessitura().toUpperCase());
+    	 TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(lDTO.getMorfologia().toUpperCase());
+      	
+    	 Integer dimensioniInt = parseInt(lDTO.getDimensioni(), "dimensioni int",errori);   	
+    	 Double phDouble= parseDouble(lDTO.getPh(), "ph numero",errori);    	
+    	 Integer altitudineInt= parseInt(lDTO.getAltitudine(), "altitudine int",errori);
+    	if(!errori.isEmpty()) {
+    		finestraIscrizioneProprietario.gestisciErrori(errori);
+    		finestraIscrizioneLotto.gestisciErrori(errori);
     		return;
-    	}
-    	
-    	int altitudineInt=0;
-    	try {
-    		altitudineInt= Integer.parseInt(altitudine);
-    	}catch(NumberFormatException e) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpAltitudine(), "Inserire un numero intero.");
-    		return;
-    	}
-    	
-    	if(!LottoColtivabile.isLunghezzaValida(localita)) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpLocalità(), "Inserire un numero di caratteri compreso tra 1 e 30.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isSoloLettere(localita)) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpLocalità(), "Inserire solo lettere.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isLunghezzaValida(comune)) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpComune(), "Inserire un numero di caratteri compreso tra 1 e 30.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isSoloLettere(comune)) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpComune(),"Inserire solo lettere.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isLunghezzaProvinciaValida(provincia)) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpProvincia(), "Inserire 2 caratteri.");
-    		return;
-    	}
-    	if(!LottoColtivabile.isSoloLettere(provincia)) {
-    		finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpProvincia(), "Inserire 2 caratteri.");
-    		return;
-    	}
-    	
-    	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
-    	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(morfologia.toUpperCase());
-    			
-    	LottoDTO lc= new LottoDTO(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,uDTO.getIdUtente());
-    	
-    		try{
-    			Utente u = service.registraProprietario(uDTO, lc);
+    	}   		
+    	LottoDTO lc= new LottoDTO(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, lDTO.getLocalita(), lDTO.getComune(), lDTO.getProvincia(),uDTO.getIdUtente()); 	
+    		try {
+    			Utente u = service.registraProprietario(uDTO, lc,errori);
     			if(u!=null) {
     			setUtenteLoggato(u);
     			finestraIscrizioneProprietario.pulisciCampi();
-    			finestraIscrizioneLotto.pulisciCampi();
-    			
+    			finestraIscrizioneLotto.pulisciCampi();   			
     			if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
     				cardPanel.mostraPanel("proprietario");
     			}
@@ -763,136 +517,89 @@ public class Controller {
     			finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneProprietario.getCmpEmail(),"Email o Username già esistenti.");
     			finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpUsername(), "Email o Username già esistenti.");
     		}catch(ValidazioneException v) {
-    			switch(v.getErrore()) {
-    			case "data nascita":
-    				 finestraIscrizioneProprietario.messaggioErrore(finestraIscrizioneProprietario.getCmpDataNascita(), "Devi avere tra 18 e 120 anni!");
-    				 break;
-    			case "dimensioni":
-    				finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpDimensioni(), "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
-    				break;
-    			case "ph":
-    				finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpPh(), "Ph non valido, deve essere compreso tra 4 e 9.");
-    				break;
-    			case "altitudine":
-    				finestraIscrizioneLotto.messaggioErrore(finestraIscrizioneLotto.getCmpAltitudine(), "Altitudine non valida, deve essere compresa tra -20 e 3000.");
-    				break;
-    			}
-    		}
-    	
+    			finestraIscrizioneProprietario.gestisciErrori(v.getErrori());
+    			finestraIscrizioneLotto.gestisciErrori(v.getErrori());
+    		}	
     }
     
-    public String validaCreazioneAttivitaProgetto(String nomeColtura) {
-    	
+    public ArrayList<String> validaPrimaParteProgetto() {
+    	ArrayList<String> errori= new ArrayList<String>();
     	String nome= finestraCreaProgetto.getCmpNome();
-    	String periodo= finestraCreaProgetto.getStagioneDiRiferimento();;
     	String durata= finestraCreaProgetto.getCmpDurata();
     	String dataInizioP= finestraCreaProgetto.getCmpDataInizio();  	
-    	String periodoComeEnum=periodo.replace("-", "_");
-    	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase());  	
-    	String quantitaS=finestraCreaProgetto.getCmpQuantitaSemi();
-    	String quantitaR=finestraCreaProgetto.getCmpQuantitaPrevista();
-    	String inizioS=finestraCreaProgetto.getCmpDataInizioSemina();
-    	String fineS=finestraCreaProgetto.getCmpDataFineSemina();
-    	String inizioR=finestraCreaProgetto.getCmpDataInizioRaccolta();
-    	String fineR= finestraCreaProgetto.getCmpDataFineRaccolta();
-    	String metodoS=finestraCreaProgetto.getMetodiSemina();
-    	String metodoR= finestraCreaProgetto.getMetodiRaccolta();
-    	String coltS=finestraCreaProgetto.getListaColtivatoriS();
-    	String coltR=finestraCreaProgetto.getListaColtivatoriR();
+    	
     	if (nome.isEmpty() || dataInizioP.isEmpty() || durata.isEmpty()) {
-           return "errore campi progetto";
-        }   	    	
-    	if(!ProgettoStagionale.isLunghezzaNomeValida(nome)) {
-    		return"errore lunghezza nome";
-    	}
-    	int durataInt=0;
-    	try{
-    		durataInt= Integer.parseInt(durata);
-    		if(!ProgettoStagionale.isDurataValida(durataInt)) {
-    			return"errore durata";
-    		}
-    	}catch(NumberFormatException e) {
-    		return "durata numero intero";
-    	}
-    	LocalDate dataInizioProgetto=null;
-    	try{
-    		dataInizioProgetto= LocalDate.parse(dataInizioP);
-    		if(!ProgettoStagionale.isDataInizioValida(dataInizioProgetto)) {
-    			return"errore data progetto";
-    		}
-    	}catch(DateTimeParseException e) {
-    		return"data progetto formato";
-    	}
-    	
-	     if(!service.validaSovrapposizioneProgetti(dataInizioProgetto, durataInt,lottoSelezionato.getCodLotto())) {   		 
-				return"errore sovr progetti";
-			}
-    	double quantitaSemi=0.0;
-    	double quantitaPrevistaRaccolta=0.0;    	
+            errori.add("errore campi progetto");
+        }   	    	   	
+    	Integer durataInt=parseInt(durata, "durata int", errori); 	
+    	LocalDate dataInizioProgetto=parseDate(dataInizioP, "data progetto formato", errori);
+    	    
+    	if(!errori.isEmpty()) {
+    		finestraCreaProgetto.gestisciErroriProgetto1(errori);
+    		return errori;
+    	}	
     	try {
-    		quantitaSemi= Double.parseDouble(quantitaS.replace(",", "."));
-    		if(!SeminaColtura.isQuantitaSemiValida(quantitaSemi)) {
-    			return "errore <1.";
-    		}
-    		
-    	}catch(NumberFormatException e) {
-    		return "errore non double quantità semi";
-    	}
+    		service.validaProgetto(nome, durataInt, dataInizioProgetto);
+    	}catch(ValidazioneException v) {
+    		errori.addAll(v.getErrori());
+    	}   	
     	try {
-    		quantitaPrevistaRaccolta= Double.parseDouble(quantitaR.replace(",", "."));
-    	}catch(NumberFormatException e) {
-    		return"errore non double quantita prevista raccolta";
+	     service.validaSovrapposizioneProgetti(dataInizioProgetto, durataInt,lottoSelezionato.getCodLotto());		 
+    	}catch(ValidazioneException v) {
+    		errori.addAll(v.getErrori());
+    	}			
+	     return errori;
+    }
+    
+    public ArrayList<String> validaCreazioneAttivitaProgetto(String nomeColtura, InputSeminaDTO inputSDTO, InputRaccoltaDTO inputRDTO) { 	
+    	ArrayList<String> errori= new ArrayList<String>();   	
+    	String durata= finestraCreaProgetto.getCmpDurata();
+    	String dataInizioP= finestraCreaProgetto.getCmpDataInizio();  
+    	int durataInt=parseInt(durata, "durata int", errori); 	
+    	LocalDate dataInizioProgetto=parseDate(dataInizioP, "data progetto formato", errori);    	    
+    	if(!errori.isEmpty()) {
+    		finestraCreaProgetto.gestisciErroriProgetto1(errori);
+    		return errori;
+    	}   	
+     	LocalDate dataInizioRaccolta=parseDate(inputRDTO.getDataInizioRaccolta(), "errore formato inizio raccolta", errori); 
+    	LocalDate dataFineRaccolta=parseDate(inputRDTO.getDataFineRaccolta(), "errore formato fine raccolta", errori); 
+     	double quantitaSemi=parseDouble(inputSDTO.getQuantitaSemi(), "quantita semi double", errori);
+    	double quantitaPrevistaRaccolta=parseDouble(inputRDTO.getQuantitaPrevista(), "quantita prevista double", errori);    	
+    	LocalDate dataInizioSemina= parseDate(inputSDTO.getDataInizioSemina(), "errore formato inizio semina", errori);
+    	LocalDate dataFineSemina=parseDate(inputSDTO.getDataFineSemina(), "errore formato fine semina", errori);  	    	
+	    	if(!errori.isEmpty()) {
+	    		return errori;
+	    	}
+    	try {
+    		service.validaDateAttivitaSemina(dataInizioSemina, dataFineSemina);
+    	}catch(ValidazioneException v) {
+    		return v.getErrori();
+    	} 		
+    	try {
+    		service.validaDateAttivitaRaccolta(dataInizioRaccolta, dataFineRaccolta);
+    	}catch(ValidazioneException v) {
+    		return v.getErrori();
     	}
     	
-    	LocalDate dataInizioSemina= null;
-    	LocalDate dataFineSemina= null;  	
-    	try{
-    		dataInizioSemina=LocalDate.parse(inizioS);
-    		dataFineSemina=LocalDate.parse(fineS);
-    		
-    		if(!Attivita.isDataInizioValida(dataInizioSemina)) {
-    			return "errore datainizio semina";
-    	}
-    	if(!Attivita.isDataFineValida(dataInizioSemina, dataFineSemina)) {
-    		return "errore datafine semina";
-    		}
-    	}catch(DateTimeParseException e) {
-    		return "errore formato semina";
-    	}
-    	
-    	LocalDate dataInizioRaccolta=null; 
-    	LocalDate dataFineRaccolta=null;     	
-    	try{
-    		dataInizioRaccolta=LocalDate.parse(inizioR);
-    		dataFineRaccolta= LocalDate.parse(fineR);
-    		if(!Attivita.isDataInizioValida(dataInizioRaccolta)) {
-    		return "errore datainizio raccolta";
-    	}
-    	if(!Attivita.isDataFineValida(dataInizioRaccolta, dataFineRaccolta)) {
-    		return "errore datafine raccolta";
-    	}
-    	}catch(DateTimeParseException e) {
-    		return "errore formato raccolta";
-    	}
-    	
-    	TipoSemina seminaEnum= TipoSemina.valueOf(metodoS.toString().toUpperCase());
-    	TipoRaccolta raccoltaEnum= TipoRaccolta.valueOf(metodoR.toString().toUpperCase());  	
+    	TipoSemina seminaEnum= TipoSemina.valueOf(inputSDTO.getMetodoSemina().toString().toUpperCase());
+    	TipoRaccolta raccoltaEnum= TipoRaccolta.valueOf(inputRDTO.getMetodoRaccolta().toString().toUpperCase());  	
     	try{
     			SeminaDTO sDTO= new SeminaDTO(dataInizioSemina,dataFineSemina,0,0,seminaEnum);
     			RaccoltaDTO rDTO= new RaccoltaDTO(dataInizioRaccolta,dataFineRaccolta,0,0,raccoltaEnum,quantitaPrevistaRaccolta,0);
-    			service.validaAttivitaSeminaRaccolta(nomeColtura, coltS, coltR, sDTO, rDTO, quantitaSemi, attivitaTemporanee, listaSeminaColtura, durataInt, dataInizioProgetto, lottoSelezionato);
+    			service.validaAttivitaSeminaRaccolta(nomeColtura, inputSDTO.getColtivatoreSemina(), inputRDTO.getColtivatoreRaccolta(), sDTO, rDTO, quantitaSemi, attivitaTemporanee, listaSeminaColtura, durataInt, dataInizioProgetto, lottoSelezionato);
     			
     	}catch(UtenteNonTrovatoException e) {
-    		return"coltivatore non trovato";
+    		finestraCreaProgetto.mostraMessaggio("coltivatore non trovato");
     	}catch(RisorsaNonTrovataException r) {
-    		return "coltura non trovata";
+    		finestraCreaProgetto.mostraMessaggio("coltura non trovata");
     	}catch(ValidazioneException v) {
-    		return v.getErrore();
+    		return v.getErrori();
     	}
-    	return "ok";
+    	return errori;
     }
     
-    public String creaNotifica() {
+    public ArrayList<String> creaNotifica() {
+    	ArrayList<String> errori= new ArrayList<String>();
     	String descrizioneVeloce= finestraCreaNotifica.getCmpDescrizioneVeloce();
     	String descrizione= finestraCreaNotifica.getCmpDescrizione();
     	String tipoNotifica= finestraCreaNotifica.getSceltaNotifica();
@@ -901,80 +608,70 @@ public class Controller {
     	ArrayList<String> nomi= finestraCreaNotifica.getNomiDestinatariSelezionati();	
     	LivelloGravita livelloEnum= LivelloGravita.valueOf(livelloGravita.toString().toUpperCase());   	 
     	 if (nomi.isEmpty()) {
-    	      return "errore destinatari vuoti";
+    	      errori.add("errore destinatari vuoti");
     	 } 
     	 LocalDate oggi = LocalDate.now();
-    	 int estensioneInt;
+    	 Integer estensioneInt;
     	 try {
     	        if (tipoNotifica.equals("Attività Imminente")) {
-    	            LocalDate scadenza = LocalDate.parse(finestraCreaNotifica.getCmpDataScadenza());
+    	            LocalDate scadenza = parseDate(finestraCreaNotifica.getCmpDataScadenza(), "errore formato data", errori);
+    	            if(!errori.isEmpty()) {
+    	            	return errori;
+    	            }
     	            AttivitaImminenteDTO attDTO = new AttivitaImminenteDTO(oggi,getUtenteLoggato().getIdUtente(),descrizioneVeloce,descrizione,scadenza, nomi);
     	            service.salvaAttivitaImminente(attDTO);
     	        } else {
-    	            if(estensione!= null && !estensione.trim().isEmpty()) {
-    	            	try{
-    	            		estensioneInt = Integer.parseInt(finestraCreaNotifica.getCmpEstensione());
-    	            	}catch(NumberFormatException e) {
-    	            		return"errore formato estensione";
-    	            	}
+    	            if(estensione!= null && !estensione.trim().isEmpty()) {  	            	
+    	            		estensioneInt = parseInt(finestraCreaNotifica.getCmpEstensione(), "errore formato estensione", errori);
+    	            		if(!errori.isEmpty()) {
+    	    	            	return errori;
+    	    	            }
     	            }else {
     	            	estensioneInt=0;
     	            }
     	            AnomaliaDTO anomDTO = new AnomaliaDTO(oggi, getUtenteLoggato().getIdUtente(), descrizioneVeloce, descrizione, livelloEnum, estensioneInt,nomi);
-    	            service.salvaAnomalia(anomDTO);
+    	            service.salvaAnomalia(anomDTO);	        
     	        }
-    	 }catch(DateTimeParseException e) {
-    		 return"errore formato data";
-    	 }catch(UtenteNonTrovatoException u) {
-    		 return "utenti non trovati";
+         }catch(UtenteNonTrovatoException u) {
+    		 finestraCreaNotifica.mostraMessaggio("Alcuni o tutti utenti non trovati");
     	 }catch(ValidazioneException v) {
-    		 return v.getErrore();
+    		 return v.getErrori();
     	 }
-    	  finestraCreaNotifica.getModelloScelti().clear();
-         return "ok";
+    	 if(errori.isEmpty()) {
+    	        finestraCreaNotifica.getModelloScelti().clear();
+    	    }
+         return errori;
     }
     	   
-    public String salvaProgetto() {
+    public ArrayList<String> salvaProgetto(InputProgettoDTO inputPDTO, InputIrrigazioneDTO inputIDTO) {
+    	ArrayList<String> errori= new ArrayList<String>();
     	 if (listaSeminaColtura == null || listaSeminaColtura.isEmpty()) {
-    	        return "errore lista vuota";
-    	    }
-    	String periodo= finestraCreaProgetto.getStagioneDiRiferimento();;
-    	String periodoComeEnum=periodo.replace("-", "_");
-    	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase());
-    	String metodoI= finestraCreaProgetto.getMetodiIrrigazione().toString().toUpperCase();
-    	TipoIrrigazione irrigazioneEnum= TipoIrrigazione.valueOf(metodoI.toString().toUpperCase());
-    	String coltI= finestraCreaProgetto.getListaColtivatoriI();
-    	String dataInizioIrrigazione= finestraCreaProgetto.getCmpDataInizioIrrigazione();
-    	String dataFineIrrigazione= finestraCreaProgetto.getCmpDataFineIrrigazione();
-    	
-    	LocalDate dataI= null;
-    	LocalDate dataF= null;
+    	        errori.add("errore lista vuota");
+    	    }   	
+    	String periodoComeEnum=inputPDTO.getPeriodo().replace("-", "_");
+    	Stagione periodoEnum= Stagione.valueOf(periodoComeEnum.toString().toUpperCase()); 	
+    	TipoIrrigazione irrigazioneEnum= TipoIrrigazione.valueOf(inputIDTO.getMetodoIrrigazione().toString().toUpperCase());    	
+    	LocalDate dataI= parseDate(inputIDTO.getDataInizioIrrigazione(), "errore formato date irrigazione", errori);
+    	LocalDate dataF= parseDate(inputIDTO.getDataFineIrrigazione(), "errore formato date irrigazione", errori);
+    	if(!errori.isEmpty()) {
+    		return errori;
+    	} 	
+    	Integer durata= Integer.parseInt(inputPDTO.getDurata());
+		LocalDate dataP= LocalDate.parse(inputPDTO.getDataInizio());
     	try {
-    		dataI=LocalDate.parse(dataInizioIrrigazione);
-    		dataF= LocalDate.parse(dataFineIrrigazione);
-    		if(!Attivita.isDataInizioValida(dataI)) {
-    			return"errore datainizio irrigazione";
-    		}
-    		if(!Attivita.isDataFineValida(dataI, dataF)) {
-    			return"errore datafine irrigazione";
-    		}
-    	}catch(DateTimeParseException e) {
-    		return"errore formato date irrigazione";
-    	}
-    	int durata= Integer.parseInt(finestraCreaProgetto.getCmpDurata());
-		LocalDate dataP= LocalDate.parse(finestraCreaProgetto.getCmpDataInizio());
-    	try {
-    			IrrigazioneDTO iDTO= new IrrigazioneDTO(dataI,dataF,0,0,irrigazioneEnum);
-    		
-    			service.validaAttivitaIrrigazione(coltI, iDTO, dataI, durata, lottoSelezionato, attivitaTemporanee);
+    			service.validaDateAttivitaIrrigazione(dataI, dataF);
+    			IrrigazioneDTO iDTO= new IrrigazioneDTO(dataI,dataF,0,0,irrigazioneEnum);		
+    			service.validaAttivitaIrrigazione(inputIDTO.getColtivatoreIrrigazione(), iDTO, dataI, durata, lottoSelezionato, attivitaTemporanee);
+    			
     	}catch(UtenteNonTrovatoException e) {
-    		return"coltivatore non trovato";
+    		finestraCreaProgetto.mostraMessaggio("coltivatore non trovato");
     	}catch(ValidazioneException v) {
-    		return v.getErrore();
+    		return v.getErrori();
     	}
     	ProgettoDTO pDTO= new ProgettoDTO(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,0,0);
     		service.salvaProgetto(pDTO, utenteLoggato, lottoSelezionato, attivitaTemporanee, listaSeminaColtura);
-    		return "ok";
+    		
+		return errori;
     }
     
     public void annullaCreazioneProgetto() {
@@ -1019,6 +716,10 @@ public class Controller {
 		finestraLogin.pulisciCampi();
 		cardPanel.mostraPanel("proprietario-coltivatore");
 	}
+	
+	public void prendiDTOProprietario(InputUtenteDTO dto) {
+		this.proprietarioInIscrizione= dto;
+	}
 
 	public static Utente getUtenteLoggato() {
 		return utenteLoggato;
@@ -1028,4 +729,30 @@ public class Controller {
 		Controller.utenteLoggato = utenteLoggato;
 	}
 	
+	public Integer parseInt(String value, String errore, ArrayList<String> errori) {
+	    try {
+	        return Integer.parseInt(value.trim());
+	    } catch (NumberFormatException e) {
+	        errori.add(errore);
+	        return null;
+	    }
+	}
+	
+	public Double parseDouble(String value, String errore, ArrayList<String> errori) {
+	    try {
+	        return Double.parseDouble(value.replace(",", "."));
+	    } catch (NumberFormatException e) {
+	        errori.add(errore);
+	        return null;
+	    }
+	}
+	
+	public LocalDate parseDate(String value, String errore, ArrayList<String> errori) {
+	    try {
+	        return LocalDate.parse(value);
+	    } catch (DateTimeParseException e) {
+	        errori.add(errore);
+	        return null;
+	    }
+	}
 }

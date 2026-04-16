@@ -209,14 +209,14 @@ public class FinestraCreaNotifica extends JPanel {
 		});
 		
 		invia.addActionListener(e->{
-			String esito=controller.creaNotifica();
-			if(esito.equals("ok")) {
+			ArrayList<String> errori=controller.creaNotifica();
+			if(!errori.isEmpty()) {
+				gestisciErrori(errori);
+				return;
+			}
 				pulisciCampi();
 				controller.caricaNotificheInviate();
 				controller.mostraPanelInterno("visualizza notifiche");
-			}else {
-				gestisciErrori(esito);
-			}
 		});
 		
 		cancella.addActionListener(e->{
@@ -280,30 +280,31 @@ public class FinestraCreaNotifica extends JPanel {
 	    resetBordi();
 	}
 	
-	public void gestisciErrori(String errore) {
-		resetBordi();
-		if(errore.equals("errore descrizione veloce")) {
-			messaggioErrore(cmpDescrizioneVeloce, "Inserire una descrizione che non superi i 30 caratteri");
-		}		
-		if(errore.equals("errore descrizione")) {
-			messaggioErroreTextArea(cmpDescrizione, "Non superare i 500 caratteri");
-			
-		}
-		if(errore.equals("errore destinatari vuoti")) {
-			messaggioErroreScroll(scrollScelti, "Selezionare almeno un destinatario");			
-		}
-		if(errore.equals("errore formato data")) {
-			messaggioErrore(cmpDataScadenza, "Inserire una data nel formato YYYY-MM-DD");			
-		}
-		if(errore.equals("errore formato estensione")) {
-			messaggioErrore(cmpEstensione, "Inserire un numero intero.");
-		}	
-		if(errore.equals("estensione <0")) {
-			messaggioErrore(cmpEstensione, "Inserire numero positivo");
-		}
-		if(errore.equals("utenti non trovati")) {
-			JOptionPane.showMessageDialog(this, "Alcuni o tutti Utenti non trovati");
-		}
+	public void gestisciErrori(ArrayList<String> errori) {
+	    resetBordi();
+	    for (String errore : errori) {
+	        switch (errore) {
+
+	            case "errore descrizione veloce":
+	                messaggioErrore(cmpDescrizioneVeloce,"Inserire una descrizione che non superi i 30 caratteri");
+	                break;
+	            case "errore descrizione":
+	                messaggioErroreTextArea(cmpDescrizione,"Non superare i 500 caratteri");
+	                break;
+	            case "errore destinatari vuoti":
+	                messaggioErroreScroll(scrollScelti,"Selezionare almeno un destinatario");
+	                break;
+	            case "errore formato data":
+	                messaggioErrore(cmpDataScadenza,"Inserire una data nel formato YYYY-MM-DD");
+	                break;
+	            case "errore formato estensione":
+	                messaggioErrore(cmpEstensione,"Inserire un numero intero.");
+	                break;
+	            case "estensione <0":
+	                messaggioErrore(cmpEstensione,"Inserire numero positivo");
+	                break;
+	        } 
+	    }
 	}
 	
 	public void messaggioErroreTextArea(JTextArea campo,String testo) {
@@ -316,6 +317,10 @@ public class FinestraCreaNotifica extends JPanel {
 		campo.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		campo.setToolTipText(messaggio);
 		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 
 	public Controller getController() {

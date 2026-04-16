@@ -1,17 +1,19 @@
 package exceptions;
 
+import java.util.ArrayList;
+
 public class ValidazioneException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	private String errore;
+	private ArrayList<String> errori;
 	
-	public ValidazioneException(String errore) {
-		this.errore=errore;
+	public ValidazioneException(ArrayList<String> errori) {
+		this.errori=errori;
 	}
 
-	public String getErrore() {
-		return errore;
+	public ArrayList<String> getErrori() {
+		return errori;
 	}
 
 }

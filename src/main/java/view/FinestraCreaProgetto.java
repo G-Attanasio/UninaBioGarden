@@ -31,6 +31,10 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import controller.Controller;
+import dto.InputIrrigazioneDTO;
+import dto.InputProgettoDTO;
+import dto.InputRaccoltaDTO;
+import dto.InputSeminaDTO;
 
 public class FinestraCreaProgetto extends JPanel {
 
@@ -192,6 +196,11 @@ public class FinestraCreaProgetto extends JPanel {
 		
 		
 		aggiungiColtura.addActionListener(e->{
+			 ArrayList<String> errori = controller.validaPrimaParteProgetto();
+			    if (!errori.isEmpty()) {
+			        gestisciErroriProgetto1(errori);
+			        return;
+			    }	
 			 colturaScelta = (String) cmpListaColture.getSelectedItem();
 			    if (colturaScelta != null) {
 			    	controller.caricaColtivatoriInAttivitaProgetto(colturaScelta);
@@ -202,19 +211,17 @@ public class FinestraCreaProgetto extends JPanel {
 		});
 		
 		salva.addActionListener(e->{
-			String esito= controller.salvaProgetto();
-			
-			if(esito.equals("ok")) {
+			ArrayList<String> errori= controller.salvaProgetto(getInpuProgettoDTO(),getInputIrrigazioneDTO());		
+			if(!errori.isEmpty()) {
+				gestisciErroriProgetto2(errori);
+				return;
+			}
 				JOptionPane.showMessageDialog(this, 
 			            "Salvataggio pianificazione avvenuta con successo", 
 			            "Operazione Completata", 
 			            JOptionPane.INFORMATION_MESSAGE);
 				pulisciCampi();
 				controller.mostraPanelInterno("visualizza lotti");
-			}
-			else {				
-				gestisciErroriProgetto(esito);
-			}
 		});
 		
 		annulla.addActionListener(e->{
@@ -356,23 +363,22 @@ public class FinestraCreaProgetto extends JPanel {
 		JDialog finestra = pannelloOpzioni.createDialog(this, "Pianificazione "+nomeColtura);
 
 	
-		conferma.addActionListener(e -> {        	
-	     String coltS = (String) listaColtivatoriS.getSelectedItem();
-	     String coltR = (String) listaColtivatoriR.getSelectedItem();       	
-	     String esito=controller.validaCreazioneAttivitaProgetto(nomeColtura);     
-	     if(esito.equalsIgnoreCase("ok")) {
-	    	 resetBordiAttivita();
-	    	 cmpDataInizio.setEditable(false);
-	    	    cmpDurata.setEditable(false);
-	    	    cmpDataInizio.setBackground(Color.LIGHT_GRAY);
-	    	    cmpDurata.setBackground(Color.LIGHT_GRAY);
-	     modelloLista.addElement(nomeColtura); 
-	        	        finestra.dispose();
-	        	    }else {
-	        	    	gestisciErroriAttivita(esito);
-	        	    	pannelloOpzioni.setValue(JOptionPane.UNINITIALIZED_VALUE);	        	    	
-	        	    }
+		conferma.addActionListener(e -> {      
+			ArrayList<String> errori=controller.validaCreazioneAttivitaProgetto(nomeColtura,getInputSeminaDTO(),getInputRaccoltaDTO());
+			resetBordiAttivita();       	   
+			if(!errori.isEmpty()) {
+				gestisciErroriAttivita(errori);
+				return;
+ 	    	}	    	 
+	    	cmpDataInizio.setEditable(false);
+    	    cmpDurata.setEditable(false);
+    	    cmpDataInizio.setBackground(Color.LIGHT_GRAY);
+    	    cmpDurata.setBackground(Color.LIGHT_GRAY);
+    	    modelloLista.addElement(nomeColtura); 
+	        finestra.dispose();        	   
 	        });
+		
+		
 		annullaAttivita.addActionListener(e->{
 			finestra.setVisible(false); 
 			finestra.dispose();
@@ -402,121 +408,134 @@ public class FinestraCreaProgetto extends JPanel {
 		scrollLista.setToolTipText(null);
 	}
 	
-	public void gestisciErroriAttivita(String errore) {
-		resetBordiAttivita();
-		if(errore.equals("errore campi progetto")) {
-			messaggioErrore(cmpDataInizio, "Inserire data");
-			messaggioErrore(cmpNome, "Inserire nome");
-			messaggioErrore(cmpDurata, "Inserire durata");
-		}
-		if(errore.equals("errore lunghezza nome")) {
-			messaggioErrore(cmpNome, "Nome troppo lungo, massimo 30 caratteri");
-		}
-		if(errore.equals("errore durata")) {
-			messaggioErrore(cmpDurata, "La durata deve essere compresa tra 1 e 180 giorni");
-		}
-		if(errore.equals("durata numero intero")) {
-			messaggioErrore(cmpDurata, "Inserire un numero intero");
-		}
-		if(errore.equals("errore data progetto")) {
-			messaggioErrore(cmpDataInizio, "Inserire una data valida");
-		}
-		if(errore.equals("data progetto formato")) {
-			messaggioErrore(cmpDataInizio, "Inserire una data nel formato YYYY-MM-DD");
-		}
-		if(errore.equals("errore sovr progetti")) {
-			messaggioErrore(cmpDataInizio, "Il lotto è già impegnato in un altro progetto, selezionare periodo temporale differente");
-			messaggioErrore(cmpDurata, "Il lotto è già impegnato in un altro progetto, selezionare periodo temporale differente");
-		}
-		if(errore.equals("errore <1.")) {
-			messaggioErrore(cmpQuantitaSemi, "Inserire almeno un kilo di semi o non superare le 10 tonnellate");
-		}
-		if(errore.equals("errore non double quantità semi")) {
-			messaggioErrore(cmpQuantitaSemi, "Inserire cifre numeriche");
-		}
-		if(errore.equals("errore datainizio semina")) {
-			messaggioErrore(cmpDataInizioSemina, "Inserire una data valida");
-		}
-		if(errore.equals("errore datafine semina")) {
-			messaggioErrore(cmpDataFineSemina, "Inserire una data successiva alla data di inizio");
-		}
-		if(errore.equals("errore formato semina")) {
-			messaggioErrore(cmpDataInizioSemina, "Inserire una data nel formato YYYY-MM-DD");
-			messaggioErrore(cmpDataFineSemina, "Inserire una data nel formato YYYY-MM-DD");
-		}
-		if(errore.equals("errore datainizio raccolta")) {
-			messaggioErrore(cmpDataInizioRaccolta,"Inserire una data valida");
-		}
-		if(errore.equals("errore datafine raccolta")) {
-			messaggioErrore(cmpDataFineRaccolta, "Inserire una data successiva a quella di inizio");
-		}
-		if(errore.equals("errore formato raccolta")) {
-			messaggioErrore(cmpDataInizioRaccolta, "Inserire una data nel formato YYYY-MM-DD");
-			messaggioErrore(cmpDataFineRaccolta, "Inserire una data nel formato YYYY-MM-DD");
-		}
-		if(errore.equals("errore non double quantita prevista raccolta")) {
-			messaggioErrore(cmpQuantitaPrevista, "Inserire cifre numeriche");
-		}
-		if(errore.equals("colt semina sovr attivita")) {
-			messaggioErrore(cmpDataInizioSemina, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
-			messaggioErrore(cmpDataFineSemina, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
-		}
-		if(errore.equals("colt raccolta sovr attivita")) {
-			messaggioErrore(cmpDataInizioRaccolta, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
-			messaggioErrore(cmpDataFineRaccolta, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
-		}
-		if(errore.equals("errore semina sovr progetto")) {
-			messaggioErrore(cmpDataInizioSemina, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
-			messaggioErrore(cmpDataFineSemina, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
-		}
-		if(errore.equals("errore raccolta sovr progetto")) {
-			messaggioErrore(cmpDataInizioRaccolta, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
-			messaggioErrore(cmpDataFineRaccolta, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
-		}
-		if(errore.equals("errore coerenzaSeminaDurata")) {
-			messaggioErrore(cmpDataFineSemina, "La coltura piantata non raggiunge la maturazione entro la fine del progetto");
-		}
-		if(errore.equals("dataInizioRaccoltaNonValida")) {
-			messaggioErrore(cmpDataInizioRaccolta, "La raccolta non può cominciare prima della fine della semina");
-		}
-		if(errore.equals("errore meccanica montagna")) {
-			messaggioErroreCombo(metodiRaccolta, "Raccolta meccanica non consentita su lotto a morfologia montuosa");
-		}
-		if(errore.equals("coltivatore non trovato")) {
-			JOptionPane.showMessageDialog(this, "Coltivatore non trovato.");
-		}
-		if(errore.equals("coltura non trovata")) {
-			JOptionPane.showMessageDialog(this, "Coltura non trovata.");
-		}
-		
+	public void gestisciErroriAttivita(ArrayList<String> errori) {
+	    resetBordiAttivita();
+	    for (String errore : errori) {
+	        switch (errore) {
+	            case "errore <1.":
+	                messaggioErrore(cmpQuantitaSemi, "Inserire almeno un kilo di semi o non superare le 10 tonnellate");
+	                break;
+	            case "errore non double quantità semi":
+	                messaggioErrore(cmpQuantitaSemi, "Inserire cifre numeriche");
+	                break;
+	            case "errore datainizio semina":
+	                messaggioErrore(cmpDataInizioSemina, "Inserire una data valida");
+	                break;
+	            case "errore datafine semina":
+	                messaggioErrore(cmpDataFineSemina, "Inserire una data successiva alla data di inizio");
+	                break;
+	            case "errore formato semina":
+	                messaggioErrore(cmpDataInizioSemina, "Inserire una data nel formato YYYY-MM-DD");
+	                messaggioErrore(cmpDataFineSemina, "Inserire una data nel formato YYYY-MM-DD");
+	                break;
+	            case "errore datainizio raccolta":
+	                messaggioErrore(cmpDataInizioRaccolta, "Inserire una data valida");
+	                break;
+	            case "errore datafine raccolta":
+	                messaggioErrore(cmpDataFineRaccolta, "Inserire una data successiva a quella di inizio");
+	                break;
+	            case "errore formato raccolta":
+	                messaggioErrore(cmpDataInizioRaccolta, "Inserire una data nel formato YYYY-MM-DD");
+	                messaggioErrore(cmpDataFineRaccolta, "Inserire una data nel formato YYYY-MM-DD");
+	                break;
+	            case "errore non double quantita prevista raccolta":
+	                messaggioErrore(cmpQuantitaPrevista, "Inserire cifre numeriche");
+	                break;
+	            case "colt semina sovr attivita":
+	                messaggioErrore(cmpDataInizioSemina, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+	                messaggioErrore(cmpDataFineSemina, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+	                break;
+	            case "colt raccolta sovr attivita":
+	                messaggioErrore(cmpDataInizioRaccolta, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+	                messaggioErrore(cmpDataFineRaccolta, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+	                break;
+	            case "errore semina sovr progetto":
+	                messaggioErrore(cmpDataInizioSemina, "L'intervallo temporale non rientra nel progetto");
+	                messaggioErrore(cmpDataFineSemina, "L'intervallo temporale non rientra nel progetto");
+	                break;
+	            case "errore raccolta sovr progetto":
+	                messaggioErrore(cmpDataInizioRaccolta, "L'intervallo temporale non rientra nel progetto");
+	                messaggioErrore(cmpDataFineRaccolta, "L'intervallo temporale non rientra nel progetto");
+	                break;
+	            case "errore coerenzaSeminaDurata":
+	                messaggioErrore(cmpDataFineSemina, "La coltura non raggiunge maturazione entro fine progetto");
+	                break;
+	            case "dataInizioRaccoltaNonValida":
+	                messaggioErrore(cmpDataInizioRaccolta, "Raccolta non può iniziare prima della fine semina");
+	                break;
+	            case "errore meccanica montagna":
+	                messaggioErroreCombo(metodiRaccolta, "Raccolta meccanica non consentita su montagna");
+	                break;
+	        }
+	    }
 	}
 	
-	public void gestisciErroriProgetto(String errore) {
-		resetBordi();
-		if(errore.equals("errore datainizio irrigazione")) {
-			messaggioErrore(cmpDataInizioIrrigazione, "Inserire una data valida");
-		}
-		if(errore.equals("errore datafine irrigazione")) {
-			messaggioErrore(cmpDataFineIrrigazione, "Inserire una data successiva a quella di inizio");
-		}
-		if(errore.equals("errore formato date irrigazione")) {
-			messaggioErrore(cmpDataInizioIrrigazione, "Inserire una data nel formato YYYY-MM-DD");
-			messaggioErrore(cmpDataFineIrrigazione, "Inserire una data nel formato YYYY-MM-DD");
-		}
-		if(errore.equals("colt irrigazione sovr attivita")) {
-			messaggioErrore(cmpDataInizioIrrigazione, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
-			messaggioErrore(cmpDataFineIrrigazione, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
-		}
-		if(errore.equals("errore irrigazione sovr progetto")) {
-			messaggioErrore(cmpDataInizioIrrigazione, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
-			messaggioErrore(cmpDataFineIrrigazione, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
-		}
-		if(errore.equals("errore pendenza sommersione")) {
-			messaggioErroreCombo(metodiIrrigazione, "Irrigazione a sommersione non consentita su lotti con morfologia collinare o montuosa");
-		}		
-		if(errore.equals("errore lista vuota")) {
-			messaggioErroreScroll(scrollLista, "Aggiungere almeno una coltura al progetto");
-		}
+	public void gestisciErroriProgetto1(ArrayList<String> errori) {
+	    resetBordi();
+	    for (String errore : errori) {
+	        switch (errore) {
+	            case "errore campi progetto":
+	                messaggioErrore(cmpDataInizio, "Inserire data");
+	                messaggioErrore(cmpNome, "Inserire nome");
+	                messaggioErrore(cmpDurata, "Inserire durata");
+	                break;
+	            case "errore lunghezza nome":
+	                messaggioErrore(cmpNome, "Nome troppo lungo, massimo 30 caratteri");
+	                break;
+	            case "errore durata":
+	                messaggioErrore(cmpDurata, "La durata deve essere compresa tra 1 e 180 giorni");
+	                break;
+	            case "durata numero intero":
+	                messaggioErrore(cmpDurata, "Inserire un numero intero");
+	                break;
+	            case "errore data progetto":
+	                messaggioErrore(cmpDataInizio, "Inserire una data valida");
+	                break;
+	            case "data progetto formato":
+	                messaggioErrore(cmpDataInizio, "Inserire una data nel formato YYYY-MM-DD");
+	                break;
+	            case "errore sovr progetti":
+	                messaggioErrore(cmpDataInizio, "Il lotto è già impegnato in un altro progetto");
+	                messaggioErrore(cmpDurata, "Il lotto è già impegnato in un altro progetto");
+	                break;
+	        }
+	    }
+	}
+	
+	public void gestisciErroriProgetto2(ArrayList<String> errori) {
+	    resetBordi();
+	    for (String errore : errori) {
+	        switch (errore) {
+	            case "errore datainizio irrigazione":
+	                messaggioErrore(cmpDataInizioIrrigazione, "Inserire una data valida");
+	                break;
+	            case "errore datafine irrigazione":
+	                messaggioErrore(cmpDataFineIrrigazione, "Inserire una data successiva a quella di inizio");
+	                break;
+	            case "errore formato date irrigazione":
+	                messaggioErrore(cmpDataInizioIrrigazione, "Inserire una data nel formato YYYY-MM-DD");
+	                messaggioErrore(cmpDataFineIrrigazione, "Inserire una data nel formato YYYY-MM-DD");
+	                break;
+	            case "colt irrigazione sovr attivita":
+	                messaggioErrore(cmpDataInizioIrrigazione, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+	                messaggioErrore(cmpDataFineIrrigazione, "Il coltivatore scelto ha attività che si sovrappongono a queste date");
+	                break;
+	            case "errore irrigazione sovr progetto":
+	                messaggioErrore(cmpDataInizioIrrigazione, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
+	                messaggioErrore(cmpDataFineIrrigazione, "L'intervallo temporale di quest'attività non rientra nell'intervallo temporale del progetto");
+	                break;
+	            case "errore pendenza sommersione":
+	                messaggioErroreCombo(metodiIrrigazione, "Irrigazione a sommersione non consentita su lotti con morfologia collinare o montuosa");
+	                break;
+	            case "errore lista vuota":
+	                messaggioErroreScroll(scrollLista, "Aggiungere almeno una coltura al progetto");
+	                break;
+	        }
+	    }
+	}
+	
+	public void resetBordiProgetto() {
+		
 	}
 	public void resetBordiAttivita() {
 		Border bordo= UIManager.getBorder("TextField.border");		
@@ -777,6 +796,20 @@ public class FinestraCreaProgetto extends JPanel {
 		return listaColtivatoriI.getSelectedItem().toString();
 	}
 	
+	public InputSeminaDTO getInputSeminaDTO() {
+		return new InputSeminaDTO(getCmpQuantitaSemi(), getCmpDataInizioSemina(), getCmpDataFineSemina(), getMetodiSemina(), getListaColtivatoriS());
+	}
 	
+	public InputRaccoltaDTO getInputRaccoltaDTO() {
+		return new InputRaccoltaDTO(getCmpQuantitaPrevista(), getCmpDataInizioRaccolta(), getCmpDataFineRaccolta(), getMetodiRaccolta(), getListaColtivatoriR());
+	}
+	
+	public InputIrrigazioneDTO getInputIrrigazioneDTO() {
+		return new InputIrrigazioneDTO(getMetodiIrrigazione(), getListaColtivatoriI(), getCmpDataInizioIrrigazione(), getCmpDataFineIrrigazione());
+	}
+	
+	public InputProgettoDTO getInpuProgettoDTO() {
+		return new InputProgettoDTO(getStagioneDiRiferimento(), getCmpDurata(), getCmpDataInizio());
+	}
 	
 }

@@ -9,6 +9,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -189,6 +190,50 @@ private static final long serialVersionUID = 1L;
 		annulla.setBorder(bordo);
 		annulla.setToolTipText(null);
 		
+	}
+	
+	public void gestisciErrori(ArrayList<String> errori) {
+	    resetBordi();
+	    for (String errore : errori) {
+	        switch (errore) {
+	            case "dimensioni":
+	                messaggioErrore(cmpDimensioni, "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
+	                break;
+	            case "ph":
+	                messaggioErrore(cmpPh, "Ph non valido, deve essere compreso tra 4 e 9.");
+	                break;
+	            case "altitudine":
+	                messaggioErrore(cmpAltitudine, "Altitudine non valida, deve essere compresa tra -20 e 3000.");
+	                break;
+	            case "dimensioni int":
+	                messaggioErrore(cmpDimensioni, "Inserire un numero intero.");
+	                break;
+	            case "ph numero":
+	                messaggioErrore(cmpPh, "Inserire un numero.");
+	                break;
+	            case "altitudine int":
+	                messaggioErrore(cmpAltitudine, "Inserire un numero intero.");
+	                break;
+	            case "lunghezza localita":
+	            	messaggioErrore(cmpLocalità, "Inserire un numero di caratteri compreso tra 1 e 30.");
+	            	break;
+	            case "lettere localita":
+	            	messaggioErrore(cmpLocalità, "Inserire solo lettere.");
+	            	break;
+	            case "lunghezza comune":
+	            	messaggioErrore(cmpComune, "Inserire un numero di caratteri compreso tra 1 e 30.");
+	            	break;
+	            case "lettere comune":
+	            	messaggioErrore(cmpComune, "Inserire solo lettere.");
+	            	break;
+	            case "lunghezza provincia":
+	                messaggioErrore(cmpProvincia, "Provincia deve avere 2 lettere.");
+	                break;
+	            case "lettere provincia":
+	                messaggioErrore(cmpProvincia, "Inserire solo lettere.");
+	                break;
+	        }
+	    }
 	}
 	
 	public void pulisciCampi() {

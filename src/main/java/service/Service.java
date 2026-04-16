@@ -4,47 +4,12 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import dao.AttivitaDAO;
-import dao.ColturaDAO;
-import dao.LottoDAO;
-import dao.NotificaDAO;
-import dao.ProgettoDAO;
-import dao.ReportDAO;
-import dao.UtenteDAO;
-import dto.AnomaliaDTO;
-import dto.AttivitaDTO;
-import dto.AttivitaImminenteDTO;
-import dto.ColturaDTO;
-import dto.DatiReportDTO;
-import dto.IrrigazioneDTO;
-import dto.LottoDTO;
-import dto.NotificaDTO;
-import dto.ProgettoDTO;
-import dto.RaccoltaDTO;
-import dto.SeminaDTO;
-import dto.UtenteDTO;
-import exceptions.EmailUsernameGiàEsistentiException;
-import exceptions.ErroreDatabaseException;
-import exceptions.RisorsaNonTrovataException;
-import exceptions.UtenteNonTrovatoException;
-import exceptions.ValidazioneException;
-import model.Anomalia;
-import model.Attivita;
-import model.AttivitaImminente;
-import model.Coltura;
-import model.DatiReport;
-import model.Irrigazione;
-import model.LivelloGravita;
-import model.LottoColtivabile;
-import model.Notifica;
-import model.ProgettoStagionale;
-import model.Raccolta;
-import model.Semina;
-import model.SeminaColtura;
-import model.TipoIrrigazione;
-import model.TipoMorfologia;
-import model.TipoRaccolta;
-import model.Utente;
+
+import dao.*;
+import dto.*;
+import exceptions.*;
+import model.*;
+
 
 
 public class Service {
@@ -82,42 +47,116 @@ public class Service {
         }
     }
 	
-	public Utente registraColtivatore(UtenteDTO dto) throws EmailUsernameGiàEsistentiException {
-		if(!Utente.isEtaCoerente(dto.getDataNascita())) {
-			throw new ValidazioneException("data nascita");
-		}
+	public Utente registraColtivatore(UtenteDTO dto) throws EmailUsernameGiàEsistentiException, ErroreDatabaseException {
+		 ArrayList<String> errori= new ArrayList<String>();
+		 
+		 if(!Utente.isSoloLettere(dto.getNome())) {
+    		 errori.add("lettere nome");
+    	 }
+    	 if(!Utente.isLunghezzaValida(dto.getNome())) {
+    		 errori.add("lunghezza nome");
+    	 }
+    	 if(!Utente.isSoloLettere(dto.getCognome())) {
+    		 errori.add("lettere cognome");
+    	 }
+    	 if (!Utente.isLunghezzaValida(dto.getCognome())) {
+    		 errori.add("lunghezza cognome");
+    	 }
+    	 if(!Utente.isLunghezzaValida(dto.getUsername())) {
+    		 errori.add("lunghezza username");
+    	 }
+    	 if(!Utente.isEmailValida(dto.getEmail())) {
+    		 errori.add("email non valida");
+    	 }
+    	 if(!Utente.isLunghezzaValida(dto.getEmail())) {
+    		 errori.add("lunghezza email");
+    	 }
+    	 if(!Utente.isEtaCoerente(dto.getDataNascita())) {
+ 			errori.add("data nascita");
+ 		 }
+    	 if (dto.getPassword().isEmpty() || dto.getPassword().length() < 4 || dto.getPassword().length() > 30) {
+ 		    errori.add("lunghezza password");
+ 		 }
+ 	     if (!dto.getPassword().equals(dto.getConfermaPassword())) {
+ 		    errori.add("password");
+ 		 }
+    	 if(!errori.isEmpty()) {
+    		 throw new ValidazioneException(errori);
+    	 }
 	    Utente u = new Utente(
 	        dto.getNome(), dto.getCognome(), dto.getUsername(), 
 	        dto.getPassword(), dto.getEmail(), dto.getDataNascita(), dto.getRuolo()
 	    );
-	    try {
-	    boolean salvato = utenteDAO.salva(u);
-	    if (salvato) { 
-	        return u;
-	        }
-	    throw new EmailUsernameGiàEsistentiException();
-	    }catch(SQLException e){
-	    	e.printStackTrace();
-	    	throw new EmailUsernameGiàEsistentiException();	   
-	    	}
+	    utenteDAO.salva(u);
+	    return u;
 	}
 	
-	public Utente registraProprietario(UtenteDTO uDto,LottoDTO lDto) throws EmailUsernameGiàEsistentiException {
-		if(!Utente.isEtaCoerente(uDto.getDataNascita())){
-			throw new ValidazioneException("data nascita");
-		}
+	public Utente registraProprietario(UtenteDTO uDto,LottoDTO lDto,ArrayList<String> erroriParse) throws EmailUsernameGiàEsistentiException {
+		 ArrayList<String> errori= new ArrayList<String>(erroriParse);
+		
+		 if(!Utente.isSoloLettere(uDto.getNome())) {
+    		 errori.add("lettere nome");
+    	 }
+    	 if(!Utente.isLunghezzaValida(uDto.getNome())) {
+    		 errori.add("lunghezza nome");
+    	 }
+    	 if(!Utente.isSoloLettere(uDto.getCognome())) {
+    		 errori.add("lettere cognome");
+    	 }
+    	 if (!Utente.isLunghezzaValida(uDto.getCognome())) {
+    		 errori.add("lunghezza cognome");
+    	 }
+    	 if(!Utente.isLunghezzaValida(uDto.getUsername())) {
+    		 errori.add("lunghezza username");
+    	 }
+    	 if(!Utente.isEmailValida(uDto.getEmail())) {
+    		 errori.add("email non valida");
+    	 }
+    	 if(!Utente.isLunghezzaValida(uDto.getEmail())) {
+    		 errori.add("lunghezza email");
+    	 }
+    	 if(!Utente.isEtaCoerente(uDto.getDataNascita())) {
+ 			errori.add("data nascita");
+ 		 }
+    	 if (uDto.getPassword().isEmpty() || uDto.getPassword().length() < 4 || uDto.getPassword().length() > 30) {
+  		    errori.add("lunghezza password");
+  		 }
+  	     if (!uDto.getPassword().equals(uDto.getConfermaPassword())) {
+  		    errori.add("password");
+  	     }
 		Utente u= new Utente( uDto.getNome(), uDto.getCognome(), uDto.getUsername(), 
 		        uDto.getPassword(), uDto.getEmail(), uDto.getDataNascita(), uDto.getRuolo()
 			    );
 		if(!LottoColtivabile.isValidDimensioni(lDto.getDimensioni())) {
-			throw new ValidazioneException("dimensioni");
+			errori.add("dimensioni");
 		}
 		if(!LottoColtivabile.isPhValidoMioDominio(lDto.getPh())) {
-			throw new ValidazioneException("ph");
+			errori.add("ph");
 		}
 		if(!LottoColtivabile.isAltitudineValida(lDto.getAltitudine())) {
-			throw new ValidazioneException("altitudine");
+			errori.add("altitudine");
 		}
+		if(!LottoColtivabile.isLunghezzaValida(lDto.getLocalita())) {
+    		errori.add("lunghezza localita");
+    	}
+    	if(!LottoColtivabile.isSoloLettere(lDto.getLocalita())) {
+    		errori.add("lettere localita");
+    	}
+    	if(!LottoColtivabile.isLunghezzaValida(lDto.getComune())) {
+    		errori.add("lunghezza comune");
+    	}
+    	if(!LottoColtivabile.isSoloLettere(lDto.getComune())) {
+    		errori.add("lettere comune");
+    	}
+    	if (!LottoColtivabile.isLunghezzaProvinciaValida(lDto.getProvincia())) {
+    	    errori.add("lunghezza provincia");
+    	}
+    	if (!LottoColtivabile.isSoloLettere(lDto.getProvincia())) {
+    	    errori.add("lettere provincia");
+    	} 
+		 if(!errori.isEmpty()) {
+    		 throw new ValidazioneException(errori);
+    	 }
 		LottoColtivabile lc= new LottoColtivabile( lDto.getTessitura(),lDto.getDimensioni(),lDto.getPh(),
 				lDto.getMorfologia(),lDto.getAltitudine(),lDto.getLocalita(),lDto.getComune(),lDto.getProvincia(),u);
 		try {
@@ -133,15 +172,38 @@ public class Service {
 	}
 	
 	public boolean salvaLotto(LottoDTO lDTO) {
+		ArrayList<String> errori= new ArrayList<String>();
+		
 		if(!LottoColtivabile.isValidDimensioni(lDTO.getDimensioni())) {
-			throw new ValidazioneException("dimensioni");
+			errori.add("dimensioni");
 		}
 		if(!LottoColtivabile.isPhValidoMioDominio(lDTO.getPh())) {
-			throw new ValidazioneException("ph");
+			errori.add("ph");
 		}
 		if(!LottoColtivabile.isAltitudineValida(lDTO.getAltitudine())) {
-			throw new ValidazioneException("altitudine");
+			errori.add("altitudine");
 		}
+		if(!LottoColtivabile.isLunghezzaValida(lDTO.getLocalita())) {
+    		errori.add("lunghezza localita");
+    	}
+    	if(!LottoColtivabile.isSoloLettere(lDTO.getLocalita())) {
+    		errori.add("lettere localita");
+    	}
+    	if(!LottoColtivabile.isLunghezzaValida(lDTO.getComune())) {
+    		errori.add("lunghezza comune");
+    	}
+    	if(!LottoColtivabile.isSoloLettere(lDTO.getComune())) {
+    		errori.add("lettere comune");
+    	}
+    	if (!LottoColtivabile.isLunghezzaProvinciaValida(lDTO.getProvincia())) {
+    	    errori.add("lunghezza provincia");
+    	}
+    	if (!LottoColtivabile.isSoloLettere(lDTO.getProvincia())) {
+    	    errori.add("lettere provincia");
+    	} 
+		if(!errori.isEmpty()) {
+    		 throw new ValidazioneException(errori);
+    	}
 		LottoColtivabile lc= new LottoColtivabile( lDTO.getTessitura(),lDTO.getDimensioni(),lDTO.getPh(),
 				lDTO.getMorfologia(),lDTO.getAltitudine(),lDTO.getLocalita(),lDTO.getComune(),lDTO.getProvincia(),null);
 		try {
@@ -166,7 +228,24 @@ public class Service {
 		}
 	}
 	
-	public boolean validaSovrapposizioneProgetti(LocalDate dataInizio,int durata, int codLotto){
+	public void validaProgetto(String nome, int durata, LocalDate dataInizio) {
+		 ArrayList<String> errori= new ArrayList<String>();
+		 if(!ProgettoStagionale.isLunghezzaNomeValida(nome)) {
+	    		errori.add("errore lunghezza nome");
+	    	}
+		 if(!ProgettoStagionale.isDurataValida(durata)) {
+ 				errori.add("errore durata");
+ 			}
+		 if(!ProgettoStagionale.isDataInizioValida(dataInizio)) {
+ 				errori.add("errore data progetto");
+ 			}
+		 if(!errori.isEmpty()) {
+    		 throw new ValidazioneException(errori);
+    	 }
+	}
+	
+	public void validaSovrapposizioneProgetti(LocalDate dataInizio,int durata, int codLotto){
+		ArrayList<String> errori= new ArrayList<String>();
 		LocalDate dataFine= dataInizio.plusDays(durata);
 		ArrayList<ProgettoStagionale> listaProgetti= new ArrayList<ProgettoStagionale>();
 		try {
@@ -176,18 +255,57 @@ public class Service {
    	        LocalDate fineEsistente = inizioEsistente.plusDays(ps.getDurata());
    	        
    	        if(!dataInizio.isAfter(fineEsistente) && !dataFine.isBefore(inizioEsistente)) {
-   	        	return false;
-   	        }
-		}
-		return true;
+   	        	errori.add("errore sovr progetti");
+   	        	throw new ValidazioneException(errori);
+   	        }	      
+		}		
 		}catch(SQLException e) {
-			e.printStackTrace();
-			return false;
+			e.printStackTrace();			
+		}	
+	}
+	
+	public void validaDateAttivitaSemina(LocalDate dataInizio, LocalDate dataFine) {
+		ArrayList<String> errori= new ArrayList<String>();
+		if(!Attivita.isDataInizioValida(dataInizio)) {
+			errori.add("errore datainizio semina");
 		}
-		
+		if(!Attivita.isDataFineValida(dataInizio, dataFine)) {
+			errori.add("errore datafine semina");
+		}
+		if(!errori.isEmpty()) {
+   		 throw new ValidazioneException(errori);
+		}
+	}
+	
+	public void validaDateAttivitaRaccolta(LocalDate dataInizio, LocalDate dataFine) {
+		ArrayList<String> errori= new ArrayList<String>();
+		if(!Attivita.isDataInizioValida(dataInizio)) {
+    		errori.add("errore datainizio raccolta");
+    	}
+    	if(!Attivita.isDataFineValida(dataInizio, dataFine)) {
+    		errori.add("errore datafine raccolta");
+    	}
+		if(!errori.isEmpty()) {
+   		 throw new ValidazioneException(errori);
+		}
+	}
+	
+	public void validaDateAttivitaIrrigazione(LocalDate dataInizio, LocalDate dataFine) {
+		ArrayList<String> errori= new ArrayList<String>();
+		if(!Attivita.isDataInizioValida(dataInizio)) {
+    		errori.add("errore datainizio irrigazione");
+    	}
+    	if(!Attivita.isDataFineValida(dataInizio, dataFine)) {
+    		errori.add("errore datafine");
+    	}
+		if(!errori.isEmpty()) {
+   		 throw new ValidazioneException(errori);
+		}
 	}
 	
 	public void validaAttivitaSeminaRaccolta(String nomeColtura, String coltS, String coltR, SeminaDTO sDTO, RaccoltaDTO rDTO,double quantitaSemi, ArrayList<Attivita> attivitaTemporanee,ArrayList<SeminaColtura> listaSeminaColtura,int durataProgetto, LocalDate dataInizioProgetto, LottoColtivabile lotto)throws UtenteNonTrovatoException,RisorsaNonTrovataException {
+		ArrayList<String> errori= new ArrayList<String>();
+		
 		try{
 			Coltura coltura= colturaDAO.prelevaColturaDaNome(nomeColtura);
 			if(coltura== null) {
@@ -201,27 +319,36 @@ public class Service {
 			Semina semina= new Semina(sDTO.getDataInizio(),sDTO.getDataFine(),coltivatoreS,null,sDTO.getMetodoSemina());
 			Raccolta raccolta= new Raccolta(rDTO.getDataInizio(),rDTO.getDataFine(),coltivatoreR, null, rDTO.getMetodoRaccolta(),rDTO.getQuantitaPrevista(),coltura);
 			SeminaColtura seminaColtura= new SeminaColtura(coltura,semina,quantitaSemi);
+			if(!Raccolta.isQuantitaPrevistaValida(rDTO.getQuantitaPrevista())) {
+				errori.add("errore <0");
+			}
+			if(!SeminaColtura.isQuantitaSemiValida(quantitaSemi)) {
+				errori.add("errore <1");
+			}
 			if(!isAttivitaNonSovrapposta(coltS, semina, attivitaTemporanee)) {
-				throw new ValidazioneException("colt semina sovr attivita");
+				errori.add("colt semina sovr attivita");
 			}
 			if(!isAttivitaNonSovrapposta(coltR, raccolta, attivitaTemporanee)) {
-				throw new ValidazioneException("colt raccolta sovr attivita");
+				errori.add("colt raccolta sovr attivita");
 			}
 			if(!durataAttivitaProgetto(semina, dataInizioProgetto, durataProgetto)) {
-				throw new ValidazioneException("errore semina sovr progetto");
+				errori.add("errore semina sovr progetto");
 			}
 			if(!durataAttivitaProgetto(raccolta, dataInizioProgetto, durataProgetto)) {
-				throw new ValidazioneException("errore raccolta sovr progetto");
+				errori.add("errore raccolta sovr progetto");
 			}
 			if(!coerenzaSeminaDurata(semina.getDataFine(), dataInizioProgetto, coltura.getTempoMaturazione(), durataProgetto)) {
-				throw new ValidazioneException("errore coerenzaSeminaDurata");
+				errori.add("errore coerenzaSeminaDurata");
 			}
 			if(!dataInizioRaccoltaValida(semina, raccolta)) {
-				throw new ValidazioneException("dataInizioRaccoltaNonValida");
+				errori.add("dataInizioRaccoltaNonValida");
 			}
 			if(!metodoRaccoltaMontagna(lotto, raccolta)) {
-				throw new ValidazioneException("errore meccanica montagna");
+				errori.add("errore meccanica montagna");
 			}
+			if(!errori.isEmpty()) {
+	    		 throw new ValidazioneException(errori);
+	    	}
 			attivitaTemporanee.add(semina);
 			attivitaTemporanee.add(raccolta);
 			listaSeminaColtura.add(seminaColtura);
@@ -232,6 +359,7 @@ public class Service {
 	}
 	
 	public void validaAttivitaIrrigazione(String coltI, IrrigazioneDTO iDTO, LocalDate dataInizioP, int durataP, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee )throws UtenteNonTrovatoException {
+		ArrayList<String> errori= new ArrayList<String>();
 		try {
 		Utente coltivatoreI= utenteDAO.prelevaDaUsername(coltI);
 		if(coltivatoreI== null) {
@@ -239,14 +367,17 @@ public class Service {
 		}
 		Irrigazione irrigazione= new Irrigazione(iDTO.getDataInizio(),iDTO.getDataFine(),coltivatoreI,null,iDTO.getMetodoIrrigazione());
 		if(!isAttivitaNonSovrapposta(coltI, irrigazione, attivitaTemporanee)) {
-			throw new ValidazioneException("colt irrigazione sovr attivita");
+			errori.add("colt irrigazione sovr attivita");
 		}
 		if(!durataAttivitaProgetto(irrigazione, dataInizioP, durataP)) {
-			throw new ValidazioneException("errore irrigazione sovr progetto");
+			errori.add("errore irrigazione sovr progetto");
 		}
 		if(!metodoIrrigazionePendenza(lottoSelezionato, irrigazione)) {
-			throw new ValidazioneException("errore pendenza sommersione");
+			errori.add("errore pendenza sommersione");
 		}
+		if(!errori.isEmpty()) {
+   		 throw new ValidazioneException(errori);
+   	}
 		attivitaTemporanee.add(irrigazione);
 		}catch(SQLException e) {
 			e.printStackTrace();
@@ -267,12 +398,16 @@ public class Service {
 	}
 	
 	public void salvaAttivitaImminente(AttivitaImminenteDTO attDTO) throws UtenteNonTrovatoException {
+		ArrayList<String> errori= new ArrayList<String>();
 		if(!Notifica.isNotificaLunghezzaValida(attDTO.getTipoAttivitaImminente())) {
-   		 	throw new ValidazioneException("errore descrizione veloce");
+   		 	errori.add("errore descrizione veloce");
    	    }
    	    if(!Notifica.isDescrizioneLunghezzaValida(attDTO.getDescrizione())) {
-   		 throw new ValidazioneException("errore descrizione");
+   		    errori.add("errore descrizione");
    	    }
+   	    if(!errori.isEmpty()) {
+   	    	throw new ValidazioneException(errori);
+	    }
 		ArrayList<Utente> destinatari= new ArrayList<Utente>();
 		try {
 			Utente creatore= utenteDAO.prelevaPerId(attDTO.getIdCreatore());
@@ -288,15 +423,19 @@ public class Service {
 	}
 	
 	public void salvaAnomalia(AnomaliaDTO anomDTO) throws UtenteNonTrovatoException{
+		ArrayList<String> errori= new ArrayList<String>();
 		if(!Notifica.isNotificaLunghezzaValida(anomDTO.getTipoAnomalia())) {
-   		 	throw new ValidazioneException("errore descrizione veloce");
+   		 	errori.add("errore descrizione veloce");
    	    }
    	    if(!Notifica.isDescrizioneLunghezzaValida(anomDTO.getDescrizione())) {
-   	    	throw new ValidazioneException("errore descrizione");
+   	    	errori.add("errore descrizione");
    	    }
    	    if(!Anomalia.isEstensioneValida(anomDTO.getEstensione())) {
-			throw new ValidazioneException("estensione <0");
+			errori.add("estensione <0");
 		}
+   	    if(!errori.isEmpty()) {
+   	    	throw new ValidazioneException(errori);
+	    }
 		ArrayList<Utente> destinatari= new ArrayList<Utente>();
 		try {
 			Utente creatore= utenteDAO.prelevaPerId(anomDTO.getIdCreatore());
@@ -339,6 +478,18 @@ public class Service {
 	        }
 	        return lista;
 	    } catch (SQLException e) {
+	        throw new ErroreDatabaseException();
+	    }
+	}
+	
+	public void registraRaccolta(int codAttivita, double quantita) throws RisorsaNonTrovataException, ErroreDatabaseException {
+	    try {
+	        boolean ok = attivitaDAO.aggiornaQuantitaReale(codAttivita, quantita);
+	        if (!ok) {
+	            throw new RisorsaNonTrovataException();
+	        }
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
 	        throw new ErroreDatabaseException();
 	    }
 	}

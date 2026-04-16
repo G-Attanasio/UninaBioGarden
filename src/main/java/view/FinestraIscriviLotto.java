@@ -1,6 +1,5 @@
 package view;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -9,6 +8,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import controller.Controller;
+import dto.InputLottoDTO;
 
 public class FinestraIscriviLotto extends JPanel {
 
@@ -150,7 +151,7 @@ public class FinestraIscriviLotto extends JPanel {
 	           
 		});
 		salva.addActionListener(e->{
-			 controller.validaIscrizioneUtenteProprietario();			   
+			 controller.validaIscrizioneUtenteProprietario(getInputLottoDTO());			   
 		});
 		
 	}
@@ -168,6 +169,50 @@ public class FinestraIscriviLotto extends JPanel {
 		bottone.setBorder(BorderFactory.createLineBorder(Color.RED,1));
 		bottone.setToolTipText(messaggio);
 		ToolTipManager.sharedInstance().setInitialDelay(0);
+	}
+	
+	public void gestisciErrori(ArrayList<String> errori) {
+	    resetBordi();
+	    for (String errore : errori) {
+	        switch (errore) {
+	            case "dimensioni":
+	                messaggioErrore(cmpDimensioni, "Superficie non valida, deve essere compresa tra i 1000 e 1000000 mq.");
+	                break;
+	            case "ph":
+	                messaggioErrore(cmpPh, "Ph non valido, deve essere compreso tra 4 e 9.");
+	                break;
+	            case "altitudine":
+	                messaggioErrore(cmpAltitudine, "Altitudine non valida, deve essere compresa tra -20 e 3000.");
+	                break;
+	            case "dimensioni int":
+	                messaggioErrore(cmpDimensioni, "Inserire un numero intero.");
+	                break;
+	            case "ph numero":
+	                messaggioErrore(cmpPh, "Inserire un numero.");
+	                break;
+	            case "altitudine int":
+	                messaggioErrore(cmpAltitudine, "Inserire un numero intero.");
+	                break;
+	            case "lunghezza localita":
+	            	messaggioErrore(cmpLocalità, "Inserire un numero di caratteri compreso tra 1 e 30.");
+	            	break;
+	            case "lettere localita":
+	            	messaggioErrore(cmpLocalità, "Inserire solo lettere.");
+	            	break;
+	            case "lunghezza comune":
+	            	messaggioErrore(cmpComune, "Inserire un numero di caratteri compreso tra 1 e 30.");
+	            	break;
+	            case "lettere comune":
+	            	messaggioErrore(cmpComune, "Inserire solo lettere.");
+	            	break;
+	            case "lunghezza provincia":
+	                messaggioErrore(cmpProvincia, "Provincia deve avere 2 lettere.");
+	                break;
+	            case "lettere provincia":
+	                messaggioErrore(cmpProvincia, "Inserire solo lettere.");
+	                break;
+	        }
+	    }
 	}
 	
 	public void resetBordi(){		
@@ -280,6 +325,21 @@ public class FinestraIscriviLotto extends JPanel {
 	public JComboBox<String> getCmpMorfologia(){
 		return tipoMorfologia;
 	}
+	
+	public InputLottoDTO getInputLottoDTO() {
+
+	    String tessitura = tipoTessitura.getSelectedItem().toString();
+	    String dimensioni = cmpDimensioni.getText();
+	    String ph = cmpPh.getText().replace(",", ".");
+	    String morfologia = tipoMorfologia.getSelectedItem().toString();
+	    String altitudine = cmpAltitudine.getText();
+	    String localita = cmpLocalità.getText();
+	    String comune = cmpComune.getText();
+	    String provincia = cmpProvincia.getText().toUpperCase();
+
+	    return new InputLottoDTO(getTipoTessitura().replace(" ","_"),getDimensioni(),getPh().replace(",","."),getTipoMorfologia(),getAltitudine(),getLocalità(),getComune(),getProvincia().toUpperCase());
+	}
+	
 	@Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;

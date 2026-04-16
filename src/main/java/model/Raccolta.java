@@ -25,8 +25,8 @@ public class Raccolta extends Attivita {
 		this.coltura=coltura;
 	}
 	
-	public boolean isQuantitaPrevistaValida(double numero) {
-		if(numero < 0) return false;
+	public static boolean isQuantitaPrevistaValida(double numero) {
+		if(numero < 0 || numero > 1000000) return false;
 		return true;
 	}
 	

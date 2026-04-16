@@ -19,7 +19,6 @@ import model.SeminaColtura;
 import model.Stato;
 import model.TipoIrrigazione;
 import model.TipoRaccolta;
-import model.TipoRuolo;
 import model.TipoSemina;
 import model.Utente;
 
@@ -329,16 +328,14 @@ public class AttivitaDAO {
                 return lista;
             }
             
-      public void aggiornaQuantitaReale(int codAttivita, double kg) throws SQLException,RisorsaNonTrovataException {
+      public boolean aggiornaQuantitaReale(int codAttivita, double kg) throws SQLException{
     	    String sql = "UPDATE RACCOLTA SET QUANTITAREALE = ? WHERE FK_CODATTIVITA = ?";   	    
     	    try (Connection conn = DBConnection.getConnection();
     	         PreparedStatement ps = conn.prepareStatement(sql)) {  	        
     	        ps.setDouble(1, kg);
     	        ps.setInt(2, codAttivita);  	        
     	        int righe = ps.executeUpdate();
-    	        if (righe == 0) {
-    	            throw new RisorsaNonTrovataException();
-    	        } 
+    	        return righe >0;
     	    } 
     	}
 }

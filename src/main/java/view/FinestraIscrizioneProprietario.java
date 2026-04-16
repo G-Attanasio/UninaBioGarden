@@ -9,6 +9,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -24,6 +25,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import controller.Controller;
+import dto.InputUtenteDTO;
 
 public class FinestraIscrizioneProprietario extends JPanel{
 
@@ -160,6 +162,7 @@ public class FinestraIscrizioneProprietario extends JPanel{
 			controller.mostraPanel("prima pagina");
 		});
 		avanti.addActionListener(e->{
+			controller.prendiDTOProprietario(getInputUtenteDTO());
 			controller.mostraPanel("crea lotto");
 		});
 	}
@@ -187,6 +190,48 @@ public class FinestraIscrizioneProprietario extends JPanel{
 		cmpConfermaPassword.setBorder(bordo);
 		cmpConfermaPassword.setToolTipText(null);
 		
+	}
+	
+	public void gestisciErrori(ArrayList<String> errori) {
+	    resetBordi();
+	    for (String errore : errori) {
+	        switch (errore) {
+	            case "lettere nome":
+	                messaggioErrore(cmpNome, "Il nome deve essere di sole lettere.");
+	                break;
+	            case "lunghezza nome":
+	                messaggioErrore(cmpNome, "Inserire tra 1 e 30 caratteri.");
+	                break;
+	            case "lettere cognome":
+	                messaggioErrore(cmpCognome, "Il cognome deve essere di sole lettere.");
+	                break;
+	            case "lunghezza cognome":
+	                messaggioErrore(cmpCognome, "Inserire tra 1 e 30 caratteri.");
+	                break;
+	            case "lunghezza username":
+	                messaggioErrore(cmpUsername, "Inserire tra 1 e 30 caratteri.");
+	                break;
+	            case "email non valida":
+	                messaggioErrore(cmpEmail, "Email non valida: inserire @ e . in ordine corretto");
+	                break;
+	            case "lunghezza email":
+	                messaggioErrore(cmpEmail, "Inserire tra 1 e 30 caratteri.");
+	                break;
+	            case "data nascita":
+	                messaggioErrore(cmpDataNascita, "Devi avere tra 18 e 120 anni.");
+	                break;
+	            case "lunghezza password":
+	            	messaggioErrore(cmpPassword, "Minimo 4 caratteri e massimo 30.");
+	            	break;
+	            case "password":
+	            	messaggioErrore(cmpPassword, "Le password non coincidono");
+	            	messaggioErrore(cmpConfermaPassword, "le password non coincidono");
+	            	break;
+	            case "formato data":
+	            	messaggioErrore(cmpDataNascita, "Usa il formato YYYY-MM-DD (es. 1995-05-20)");
+	            	break;
+	        }
+	    }
 	}
 	
 	public void pulisciCampi() {
@@ -307,6 +352,10 @@ public class FinestraIscrizioneProprietario extends JPanel{
 	public JTextField getCmpCognome() {
 		return cmpCognome;
 	}
+	
+	 public InputUtenteDTO getInputUtenteDTO() {
+		    return new InputUtenteDTO(getNome(),getCognome(),getUsername(),getEmail(),getDataNascita(),getPassword(),getConfermaPassword());
+		}
 	
 	
 	 @Override

@@ -11,6 +11,7 @@ public class UtenteDTO {
 	private String cognome;
 	private String username;
 	private String password;
+	private String confermaPassword;
 	private String email;
 	private LocalDate dataNascita;
 	private TipoRuolo ruolo;
@@ -79,5 +80,13 @@ public class UtenteDTO {
 	}
 	public void setRuolo(TipoRuolo ruolo) {
 		this.ruolo = ruolo;
+	}
+
+	public String getConfermaPassword() {
+		return confermaPassword;
+	}
+
+	public void setConfermaPassword(String confermaPassword) {
+		this.confermaPassword = confermaPassword;
 	}
 }

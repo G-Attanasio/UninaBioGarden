@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import database.DBConnection;
+import exceptions.EmailUsernameGiàEsistentiException;
+import exceptions.ErroreDatabaseException;
 import exceptions.UtenteNonTrovatoException;
 import model.Attivita;
 import model.LottoColtivabile;
@@ -17,33 +19,34 @@ import model.Utente;
 
 public class UtenteDAO {
 
-	public boolean salva(Utente u) throws SQLException {
+	public void salva(Utente u) throws EmailUsernameGiàEsistentiException, ErroreDatabaseException {
 		String sql= "INSERT INTO UTENTE (NOME,COGNOME,USERNAME,PASSWORD,EMAIL,DATANASCITA,RUOLO) VALUES(?,?,?,?,?,?,?::TipoRuolo) ";
 		
 		try (Connection conn = DBConnection.getConnection();
-				 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-				
+				 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {				
 				ps.setString(1, u.getNome());
 				ps.setString(2, u.getCognome());
 				ps.setString(3, u.getUsername());
 				ps.setString(4, u.getPassword());
 				ps.setString(5, u.getEmail());
 				ps.setObject(6, u.getDataNascita());
-				ps.setString(7, u.getRuolo().toString());
-				
-				int righe = ps.executeUpdate();
-				
+				ps.setString(7, u.getRuolo().toString());				
+				int righe = ps.executeUpdate();				
 				if (righe > 0) {
 					try (ResultSet rs = ps.getGeneratedKeys()) {
 						if (rs.next()) {
 							u.setIdUtente(rs.getInt(1)); 
 						}
 					}
-					return true;
 				}
 				
-			} 
-			return false;
+			}catch (SQLException e) {
+			    if (e.getSQLState().equals("23505")) {
+			        throw new EmailUsernameGiàEsistentiException();
+			    }
+			    e.printStackTrace();
+			    throw new ErroreDatabaseException();
+			}
 		}
 			
 
