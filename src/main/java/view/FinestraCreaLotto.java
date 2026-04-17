@@ -17,6 +17,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ToolTipManager;
@@ -24,6 +25,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import controller.Controller;
+import dto.InputLottoDTO;
 
 public class FinestraCreaLotto extends JPanel {
 
@@ -151,7 +153,7 @@ private static final long serialVersionUID = 1L;
 	           
 		});
 		salva.addActionListener(e->{
-			 controller.aggiungiLotto();			   
+			 controller.aggiungiLotto(getInputLottoDTO());			   
 		});
 		
 	}
@@ -234,6 +236,10 @@ private static final long serialVersionUID = 1L;
 	                break;
 	        }
 	    }
+	}
+	
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 	
 	public void pulisciCampi() {
@@ -326,6 +332,10 @@ private static final long serialVersionUID = 1L;
 	}
 	public JComboBox<String> getCmpMorfologia(){
 		return tipoMorfologia;
+	}
+	
+	public InputLottoDTO getInputLottoDTO() {
+		return new InputLottoDTO(getTipoTessitura().replace(" ", "_"), getDimensioni(), getPh().replace(",", "."), getTipoMorfologia(), getAltitudine(), getLocalità(), getComune(), getProvincia().toUpperCase());
 	}
 	@Override
     protected void paintComponent(Graphics g) {

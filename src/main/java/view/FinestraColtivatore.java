@@ -10,14 +10,18 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import controller.Controller;
+import dto.AttivitaDTO;
+import dto.NotificaDTO;
 
 public class FinestraColtivatore extends JPanel {
 
@@ -131,6 +135,10 @@ public class FinestraColtivatore extends JPanel {
 	
 	public void mostraPanelInterno(String testo) {
 		layoutInterno.show(pnlCard, testo);
+	}
+	
+	public void mostraMessaggio(String testo) {
+		JOptionPane.showMessageDialog(this, testo);
 	}
 
 	public FinestraVisualizzaAttivita getFinVisualizzaAttivita() {

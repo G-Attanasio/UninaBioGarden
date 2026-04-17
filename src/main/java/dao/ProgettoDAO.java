@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import database.DBConnection;
+import exceptions.ErroreDatabaseException;
 import exceptions.RisorsaNonTrovataException;
 import model.Attivita;
 import model.LottoColtivabile;
@@ -21,7 +22,7 @@ import model.Stato;
 
 public class ProgettoDAO {
 
-	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int codLotto) throws SQLException {
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerLotto(int codLotto) throws ErroreDatabaseException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
 	    String sql = "SELECT * FROM PROGETTOSTAGIONALE WHERE FK_CODLOTTO = ?";
 	    
@@ -44,11 +45,14 @@ public class ProgettoDAO {
 	                ));
 	            }
 	        }
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	    return lista;
 	}
 	
-	public boolean salvaProgettoCompleto(ProgettoStagionale progetto, ArrayList<Attivita> listaAttivita, ArrayList<SeminaColtura> semine) throws SQLException {
+	public void salvaProgettoCompleto(ProgettoStagionale progetto, ArrayList<Attivita> listaAttivita, ArrayList<SeminaColtura> semine) throws ErroreDatabaseException {
 		Connection conn = DBConnection.getConnection();
 		try {
 			conn.setAutoCommit(false); 
@@ -72,21 +76,29 @@ public class ProgettoDAO {
 		            attivitaDao.salvaAttivita(a, codProgettoGenerato, conn,semine);
 		}
 		        conn.commit();
-		        return true;
 	}catch (SQLException e) {
+		try {
         if (conn != null) {
             conn.rollback();
         	}
-        throw e;
+        	}catch(SQLException ex) {
+        		throw new ErroreDatabaseException();
+        	}
+        e.printStackTrace();
+        throw new ErroreDatabaseException();
 		}finally {
+			try {
 			if (conn != null) {
 	            conn.setAutoCommit(true);
 	            conn.close();
+				}
+			}catch(SQLException exc) {
+				throw new ErroreDatabaseException();
 			}
 		}
 	}
 	
-	public ArrayList<ProgettoStagionale> prelevaProgettiPerProprietario(int idProprietario) throws SQLException {
+	public ArrayList<ProgettoStagionale> prelevaProgettiPerProprietario(int idProprietario) throws ErroreDatabaseException {
 	    ArrayList<ProgettoStagionale> lista = new ArrayList<>();
 	    String sql = "SELECT * " +
 	                 "FROM PROGETTOSTAGIONALE  " +                
@@ -119,16 +131,22 @@ public class ProgettoDAO {
 	            lista.add(p);
 	        }
 	    }
+	    catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
+	    }
 	    return lista;
 	}
 	
-	public boolean eliminaProgetto(int codProgetto) throws SQLException {
+	public void eliminaProgetto(int codProgetto) throws ErroreDatabaseException{
 	    String sql = "DELETE FROM PROGETTOSTAGIONALE WHERE CODPROGETTO = ?";	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {        
 	        ps.setInt(1, codProgetto);
-	        int righeCancellate = ps.executeUpdate();
-	        return righeCancellate > 0;
+	        ps.executeUpdate();
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	}
 	

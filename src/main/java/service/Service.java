@@ -34,53 +34,15 @@ public class Service {
 	}
 	
 	public Utente effettuaLogin(String username, String password) throws UtenteNonTrovatoException, ErroreDatabaseException {
-        try{
         	progettoDAO.sincronizzaSistema();
         	Utente u = utenteDAO.prelevaPerLogin(username, password);   
-        if(u == null) {
-        	throw new UtenteNonTrovatoException();
-            }
-        return u;
-        }catch(SQLException e) {
-        	e.printStackTrace();
-        	throw new ErroreDatabaseException();
-        }
+        	return u;
     }
 	
 	public Utente registraColtivatore(UtenteDTO dto) throws EmailUsernameGiàEsistentiException, ErroreDatabaseException {
-		 ArrayList<String> errori= new ArrayList<String>();
-		 
-		 if(!Utente.isSoloLettere(dto.getNome())) {
-    		 errori.add("lettere nome");
-    	 }
-    	 if(!Utente.isLunghezzaValida(dto.getNome())) {
-    		 errori.add("lunghezza nome");
-    	 }
-    	 if(!Utente.isSoloLettere(dto.getCognome())) {
-    		 errori.add("lettere cognome");
-    	 }
-    	 if (!Utente.isLunghezzaValida(dto.getCognome())) {
-    		 errori.add("lunghezza cognome");
-    	 }
-    	 if(!Utente.isLunghezzaValida(dto.getUsername())) {
-    		 errori.add("lunghezza username");
-    	 }
-    	 if(!Utente.isEmailValida(dto.getEmail())) {
-    		 errori.add("email non valida");
-    	 }
-    	 if(!Utente.isLunghezzaValida(dto.getEmail())) {
-    		 errori.add("lunghezza email");
-    	 }
-    	 if(!Utente.isEtaCoerente(dto.getDataNascita())) {
- 			errori.add("data nascita");
- 		 }
-    	 if (dto.getPassword().isEmpty() || dto.getPassword().length() < 4 || dto.getPassword().length() > 30) {
- 		    errori.add("lunghezza password");
- 		 }
- 	     if (!dto.getPassword().equals(dto.getConfermaPassword())) {
- 		    errori.add("password");
- 		 }
-    	 if(!errori.isEmpty()) {
+		ArrayList<String> errori= new ArrayList<String>();
+		validaUtente(dto,errori);
+		 if(!errori.isEmpty()) {
     		 throw new ValidazioneException(errori);
     	 }
 	    Utente u = new Utente(
@@ -91,141 +53,36 @@ public class Service {
 	    return u;
 	}
 	
-	public Utente registraProprietario(UtenteDTO uDto,LottoDTO lDto,ArrayList<String> erroriParse) throws EmailUsernameGiàEsistentiException {
-		 ArrayList<String> errori= new ArrayList<String>(erroriParse);
-		
-		 if(!Utente.isSoloLettere(uDto.getNome())) {
-    		 errori.add("lettere nome");
-    	 }
-    	 if(!Utente.isLunghezzaValida(uDto.getNome())) {
-    		 errori.add("lunghezza nome");
-    	 }
-    	 if(!Utente.isSoloLettere(uDto.getCognome())) {
-    		 errori.add("lettere cognome");
-    	 }
-    	 if (!Utente.isLunghezzaValida(uDto.getCognome())) {
-    		 errori.add("lunghezza cognome");
-    	 }
-    	 if(!Utente.isLunghezzaValida(uDto.getUsername())) {
-    		 errori.add("lunghezza username");
-    	 }
-    	 if(!Utente.isEmailValida(uDto.getEmail())) {
-    		 errori.add("email non valida");
-    	 }
-    	 if(!Utente.isLunghezzaValida(uDto.getEmail())) {
-    		 errori.add("lunghezza email");
-    	 }
-    	 if(!Utente.isEtaCoerente(uDto.getDataNascita())) {
- 			errori.add("data nascita");
- 		 }
-    	 if (uDto.getPassword().isEmpty() || uDto.getPassword().length() < 4 || uDto.getPassword().length() > 30) {
-  		    errori.add("lunghezza password");
-  		 }
-  	     if (!uDto.getPassword().equals(uDto.getConfermaPassword())) {
-  		    errori.add("password");
-  	     }
+	public Utente registraProprietario(UtenteDTO uDto,LottoDTO lDto,ArrayList<String> erroriParse) throws EmailUsernameGiàEsistentiException, ErroreDatabaseException {
+		ArrayList<String> errori= new ArrayList<String>(erroriParse);
+		validaUtente(uDto, errori);	
 		Utente u= new Utente( uDto.getNome(), uDto.getCognome(), uDto.getUsername(), 
 		        uDto.getPassword(), uDto.getEmail(), uDto.getDataNascita(), uDto.getRuolo()
 			    );
-		if(!LottoColtivabile.isValidDimensioni(lDto.getDimensioni())) {
-			errori.add("dimensioni");
-		}
-		if(!LottoColtivabile.isPhValidoMioDominio(lDto.getPh())) {
-			errori.add("ph");
-		}
-		if(!LottoColtivabile.isAltitudineValida(lDto.getAltitudine())) {
-			errori.add("altitudine");
-		}
-		if(!LottoColtivabile.isLunghezzaValida(lDto.getLocalita())) {
-    		errori.add("lunghezza localita");
-    	}
-    	if(!LottoColtivabile.isSoloLettere(lDto.getLocalita())) {
-    		errori.add("lettere localita");
-    	}
-    	if(!LottoColtivabile.isLunghezzaValida(lDto.getComune())) {
-    		errori.add("lunghezza comune");
-    	}
-    	if(!LottoColtivabile.isSoloLettere(lDto.getComune())) {
-    		errori.add("lettere comune");
-    	}
-    	if (!LottoColtivabile.isLunghezzaProvinciaValida(lDto.getProvincia())) {
-    	    errori.add("lunghezza provincia");
-    	}
-    	if (!LottoColtivabile.isSoloLettere(lDto.getProvincia())) {
-    	    errori.add("lettere provincia");
-    	} 
+		validaLotto(lDto, errori);
 		 if(!errori.isEmpty()) {
     		 throw new ValidazioneException(errori);
     	 }
 		LottoColtivabile lc= new LottoColtivabile( lDto.getTessitura(),lDto.getDimensioni(),lDto.getPh(),
-				lDto.getMorfologia(),lDto.getAltitudine(),lDto.getLocalita(),lDto.getComune(),lDto.getProvincia(),u);
-		try {
-		boolean salvato= utenteDAO.salvaConLotto(u, lc);
-		if(salvato) {
-			return u;
-		    }
-		throw new EmailUsernameGiàEsistentiException();
-		}catch(SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
+				lDto.getMorfologia(),lDto.getAltitudine(),lDto.getLocalita(),lDto.getComune(),lDto.getProvincia(),u);		
+		utenteDAO.salvaConLotto(u, lc);
+		return u;		
 	}
 	
-	public boolean salvaLotto(LottoDTO lDTO) {
+	public void registraLotto(LottoDTO lDTO) throws ErroreDatabaseException {
 		ArrayList<String> errori= new ArrayList<String>();
-		
-		if(!LottoColtivabile.isValidDimensioni(lDTO.getDimensioni())) {
-			errori.add("dimensioni");
-		}
-		if(!LottoColtivabile.isPhValidoMioDominio(lDTO.getPh())) {
-			errori.add("ph");
-		}
-		if(!LottoColtivabile.isAltitudineValida(lDTO.getAltitudine())) {
-			errori.add("altitudine");
-		}
-		if(!LottoColtivabile.isLunghezzaValida(lDTO.getLocalita())) {
-    		errori.add("lunghezza localita");
-    	}
-    	if(!LottoColtivabile.isSoloLettere(lDTO.getLocalita())) {
-    		errori.add("lettere localita");
-    	}
-    	if(!LottoColtivabile.isLunghezzaValida(lDTO.getComune())) {
-    		errori.add("lunghezza comune");
-    	}
-    	if(!LottoColtivabile.isSoloLettere(lDTO.getComune())) {
-    		errori.add("lettere comune");
-    	}
-    	if (!LottoColtivabile.isLunghezzaProvinciaValida(lDTO.getProvincia())) {
-    	    errori.add("lunghezza provincia");
-    	}
-    	if (!LottoColtivabile.isSoloLettere(lDTO.getProvincia())) {
-    	    errori.add("lettere provincia");
-    	} 
+		validaLotto(lDTO, errori);
 		if(!errori.isEmpty()) {
     		 throw new ValidazioneException(errori);
     	}
 		LottoColtivabile lc= new LottoColtivabile( lDTO.getTessitura(),lDTO.getDimensioni(),lDTO.getPh(),
-				lDTO.getMorfologia(),lDTO.getAltitudine(),lDTO.getLocalita(),lDTO.getComune(),lDTO.getProvincia(),null);
-		try {
-		boolean salvato= lottoDAO.salva(lc, lDTO.getIdProprietario());
-		if(salvato) {
-			return true;
-		    }
-		}catch(SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-		return false;
+				lDTO.getMorfologia(),lDTO.getAltitudine(),lDTO.getLocalita(),lDTO.getComune(),lDTO.getProvincia(),null);	
+		lottoDAO.salva(lc, lDTO.getIdProprietario());	
 	}
 	
 	public LottoColtivabile avviaProgetto(int codLotto) throws RisorsaNonTrovataException,ErroreDatabaseException {
-		try{
 			LottoColtivabile lc=lottoDAO.preleva(codLotto);
-			return lc;
-		}catch(SQLException e) {
-			e.printStackTrace();
-			throw new ErroreDatabaseException();
-		}
+			return lc;	
 	}
 	
 	public void validaProgetto(String nome, int durata, LocalDate dataInizio) {
@@ -244,11 +101,10 @@ public class Service {
     	 }
 	}
 	
-	public void validaSovrapposizioneProgetti(LocalDate dataInizio,int durata, int codLotto){
+	public void validaSovrapposizioneProgetti(LocalDate dataInizio,int durata, int codLotto) throws ErroreDatabaseException{
 		ArrayList<String> errori= new ArrayList<String>();
 		LocalDate dataFine= dataInizio.plusDays(durata);
 		ArrayList<ProgettoStagionale> listaProgetti= new ArrayList<ProgettoStagionale>();
-		try {
 		listaProgetti= progettoDAO.prelevaProgettiPerLotto(codLotto);
 		for(ProgettoStagionale ps : listaProgetti ) {
    		 LocalDate inizioEsistente = ps.getDataInizio();
@@ -258,10 +114,7 @@ public class Service {
    	        	errori.add("errore sovr progetti");
    	        	throw new ValidazioneException(errori);
    	        }	      
-		}		
-		}catch(SQLException e) {
-			e.printStackTrace();			
-		}	
+		}					
 	}
 	
 	public void validaDateAttivitaSemina(LocalDate dataInizio, LocalDate dataFine) {
@@ -303,19 +156,11 @@ public class Service {
 		}
 	}
 	
-	public void validaAttivitaSeminaRaccolta(String nomeColtura, String coltS, String coltR, SeminaDTO sDTO, RaccoltaDTO rDTO,double quantitaSemi, ArrayList<Attivita> attivitaTemporanee,ArrayList<SeminaColtura> listaSeminaColtura,int durataProgetto, LocalDate dataInizioProgetto, LottoColtivabile lotto)throws UtenteNonTrovatoException,RisorsaNonTrovataException {
-		ArrayList<String> errori= new ArrayList<String>();
-		
-		try{
+	public void validaAttivitaSeminaRaccolta(String nomeColtura, String coltS, String coltR, SeminaDTO sDTO, RaccoltaDTO rDTO,double quantitaSemi, ArrayList<Attivita> attivitaTemporanee,ArrayList<SeminaColtura> listaSeminaColtura,int durataProgetto, LocalDate dataInizioProgetto, LottoColtivabile lotto)throws UtenteNonTrovatoException,RisorsaNonTrovataException, ErroreDatabaseException {
+		ArrayList<String> errori= new ArrayList<String>();	
 			Coltura coltura= colturaDAO.prelevaColturaDaNome(nomeColtura);
-			if(coltura== null) {
-				throw new RisorsaNonTrovataException();
-			}
 			Utente coltivatoreS= utenteDAO.prelevaDaUsername(coltS);
 			Utente coltivatoreR= utenteDAO.prelevaDaUsername(coltR);
-			if(coltivatoreS== null || coltivatoreR == null ) {
-				throw new UtenteNonTrovatoException();
-			}
 			Semina semina= new Semina(sDTO.getDataInizio(),sDTO.getDataFine(),coltivatoreS,null,sDTO.getMetodoSemina());
 			Raccolta raccolta= new Raccolta(rDTO.getDataInizio(),rDTO.getDataFine(),coltivatoreR, null, rDTO.getMetodoRaccolta(),rDTO.getQuantitaPrevista(),coltura);
 			SeminaColtura seminaColtura= new SeminaColtura(coltura,semina,quantitaSemi);
@@ -352,19 +197,11 @@ public class Service {
 			attivitaTemporanee.add(semina);
 			attivitaTemporanee.add(raccolta);
 			listaSeminaColtura.add(seminaColtura);
-			
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
 	}
 	
-	public void validaAttivitaIrrigazione(String coltI, IrrigazioneDTO iDTO, LocalDate dataInizioP, int durataP, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee )throws UtenteNonTrovatoException {
+	public void validaAttivitaIrrigazione(String coltI, IrrigazioneDTO iDTO, LocalDate dataInizioP, int durataP, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee )throws UtenteNonTrovatoException, ErroreDatabaseException, RisorsaNonTrovataException {
 		ArrayList<String> errori= new ArrayList<String>();
-		try {
 		Utente coltivatoreI= utenteDAO.prelevaDaUsername(coltI);
-		if(coltivatoreI== null) {
-			throw new UtenteNonTrovatoException();
-		}
 		Irrigazione irrigazione= new Irrigazione(iDTO.getDataInizio(),iDTO.getDataFine(),coltivatoreI,null,iDTO.getMetodoIrrigazione());
 		if(!isAttivitaNonSovrapposta(coltI, irrigazione, attivitaTemporanee)) {
 			errori.add("colt irrigazione sovr attivita");
@@ -378,26 +215,17 @@ public class Service {
 		if(!errori.isEmpty()) {
    		 throw new ValidazioneException(errori);
    	}
-		attivitaTemporanee.add(irrigazione);
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
+		attivitaTemporanee.add(irrigazione);		
 	}
 	
-	public void salvaProgetto(ProgettoDTO pDTO, Utente utenteLoggato, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee, ArrayList<SeminaColtura> listaSeminaColtura) {
-		try {
+	public void registraProgetto(ProgettoDTO pDTO, Utente utenteLoggato, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee, ArrayList<SeminaColtura> listaSeminaColtura) throws ErroreDatabaseException {	
 			ProgettoStagionale ps= new ProgettoStagionale(pDTO.getNomeProgetto(),pDTO.getStagioneDiRiferimento(),pDTO.getDurata(),pDTO.getDataInizio(),utenteLoggato,lottoSelezionato);
-			boolean salvataggio= progettoDAO.salvaProgettoCompleto(ps, attivitaTemporanee, listaSeminaColtura);
-			if(salvataggio) {
+			progettoDAO.salvaProgettoCompleto(ps, attivitaTemporanee, listaSeminaColtura);		
 				attivitaTemporanee.clear();
 				listaSeminaColtura.clear();
-			}
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
 	}
 	
-	public void salvaAttivitaImminente(AttivitaImminenteDTO attDTO) throws UtenteNonTrovatoException {
+	public void registraAttivitaImminente(AttivitaImminenteDTO attDTO) throws UtenteNonTrovatoException, ErroreDatabaseException {
 		ArrayList<String> errori= new ArrayList<String>();
 		if(!Notifica.isNotificaLunghezzaValida(attDTO.getTipoAttivitaImminente())) {
    		 	errori.add("errore descrizione veloce");
@@ -409,20 +237,16 @@ public class Service {
    	    	throw new ValidazioneException(errori);
 	    }
 		ArrayList<Utente> destinatari= new ArrayList<Utente>();
-		try {
 			Utente creatore= utenteDAO.prelevaPerId(attDTO.getIdCreatore());
 		for(String username: attDTO.getDestinatari()) {
 			Utente u= utenteDAO.prelevaDaUsername(username);
 			destinatari.add(u);
 		}
 		AttivitaImminente att= new AttivitaImminente(attDTO.getDataInvio(),creatore,attDTO.getTipoAttivitaImminente(),attDTO.getDescrizione(),attDTO.getDataScadenza(),destinatari);
-		notificaDAO.salvaNotifica(att);
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
+		notificaDAO.salvaNotifica(att);	
 	}
 	
-	public void salvaAnomalia(AnomaliaDTO anomDTO) throws UtenteNonTrovatoException{
+	public void registraAnomalia(AnomaliaDTO anomDTO) throws UtenteNonTrovatoException, ErroreDatabaseException{
 		ArrayList<String> errori= new ArrayList<String>();
 		if(!Notifica.isNotificaLunghezzaValida(anomDTO.getTipoAnomalia())) {
    		 	errori.add("errore descrizione veloce");
@@ -437,28 +261,22 @@ public class Service {
    	    	throw new ValidazioneException(errori);
 	    }
 		ArrayList<Utente> destinatari= new ArrayList<Utente>();
-		try {
 			Utente creatore= utenteDAO.prelevaPerId(anomDTO.getIdCreatore());
 		for(String username: anomDTO.getDestinatari()) {
 			Utente u= utenteDAO.prelevaDaUsername(username);
 			destinatari.add(u);
 		}
 		Anomalia anom= new Anomalia(anomDTO.getDataInvio(),creatore,anomDTO.getTipoAnomalia(),anomDTO.getDescrizione(),anomDTO.getGravita(),anomDTO.getEstensione(),destinatari);
-		notificaDAO.salvaNotifica(anom);
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
+		notificaDAO.salvaNotifica(anom);		
 	}
 	
 	public ArrayList<LottoDTO> caricaLottiUtente(int idUtente) throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {
 	        ArrayList<LottoColtivabile> lotti =
 	            lottoDAO.prelevaLottiPerProprietario(idUtente);
 	        if (lotti == null || lotti.isEmpty()) {
 	            throw new RisorsaNonTrovataException();
 	        }
 	        ArrayList<LottoDTO> lista = new ArrayList<>();
-
 	        for (LottoColtivabile l : lotti) {
 	            LottoDTO dto = new LottoDTO(
 	                l.getCodLotto(),
@@ -477,25 +295,13 @@ public class Service {
 	            lista.add(dto);
 	        }
 	        return lista;
-	    } catch (SQLException e) {
-	        throw new ErroreDatabaseException();
-	    }
 	}
 	
-	public void registraRaccolta(int codAttivita, double quantita) throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {
-	        boolean ok = attivitaDAO.aggiornaQuantitaReale(codAttivita, quantita);
-	        if (!ok) {
-	            throw new RisorsaNonTrovataException();
-	        }
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
+	public void registraRaccolta(int codAttivita, double quantita) throws ErroreDatabaseException {
+	      attivitaDAO.aggiornaQuantitaReale(codAttivita, quantita);	    
 	}
 	
 	public ArrayList<AttivitaDTO> caricaAttivitaAssegnate(int idUtente) throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {
 	        ArrayList<Attivita> tutte = attivitaDAO.prelevaAttivitaAssegnateDaProprietario(idUtente);
 	        if(tutte==null || tutte.isEmpty()) {
 	        	throw new RisorsaNonTrovataException();
@@ -524,17 +330,18 @@ public class Service {
 	            }            		
 	            lista.add(attDTO);
 	        }
-	        return lista;
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
+	        return lista;    
 	}
 	
-	public ArrayList<AttivitaDTO> caricaAttivitaColtivatore(int idUtente) throws ErroreDatabaseException {
-	    try {
+	public ArrayList<AttivitaDTO> caricaAttivitaColtivatore(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {
 	        ArrayList<Attivita> tutte = attivitaDAO.prelevaAttivitaColtivatore(idUtente);
 	        ArrayList<SeminaColtura> dettagli = attivitaDAO.prelevaDettagliColturePerColtivatore(idUtente);
+	        if(tutte==null || tutte.isEmpty()) {
+	        	throw new RisorsaNonTrovataException();
+	        }
+	        if(dettagli==null || dettagli.isEmpty()) {
+	        	throw new RisorsaNonTrovataException();
+	        }
 	        ArrayList<AttivitaDTO> lista = new ArrayList<>();
 	        for (Attivita a : tutte) {
 	            AttivitaDTO attDTO = new AttivitaDTO(
@@ -570,15 +377,13 @@ public class Service {
 	            lista.add(attDTO);
 	        }
 	        return lista;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
 	}
 	
-	public ArrayList<ProgettoDTO> caricaProgettiProprietario(int idUtente) throws ErroreDatabaseException {
-	    try {	        
+	public ArrayList<ProgettoDTO> caricaProgettiProprietario(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {	        
 	        ArrayList<ProgettoStagionale> progetti = progettoDAO.prelevaProgettiPerProprietario(idUtente);
+	        if(progetti == null || progetti.isEmpty()) {
+	        	throw new RisorsaNonTrovataException();
+	        }
 	        ArrayList<ProgettoDTO> lista = new ArrayList<>();
 	        for (ProgettoStagionale p : progetti) {
 	            ProgettoDTO dto = new ProgettoDTO(
@@ -596,16 +401,11 @@ public class Service {
 	            lista.add(dto);
 	        }
 	        return lista;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
 	}
 	
 	public ArrayList<ColturaDTO> caricaColture() throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {
 	        ArrayList<Coltura> colture = colturaDAO.preleva();
-	        if(colture== null) {
+	        if(colture== null || colture.isEmpty()) {
 	        	throw new RisorsaNonTrovataException();
 	        }
 	        ArrayList<ColturaDTO> lista = new ArrayList<>();
@@ -622,16 +422,11 @@ public class Service {
 	            lista.add(dto);
 	        }
 	        return lista;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
 	}
 	
 	public ArrayList<String> caricaNomiColture() throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {
 	        ArrayList<Coltura> lista = colturaDAO.preleva();
-	        if(lista==null) {
+	        if(lista==null || lista.isEmpty()) {
 	        	throw new RisorsaNonTrovataException();
 	        }
 
@@ -639,26 +434,22 @@ public class Service {
 	        for (Coltura c : lista) {
 	            nomi.add(c.getNome());
 	        }
-	        return nomi;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
+	        return nomi;    
 	}
 	
-	public ArrayList<String> caricaUsernameColtivatori() throws ErroreDatabaseException {
-	    try {
+	public ArrayList<String> caricaUsernameColtivatori() throws ErroreDatabaseException, UtenteNonTrovatoException {
 	        ArrayList<String> usernames = utenteDAO.prelevaPerProgetto();
-	        return usernames;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
+	        if(usernames== null || usernames.isEmpty()) {
+	        	throw new UtenteNonTrovatoException();
+	        }
+	        return usernames;    
 	}
 	
-	public ArrayList<NotificaDTO> caricaNotificheInviate(int idUtente) throws ErroreDatabaseException {
-	    try {
+	public ArrayList<NotificaDTO> caricaNotificheInviate(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {	    
 	        ArrayList<Notifica> notifiche =  notificaDAO.prelevaNotificheInviate(idUtente);
+	        if(notifiche==null || notifiche.isEmpty()) {
+	        	throw new RisorsaNonTrovataException();
+	        }
 	        ArrayList<NotificaDTO> lista = new ArrayList<>();	              
 	        for (Notifica n : notifiche) {
 	        	 ArrayList<String> usernamesDestinatari = new ArrayList<>();	
@@ -689,16 +480,13 @@ public class Service {
 	            lista.add(dto);
 	        }
 	        return lista;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
 	}
 	
-	public ArrayList<NotificaDTO> caricaNotificheRicevute(int idUtente) throws ErroreDatabaseException {
-	    try {
-	        ArrayList<Notifica> notifiche =
-	            notificaDAO.prelevaNotificheRicevute(idUtente);
+	public ArrayList<NotificaDTO> caricaNotificheRicevute(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {
+	        ArrayList<Notifica> notifiche =notificaDAO.prelevaNotificheRicevute(idUtente);
+	        if(notifiche == null || notifiche.isEmpty()) {
+	        	throw new RisorsaNonTrovataException();
+	        }
 	        ArrayList<NotificaDTO> lista = new ArrayList<>();
 	        for (Notifica n : notifiche) {
 	        	ArrayList<String> usernamesDestinatari = new ArrayList<>();	
@@ -729,15 +517,13 @@ public class Service {
 	            lista.add(dto);
 	        }
 	        return lista;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
 	}
 	
-	public ArrayList<DatiReportDTO> caricaDatiReport(int codProgetto) throws ErroreDatabaseException {
-	    try {
+	public ArrayList<DatiReportDTO> caricaDatiReport(int codProgetto) throws ErroreDatabaseException, RisorsaNonTrovataException {    
 	        ArrayList<DatiReport> dati = reportDAO.prelevaDatiReport(codProgetto);
+	        if(dati==null || dati.isEmpty()) {
+	        	throw new RisorsaNonTrovataException();
+	        }
 	        ArrayList<DatiReportDTO> lista = new ArrayList<>();
 	        for (DatiReport r : dati) {
 	            DatiReportDTO dto = new DatiReportDTO(
@@ -749,54 +535,25 @@ public class Service {
 	            lista.add(dto);
 	        }
 	        return lista;
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
 	}
 	
-	public void eliminaLotto(int codLotto) throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {	        
-	        if (!lottoDAO.cancellaLotto(codLotto)) {
-	            throw new RisorsaNonTrovataException();
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
+	public void eliminaLotto(int codLotto) throws ErroreDatabaseException {
+	    lottoDAO.cancellaLotto(codLotto);   
 	}
 	
-	public void eliminaProgetto(int codProgetto) throws RisorsaNonTrovataException,ErroreDatabaseException {
-	    try {	       
-	        if (!progettoDAO.eliminaProgetto(codProgetto)) {
-	            throw new RisorsaNonTrovataException();
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();	
-	        throw new ErroreDatabaseException();
-	    }
+	public void eliminaProgetto(int codProgetto) throws ErroreDatabaseException {
+		progettoDAO.eliminaProgetto(codProgetto);
+	     
 	}
 	
-	public void eliminaNotificaInviata(int codNotifica)throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {
-	        if(!notificaDAO.eliminaNotificaInviata(codNotifica)) {
-	        	throw new RisorsaNonTrovataException();
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace(); 
-	        throw new ErroreDatabaseException();
-	    }
+	public void eliminaNotificaInviata(int codNotifica)throws ErroreDatabaseException {
+	    notificaDAO.eliminaNotificaInviata(codNotifica);
+	     
 	}
 	
-	public void eliminaNotificaRicevuta(int codNotifica, int idUtente)throws RisorsaNonTrovataException, ErroreDatabaseException {
-	    try {
-	        if(!notificaDAO.eliminaNotificaRicevuta(codNotifica, idUtente)) {
-	        	throw new RisorsaNonTrovataException();
-        	}
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        throw new ErroreDatabaseException();
-	    }
+	public void eliminaNotificaRicevuta(int codNotifica, int idUtente)throws ErroreDatabaseException {
+		notificaDAO.eliminaNotificaRicevuta(codNotifica, idUtente);
+	    
 	}
     
     public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {
@@ -816,8 +573,7 @@ public class Service {
         return true;
     }
     
-    public boolean isAttivitaNonSovrapposta(String username,Attivita attivita, ArrayList<Attivita> listaAttivita) {
-    	try {	
+    public boolean isAttivitaNonSovrapposta(String username,Attivita attivita, ArrayList<Attivita> listaAttivita) throws ErroreDatabaseException {	
     	ArrayList<Attivita> tutteLeAttivita=new ArrayList<Attivita>();
     	tutteLeAttivita=attivitaDAO.prelevaTutteAttivitaPerColtivatore(username);
     	tutteLeAttivita.addAll(listaAttivita);
@@ -828,12 +584,6 @@ public class Service {
     	            }
     	        }
     	    }
-    	    
-    }catch(RisorsaNonTrovataException e) {
-    	
-    }catch(SQLException e) {
-    	return false;
-    	}
     	return true;
     }
     
@@ -866,6 +616,69 @@ public class Service {
     		return false;
     	}
     	return true;
+    }
+    
+    public void validaUtente(UtenteDTO dto, ArrayList<String> errori) {
+		 if(!Utente.isSoloLettere(dto.getNome())) {
+    		 errori.add("lettere nome");
+    	 }
+    	 if(!Utente.isLunghezzaValida(dto.getNome())) {
+    		 errori.add("lunghezza nome");
+    	 }
+    	 if(!Utente.isSoloLettere(dto.getCognome())) {
+    		 errori.add("lettere cognome");
+    	 }
+    	 if (!Utente.isLunghezzaValida(dto.getCognome())) {
+    		 errori.add("lunghezza cognome");
+    	 }
+    	 if(!Utente.isLunghezzaValida(dto.getUsername())) {
+    		 errori.add("lunghezza username");
+    	 }
+    	 if(!Utente.isEmailValida(dto.getEmail())) {
+    		 errori.add("email non valida");
+    	 }
+    	 if(!Utente.isLunghezzaValida(dto.getEmail())) {
+    		 errori.add("lunghezza email");
+    	 }
+    	 if(!Utente.isEtaCoerente(dto.getDataNascita())) {
+ 			errori.add("data nascita");
+ 		 }
+    	 if (dto.getPassword().isEmpty() || dto.getPassword().length() < 4 || dto.getPassword().length() > 30) {
+ 		    errori.add("lunghezza password");
+ 		 }
+ 	     if (!dto.getPassword().equals(dto.getConfermaPassword())) {
+ 		    errori.add("password");
+ 		 }
+    }
+    
+    public void validaLotto(LottoDTO dto, ArrayList<String> errori) {
+    	if(!LottoColtivabile.isValidDimensioni(dto.getDimensioni())) {
+			errori.add("dimensioni");
+		}
+		if(!LottoColtivabile.isPhValidoMioDominio(dto.getPh())) {
+			errori.add("ph");
+		}
+		if(!LottoColtivabile.isAltitudineValida(dto.getAltitudine())) {
+			errori.add("altitudine");
+		}
+		if(!LottoColtivabile.isLunghezzaValida(dto.getLocalita())) {
+    		errori.add("lunghezza localita");
+    	}
+    	if(!LottoColtivabile.isSoloLettere(dto.getLocalita())) {
+    		errori.add("lettere localita");
+    	}
+    	if(!LottoColtivabile.isLunghezzaValida(dto.getComune())) {
+    		errori.add("lunghezza comune");
+    	}
+    	if(!LottoColtivabile.isSoloLettere(dto.getComune())) {
+    		errori.add("lettere comune");
+    	}
+    	if (!LottoColtivabile.isLunghezzaProvinciaValida(dto.getProvincia())) {
+    	    errori.add("lunghezza provincia");
+    	}
+    	if (!LottoColtivabile.isSoloLettere(dto.getProvincia())) {
+    	    errori.add("lettere provincia");
+    	} 
     }
 	
 }

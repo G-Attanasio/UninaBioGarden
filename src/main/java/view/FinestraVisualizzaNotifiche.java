@@ -3,6 +3,7 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -12,6 +13,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import controller.Controller;
+import dto.NotificaDTO;
 
 public class FinestraVisualizzaNotifiche extends JPanel {
 
@@ -116,6 +118,40 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 	
 	public void mostraMessaggio(String testo) {
 		JOptionPane.showMessageDialog(this, testo);
+	}
+	
+	public void mostraNotificheInviate(ArrayList<NotificaDTO> lista, boolean inviate) {
+	    svuotaTabella();
+	    onOffAggiungi(inviate);
+	    for (NotificaDTO n : lista) {
+	        Object[] riga = {
+	            n.getTipo(),
+	            n.getDescrizioneVeloce(),
+	            n.getDataScadenza(),
+	            n.getGravità(),
+	            n.getEstensione(),
+	            n.getCodNotifica(),
+	            n.getDescrizione()
+	        };
+	        aggiungiRigaTabella(riga);
+	    }
+	}
+	
+	public void mostraNotificheRicevute(ArrayList<NotificaDTO> lista, boolean inviate) {
+	    svuotaTabella();
+	    onOffAggiungi(inviate);
+	    for (NotificaDTO n : lista) {
+	        Object[] riga = {
+	            n.getTipo(),
+	            n.getDescrizioneVeloce(),
+	            n.getDataScadenza(),
+	            n.getGravità(),
+	            n.getEstensione(),
+	            n.getCodNotifica(),
+	            n.getDescrizione()
+	        };
+	        aggiungiRigaTabella(riga);
+	    }
 	}
 	
 	public void aggiungiRigaTabella(Object[] riga) {

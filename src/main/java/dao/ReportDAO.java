@@ -7,12 +7,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.DBConnection;
+import exceptions.ErroreDatabaseException;
 import exceptions.RisorsaNonTrovataException;
 import model.DatiReport;
 
 public class ReportDAO {
 
-	public ArrayList<DatiReport> prelevaDatiReport(int codProgetto) throws SQLException {
+	public ArrayList<DatiReport> prelevaDatiReport(int codProgetto) throws ErroreDatabaseException {
 	    ArrayList<DatiReport> datiReport= new ArrayList<DatiReport>();
 	     
 	    String sql ="SELECT NOME, SUM(SEMI) AS S, SUM(PREVISTA) AS P, SUM(REALE) AS R FROM (" +
@@ -36,6 +37,9 @@ public class ReportDAO {
 	            		);
 	           datiReport.add(dr);
 	        }
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	    return datiReport;
 	}

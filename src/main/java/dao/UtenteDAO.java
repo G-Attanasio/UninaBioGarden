@@ -3,6 +3,7 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
@@ -41,7 +42,7 @@ public class UtenteDAO {
 				}
 				
 			}catch (SQLException e) {
-			    if (e.getSQLState().equals("23505")) {
+			    if ("23505".equals(e.getSQLState())) {
 			        throw new EmailUsernameGiàEsistentiException();
 			    }
 			    e.printStackTrace();
@@ -51,14 +52,16 @@ public class UtenteDAO {
 			
 
 	
-	public Utente prelevaPerLogin(String username, String password) throws SQLException,UtenteNonTrovatoException {
+	public Utente prelevaPerLogin(String username, String password) throws UtenteNonTrovatoException, ErroreDatabaseException {
 	    String sql = "SELECT * FROM UTENTE WHERE USERNAME = ? AND PASSWORD = ?";    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {        
 	        ps.setString(1, username);
 	        ps.setString(2, password);	        
 	        ResultSet rs = ps.executeQuery(); 
-	        if (rs.next()) {	            
+	        if (!rs.next()) {
+	        	throw new UtenteNonTrovatoException();
+	        }
 	            return new Utente(
 	                rs.getInt("IDUTENTE"),
 	                rs.getString("NOME"),
@@ -68,19 +71,22 @@ public class UtenteDAO {
 	                rs.getString("EMAIL"),
 	                rs.getObject("DATANASCITA", LocalDate.class),
 	                TipoRuolo.valueOf(rs.getString("RUOLO").toUpperCase())
-	            );
-	        }
-	    } 
-	    return null; 
+	            );        
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
+	    }
 	}
 	
-	public Utente prelevaPerId(int id) throws SQLException,UtenteNonTrovatoException {
+	public Utente prelevaPerId(int id) throws UtenteNonTrovatoException, ErroreDatabaseException {
 	    String sql = "SELECT * FROM UTENTE WHERE IDUTENTE=?";    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {        
 	        ps.setInt(1, id);        
 	        ResultSet rs = ps.executeQuery(); 
-	        if (rs.next()) {	            
+	        if (!rs.next()) {
+	        	throw new UtenteNonTrovatoException();
+	        }
 	            return new Utente(
 	                rs.getInt("IDUTENTE"),
 	                rs.getString("NOME"),
@@ -91,14 +97,15 @@ public class UtenteDAO {
 	                rs.getDate("DATANASCITA").toLocalDate(),
 	                TipoRuolo.valueOf(rs.getString("RUOLO").toUpperCase())
 	            );
-	        }else {
-	        	throw new UtenteNonTrovatoException();
-	        }
-	    } 
+	        
+	    }catch (SQLException e) {
+			e.printStackTrace();
+			throw new ErroreDatabaseException();
+		} 
 	     
 	}
 	
-	public boolean salvaConLotto(Utente u, LottoColtivabile lc) throws SQLException {
+	public void salvaConLotto(Utente u, LottoColtivabile lc) throws  ErroreDatabaseException, EmailUsernameGiàEsistentiException{
 		 Connection conn = null;
 		    try {
 		        conn = DBConnection.getConnection();
@@ -111,8 +118,7 @@ public class UtenteDAO {
 		            ps.setString(4, u.getPassword());
 		            ps.setString(5, u.getEmail());
 		            ps.setObject(6, u.getDataNascita());
-		            ps.setString(7, u.getRuolo().toString());
-		            
+		            ps.setString(7, u.getRuolo().toString());		            
 		            ps.executeUpdate();
 		            try (ResultSet rs = ps.getGeneratedKeys()) {
 		                if (rs.next()) {
@@ -124,19 +130,33 @@ public class UtenteDAO {
 		        lc.getProprietario().setIdUtente(u.getIdUtente()); 
 		        lottoDao.salvaInTransazione(lc, conn);
 		        conn.commit();
-		        return true;
-		    } catch (SQLException e) {	        
-		            if (conn != null) conn.rollback(); 
-		            throw e;	        
+		        
+		    } catch (SQLException e) {	 
+		    	if (conn != null) {
+					try {
+					conn.rollback();
+					}catch(SQLException ex) {
+						throw new ErroreDatabaseException();
+					}
+				}
+				e.printStackTrace();
+				if("23505".equals(e.getSQLState())) {
+					throw new EmailUsernameGiàEsistentiException();
+				}
+				throw new ErroreDatabaseException();
 		    } finally {   
+		    	try {
 		            if (conn != null) {
 		                conn.setAutoCommit(true);
 		                conn.close();
+		            }
+		       }catch(SQLException exc) {	
+		    	   throw new ErroreDatabaseException();
 		       }
 		 }   
 	}
 	
-	public ArrayList<String> prelevaPerProgetto()throws SQLException{
+	public ArrayList<String> prelevaPerProgetto()throws ErroreDatabaseException{
 		ArrayList<String> usernames= new ArrayList<>();
 		String sql= "SELECT USERNAME FROM UTENTE WHERE RUOLO::text IN ('PROPRIETARIO_COLTIVATORE','COLTIVATORE')";
 		try(Connection conn= DBConnection.getConnection();
@@ -145,18 +165,23 @@ public class UtenteDAO {
 			while(rs.next()) {
 				usernames.add(rs.getString("USERNAME"));
 			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+			throw new ErroreDatabaseException();
 		}
 		return usernames;
 	}
 	
-	public Utente prelevaDaUsername(String username) throws SQLException,UtenteNonTrovatoException {
+	public Utente prelevaDaUsername(String username) throws UtenteNonTrovatoException, ErroreDatabaseException {
 	    String sql = "SELECT * FROM UTENTE WHERE USERNAME = ?";
 	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {	        
 	        ps.setString(1, username);        
 	        ResultSet rs = ps.executeQuery(); 	        
-	        if (rs.next()) {	            
+	        if (!rs.next()) {
+	        	throw new UtenteNonTrovatoException();
+	        }
 	            return new Utente(
 	                rs.getInt("IDUTENTE"),
 	                rs.getString("NOME"),
@@ -167,8 +192,10 @@ public class UtenteDAO {
 	                rs.getObject("DATANASCITA", LocalDate.class),
 	                TipoRuolo.valueOf(rs.getString("RUOLO").toUpperCase())
 	            );
-	        }
-	    } 
-	    return null; 
+	        
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
+	    }	    
 	}
 }

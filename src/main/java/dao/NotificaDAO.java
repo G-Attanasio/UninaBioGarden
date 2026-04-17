@@ -8,7 +8,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import org.postgresql.util.PSQLException;
+
 import database.DBConnection;
+import exceptions.ErroreDatabaseException;
 import exceptions.RisorsaNonTrovataException;
 import model.Anomalia;
 import model.AttivitaImminente;
@@ -18,7 +21,7 @@ import model.Utente;
 
 public class NotificaDAO {
 
-	public void salvaNotifica(Notifica n) throws SQLException{
+	public void salvaNotifica(Notifica n) throws ErroreDatabaseException{
 		 Connection conn = DBConnection.getConnection();
 		 try {
 		        conn.setAutoCommit(false); 
@@ -61,15 +64,26 @@ public class NotificaDAO {
 		        
 		        conn.commit();
 		 } catch (SQLException e) {
-		        conn.rollback(); 
-		        throw e;
+			 try {		 
+		        if(conn!=null) conn.rollback(); 
+			 }catch(SQLException ex) {
+				 throw new ErroreDatabaseException();
+			 }
+			 e.printStackTrace();
+			 throw new ErroreDatabaseException();
 		    } finally {
+		    	try {
+		    		if(conn!= null) {
 		        conn.setAutoCommit(true);
 		        conn.close();
+	    		}
+		    }catch(SQLException exc) {
+		    	throw new ErroreDatabaseException();
 		    }
+	    }
 	}
 	
-	public ArrayList<Notifica> prelevaNotificheInviate(int idProprietario) throws SQLException {
+	public ArrayList<Notifica> prelevaNotificheInviate(int idProprietario) throws ErroreDatabaseException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
 	    String sql = "SELECT N.*, A.TIPOANOMALIA,A.DESCRIZIONE AS DESC_A, A.GRAVITA, A.ESTENSIONE, I.TIPOATTIVITAIMMINENTE,I.DESCRIZIONE AS DESC_I, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +
@@ -109,11 +123,14 @@ public class NotificaDAO {
 	                 ));
 	             }
 	        }
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	    return lista;
 	}
 	
-	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws SQLException {
+	public ArrayList<Notifica> prelevaNotificheRicevute(int idColtivatore) throws ErroreDatabaseException {
 	    ArrayList<Notifica> lista = new ArrayList<>();
 	    String sql = "SELECT N.*, A.TIPOANOMALIA, A.GRAVITA, A.ESTENSIONE,A.DESCRIZIONE AS DESC_A,I.DESCRIZIONE AS DESC_I, I.TIPOATTIVITAIMMINENTE, I.DATASCADENZA " +
 	                 "FROM NOTIFICA N " +
@@ -153,28 +170,35 @@ public class NotificaDAO {
 	                 ));
 	             }
 	        }
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	    return lista;
 	}
 	
-	public boolean eliminaNotificaInviata(int codNotifica) throws SQLException {
+	public void eliminaNotificaInviata(int codNotifica) throws ErroreDatabaseException {
 	    String sql = "DELETE FROM NOTIFICA WHERE CODNOTIFICA = ?";	    
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setInt(1, codNotifica);
-	        int righeCancellate=ps.executeUpdate();
-	        return righeCancellate>0;
+	        ps.executeUpdate();
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	}
 	
-	public boolean eliminaNotificaRicevuta(int codNotifica, int idUtente) throws SQLException {
+	public void eliminaNotificaRicevuta(int codNotifica, int idUtente) throws ErroreDatabaseException {
 	    String sql = "DELETE FROM NOTIFICADESTINATARIO WHERE FK_CODNOTIFICA = ? AND FK_DESTINATARIO = ?";
 	    try (Connection conn = DBConnection.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setInt(1, codNotifica);
 	        ps.setInt(2, idUtente);
-	        int righeCancellate=ps.executeUpdate();
-	        return righeCancellate>0;
+	        ps.executeUpdate();
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	}
 

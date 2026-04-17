@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import database.DBConnection;
+import exceptions.ErroreDatabaseException;
 import exceptions.RisorsaNonTrovataException;
 import model.LottoColtivabile;
 import model.TipoMorfologia;
@@ -17,7 +18,7 @@ import model.Utente;
 
 public class LottoDAO {
 
-	public boolean salva(LottoColtivabile lc, int idProprietario) throws SQLException {
+	public void salva(LottoColtivabile lc, int idProprietario) throws ErroreDatabaseException {
 		String sql="INSERT INTO LOTTOCOLTIVABILE (TESSITURA,DIMENSIONI,PH,MORFOLOGIA,ALTITUDINE,LOCALITA,COMUNE,PROVINCIA,FK_IDPROPRIETARIO) VALUES (?::tipotessitura,?,?,?::tipomorfologia,?,?,?,?,?)";
 		try (Connection conn= DBConnection.getConnection();
 			PreparedStatement ps= conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {	
@@ -37,19 +38,22 @@ public class LottoDAO {
 						lc.setCodLotto(rs.getInt(1)); 
 					}
 				}
-				return true;
 			}
-	}
-	return false;
+	}catch(SQLException e) {
+		e.printStackTrace();
+		throw new ErroreDatabaseException();
+		}
 	}
 	
-	public LottoColtivabile preleva (int codLotto) throws SQLException,RisorsaNonTrovataException {
+	public LottoColtivabile preleva (int codLotto) throws RisorsaNonTrovataException, ErroreDatabaseException {
 		String sql="SELECT * FROM LOTTOCOLTIVABILE WHERE CODLOTTO=?";
 		try (Connection conn = DBConnection.getConnection();
 		         PreparedStatement ps = conn.prepareStatement(sql)) {			
 		        	 ps.setInt(1, codLotto);		        	 
 		        	 ResultSet rs= ps.executeQuery();	        	 
-		        	 if(rs.next()) {		        		 
+		        	 if(!rs.next()) {
+		        		 throw new RisorsaNonTrovataException();
+		        	 }
 		        		 Utente proprietario = new Utente(null,null,null,null,null,null,null);
 		        		 proprietario.setIdUtente(rs.getInt("FK_IDPROPRIETARIO"));	        		 
 		        		 LottoColtivabile lotto= new LottoColtivabile(
@@ -66,15 +70,14 @@ public class LottoDAO {
 		        		 rs.getBoolean("ATTIVO")
 		        		 );
 		        		 
-		        		 return lotto;
-		        	 }
-		        	 else {
-		        		 throw new RisorsaNonTrovataException();
-		        	 }
+		        		 return lotto;	        	 
+		}catch(SQLException e) {
+			e.printStackTrace();
+			throw new ErroreDatabaseException();
 		}
 	}
 	
-	public void salvaInTransazione(LottoColtivabile lc, Connection conn) throws SQLException {
+	public void salvaInTransazione(LottoColtivabile lc, Connection conn) throws ErroreDatabaseException  {
 	    
 	    String sql = "INSERT INTO LOTTOCOLTIVABILE (TESSITURA, DIMENSIONI, PH, MORFOLOGIA, ALTITUDINE, LOCALITA, COMUNE, PROVINCIA, FK_IDPROPRIETARIO, ATTIVO) "
 	                    + "VALUES (?::tipotessitura, ?, ?, ?::tipomorfologia, ?, ?, ?, ?, ?, ?)";
@@ -99,14 +102,16 @@ public class LottoDAO {
 	        		}
 	        	}
 	        }
-	    } 
+	    }catch(SQLException e) {
+	    	throw new ErroreDatabaseException();
+	    }
 	}
 	
-	public ArrayList<LottoColtivabile> prelevaLottiPerProprietario(int idUtente) throws SQLException,RisorsaNonTrovataException {
+	public ArrayList<LottoColtivabile> prelevaLottiPerProprietario(int idUtente) throws RisorsaNonTrovataException, ErroreDatabaseException {
 	    ArrayList<LottoColtivabile> lista = new ArrayList<>();
 	   
 	    String sql = "SELECT * FROM LOTTOCOLTIVABILE WHERE FK_IDPROPRIETARIO = ? AND ATTIVO = TRUE";
-	    
+	   try { 
 	    Connection conn = DBConnection.getConnection();
 	    PreparedStatement ps = conn.prepareStatement(sql);         
 	    ps.setInt(1, idUtente);
@@ -128,15 +133,21 @@ public class LottoDAO {
 	            lista.add(lc);
 	        }
 	        return lista;
-	    }
+	    }catch(SQLException e) {
+        	e.printStackTrace();
+        	throw new ErroreDatabaseException();
+        }
+	}
 	    
-	public boolean cancellaLotto(int codLotto) throws SQLException {
+	public void cancellaLotto(int codLotto) throws ErroreDatabaseException  {
 		String sql = "CALL P_DISATTIVA_LOTTO(?)";		
 		 try (Connection conn = DBConnection.getConnection();
 		 CallableStatement cs= conn.prepareCall(sql)){		
 		 cs.setInt(1, codLotto);
-	     int righeModificate= cs.executeUpdate();
-	     return righeModificate>0;
+	     cs.executeUpdate();
+		 }catch(SQLException e) {
+			 e.printStackTrace();
+			 throw new ErroreDatabaseException();
 		 }
 	 }
 }

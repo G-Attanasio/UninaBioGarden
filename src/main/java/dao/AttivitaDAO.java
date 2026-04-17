@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.DBConnection;
+import exceptions.ErroreDatabaseException;
 import exceptions.RisorsaNonTrovataException;
 import model.Attivita;
 import model.Coltura;
@@ -24,7 +25,7 @@ import model.Utente;
 
 public class AttivitaDAO {
 
-	public ArrayList<Attivita> prelevaTutteAttivitaPerColtivatore(String username )throws SQLException,RisorsaNonTrovataException{
+	public ArrayList<Attivita> prelevaTutteAttivitaPerColtivatore(String username )throws ErroreDatabaseException{
 		ArrayList<Attivita> lista= new ArrayList<>();  
         try (Connection conn= DBConnection.getConnection())
               {
@@ -52,7 +53,8 @@ public class AttivitaDAO {
                 lista.add(s);
             }
            }catch(SQLException e) {
-        	   throw e;
+        	   e.printStackTrace();
+        	   throw new ErroreDatabaseException();
            }
         }
           
@@ -108,22 +110,24 @@ public class AttivitaDAO {
           }
       }
       }
+	}catch(SQLException e) {
+		e.printStackTrace();
+		throw new ErroreDatabaseException();
 	}
         return lista;
 }
 	
-	public boolean salvaAttivita(Attivita attivita,int codProgetto,Connection conn,ArrayList<SeminaColtura> semine)throws SQLException {
-		 if (attivita instanceof Semina) {
+	public void salvaAttivita(Attivita attivita,int codProgetto,Connection conn,ArrayList<SeminaColtura> semine) throws ErroreDatabaseException {
+		if (attivita instanceof Semina) {
 		        salvaSemina((Semina) attivita, codProgetto, conn,semine);
 		    } else if (attivita instanceof Raccolta) {
 		        salvaRaccolta((Raccolta) attivita, codProgetto, conn,semine);
 		    } else if (attivita instanceof Irrigazione) {
 		        salvaIrrigazione((Irrigazione) attivita, codProgetto, conn);
 		    }
-		    return false;
 	}
 	
-	public void salvaSemina(Semina semina, int codProgetto, Connection conn, ArrayList<SeminaColtura> semineColture) throws SQLException {	
+	public void salvaSemina(Semina semina, int codProgetto, Connection conn, ArrayList<SeminaColtura> semineColture) throws ErroreDatabaseException {	
 		double quantitaSemi=0;
 	    int codColtura=-1;
 	    for (SeminaColtura sc : semineColture) {  
@@ -145,9 +149,12 @@ public class AttivitaDAO {
 	        cs.setInt(6,codProgetto);    	       
 	        cs.setInt(7,semina.getColtivatore().getIdUtente());
 	        cs.execute();
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	throw new ErroreDatabaseException();
 	    }
 	}
-    public void salvaIrrigazione(Irrigazione i, int codProgetto, Connection conn) throws SQLException {  	    
+    public void salvaIrrigazione(Irrigazione i, int codProgetto, Connection conn) throws ErroreDatabaseException  {  	    
     	    String sql = "CALL P_REGISTRA_ATTIVITA_IRRIGAZIONE(?, ?, ?::TIPOIRRIGAZIONE, ?, ?)";
 
     	    try (CallableStatement cs = conn.prepareCall(sql)) {
@@ -157,9 +164,12 @@ public class AttivitaDAO {
     	        cs.setInt(4, codProgetto);
     	        cs.setInt(5, i.getColtivatore().getIdUtente());
     	        cs.execute();
+    	    }catch(SQLException e) {
+    	    	e.printStackTrace();
+    	    	throw new ErroreDatabaseException();
     	    }
     	}
-    public void salvaRaccolta(Raccolta r, int codProgetto, Connection conn,ArrayList<SeminaColtura> colture)throws SQLException { 	
+    public void salvaRaccolta(Raccolta r, int codProgetto, Connection conn,ArrayList<SeminaColtura> colture)throws ErroreDatabaseException { 	
     	 int codColtura=-1;
     	 for (SeminaColtura sc : colture) {  
  	        if (sc.getColtura().equals(r.getColtura())){ 
@@ -179,10 +189,13 @@ public class AttivitaDAO {
     	        cs.setInt(6, codProgetto);
     	        cs.setInt(7, codColtura);
     	        cs.execute();
+    	    }catch(SQLException e) {
+    	    	e.printStackTrace();
+    	    	throw new ErroreDatabaseException();
     	    }
 	}
     
-    public ArrayList<Attivita> prelevaAttivitaAssegnateDaProprietario(int idProprietario) throws SQLException {
+    public ArrayList<Attivita> prelevaAttivitaAssegnateDaProprietario(int idProprietario) throws ErroreDatabaseException {
         ArrayList<Attivita> lista = new ArrayList<>();
         String sql = "SELECT A.*, U.USERNAME, PS.NOMEPROGETTO, S.METODOSEMINA, R.METODORACCOLTA, I.METODOIRRIGAZIONE " +
                 "FROM ATTIVITA A " +
@@ -192,7 +205,7 @@ public class AttivitaDAO {
                 "LEFT JOIN RACCOLTA R ON A.CODATTIVITA = R.FK_CODATTIVITA " +
                 "LEFT JOIN IRRIGAZIONE I ON A.CODATTIVITA = I.FK_CODATTIVITA " +
                 "WHERE PS.FK_CREATORE = ? "+
-                "ORDER BY A.DATAINIZIO";
+                "ORDER BY A.DATAINIZIO, PS.NOMEPROGETTO";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -239,10 +252,13 @@ public class AttivitaDAO {
                  }         
         }
         return lista;
+    }catch(SQLException e) {
+    	e.printStackTrace();
+    	throw new ErroreDatabaseException();
     }
 }
         
-        public ArrayList<Attivita> prelevaAttivitaColtivatore(int idColtivatore) throws SQLException{
+        public ArrayList<Attivita> prelevaAttivitaColtivatore(int idColtivatore) throws ErroreDatabaseException{
             ArrayList<Attivita> lista = new ArrayList<>();
             String sql = "SELECT A.*, PS.NOMEPROGETTO, U.USERNAME, S.METODOSEMINA, R.METODORACCOLTA, I.METODOIRRIGAZIONE, " +
                     "COALESCE(C_R.NOME, C_S.NOME) AS COLT " + 
@@ -256,7 +272,7 @@ public class AttivitaDAO {
                     "LEFT JOIN COLTURA C_R ON R.FK_CODCOLTURA = C_R.CODCOLTURA " + 
                     "LEFT JOIN COLTURA C_S ON SC.FK_CODCOLTURA = C_S.CODCOLTURA " + 
                     "WHERE A.FK_COLTIVATORE = ? " +
-                    "ORDER BY A.DATAINIZIO";
+                    "ORDER BY A.DATAINIZIO, PS.NOMEPROGETTO";
             
             try (Connection conn = DBConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -304,11 +320,14 @@ public class AttivitaDAO {
                
             }
             return lista;
+        }catch(SQLException e) {
+        	e.printStackTrace();
+        	throw new ErroreDatabaseException();
         }
     }
     
             
-      public ArrayList<SeminaColtura> prelevaDettagliColturePerColtivatore (int idColtivatore) throws SQLException {
+      public ArrayList<SeminaColtura> prelevaDettagliColturePerColtivatore (int idColtivatore) throws ErroreDatabaseException {
                 ArrayList<SeminaColtura> lista = new ArrayList<>();
                 String sql = "SELECT SC.FK_CODATTIVITA, C.NOME " +
                              "FROM SEMINACOLTURA SC " +
@@ -324,19 +343,23 @@ public class AttivitaDAO {
                         Semina s = new Semina(rs.getInt("FK_CODATTIVITA"), null, null, null, null, null, null);
                         lista.add(new SeminaColtura(c, s, 0));
                     }
+                }catch(SQLException e) {
+                	e.printStackTrace();
+                	throw new ErroreDatabaseException();
                 }
                 return lista;
             }
             
-      public boolean aggiornaQuantitaReale(int codAttivita, double kg) throws SQLException{
+      public void aggiornaQuantitaReale(int codAttivita, double kg) throws ErroreDatabaseException{
     	    String sql = "UPDATE RACCOLTA SET QUANTITAREALE = ? WHERE FK_CODATTIVITA = ?";   	    
     	    try (Connection conn = DBConnection.getConnection();
     	         PreparedStatement ps = conn.prepareStatement(sql)) {  	        
     	        ps.setDouble(1, kg);
     	        ps.setInt(2, codAttivita);  	        
-    	        int righe = ps.executeUpdate();
-    	        return righe >0;
-    	    } 
+    	    }catch(SQLException e) {
+    	    	e.printStackTrace();
+    	    	throw new ErroreDatabaseException();
+    	    }
     	}
 }
 

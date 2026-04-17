@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -10,6 +11,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import controller.Controller;
+import dto.ColturaDTO;
 
 public class FinestraVisualizzaColture extends JPanel {
 
@@ -38,6 +40,24 @@ public class FinestraVisualizzaColture extends JPanel {
 		
 		
 		
+	}
+	
+	public void mostraColture(ArrayList<ColturaDTO> lista) {
+	    svuotaTabella();
+
+	    for (ColturaDTO c : lista) {
+	        Object[] riga = {
+	            c.getCodColtura(),
+	            c.getNome(),
+	            c.getSpecie(),
+	            c.getFamiglia(),
+	            c.getTempoMaturazione(),
+	            c.getDestinazioneUso(),
+	            c.getPeriodoIdeale()
+	        };
+
+	        aggiungiRigaTabella(riga);
+	    }
 	}
 	
 	public void aggiungiRigaTabella(Object[] riga) {

@@ -78,8 +78,7 @@ public class Controller {
     		return;
     	}    	
 		try {
-			Utente u= service.effettuaLogin(username, password);
-			if(u!= null) {
+			Utente u= service.effettuaLogin(username, password);		
 				setUtenteLoggato(u);
 	    		if(u.getRuolo()==TipoRuolo.PROPRIETARIO) {
 	    			inizializzaFinestraProprietario();
@@ -90,10 +89,6 @@ public class Controller {
 	    		if (u.getRuolo()==TipoRuolo.PROPRIETARIO_COLTIVATORE) {
 	    			inizializzaFinestraProprietarioColtivatore();
 	    		}	
-			}
-			else {
-				finestraLogin.erroreLogin();
-			}
 		}catch(UtenteNonTrovatoException e) {
 			finestraLogin.nonTrovato();
     	}catch(ErroreDatabaseException e) {
@@ -112,41 +107,30 @@ public class Controller {
         }
     }
     
-    public void aggiungiLotto()  {
+    public void aggiungiLotto(InputLottoDTO dto)  {
     	ArrayList<String> errori= new ArrayList<String>();
-    	String tessitura= finestraCreaLotto.getTipoTessitura().replace(" ", "_");
-    	String dimensioni= finestraCreaLotto.getDimensioni();
-    	String ph= finestraCreaLotto.getPh().replace(",", ".");
-    	String morfologia= finestraCreaLotto.getTipoMorfologia();
-    	String altitudine= finestraCreaLotto.getAltitudine();
-    	String localita= finestraCreaLotto.getLocalità();
-    	String comune= finestraCreaLotto.getComune();
-    	String provincia= finestraCreaLotto.getProvincia().toUpperCase();
     	
-    	int dimensioniInt = parseInt(dimensioni, "dimensioni int", errori);
-    	
-    	double phDouble=parseDouble(ph, "ph numero", errori);
-    	
-    	int altitudineInt=parseInt(altitudine, "altitudine int", errori);
+    	Integer dimensioniInt = parseInt(dto.getDimensioni(), "dimensioni int", errori);   	
+    	Double phDouble=parseDouble(dto.getPh(), "ph numero", errori);    	
+    	Integer altitudineInt=parseInt(dto.getAltitudine(), "altitudine int", errori);
     	
     	if(!errori.isEmpty()) {
     		finestraCreaLotto.gestisciErrori(errori);
     		return;
-    	}
-    	
-    	TipoTessitura tessituraEnum = TipoTessitura.valueOf(tessitura.toUpperCase());
-    	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(morfologia.toUpperCase());
+    	}	
+    	TipoTessitura tessituraEnum = TipoTessitura.valueOf(dto.getTessitura().toUpperCase());
+    	TipoMorfologia morfologiaEnum = TipoMorfologia.valueOf(dto.getMorfologia().toUpperCase());
     			
-    	LottoDTO lDTO= new LottoDTO(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, localita, comune, provincia,getUtenteLoggato().getIdUtente());
-    	
+    	LottoDTO lDTO= new LottoDTO(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, dto.getLocalita(), dto.getComune(), dto.getProvincia(),getUtenteLoggato().getIdUtente()); 	
     	try{
-    		if(service.salvaLotto(lDTO)) { 
+    		service.registraLotto(lDTO);
     		caricaLotti();
     		finestraCreaLotto.pulisciCampi();
-    		mostraPanelInterno("visualizza lotti");
-    		}
+    		mostraPanelInterno("visualizza lotti");		
     	}catch(ValidazioneException v) {
 			finestraCreaLotto.gestisciErrori(v.getErrori());
+		}catch(ErroreDatabaseException e) {
+			finestraCreaLotto.mostraMessaggio(e.getMessage());
 		}
     }
     
@@ -179,6 +163,8 @@ public class Controller {
             finestraVisualizzaAttivita.mostraAttivita(lista);
         }catch (ErroreDatabaseException e) {
             finestraVisualizzaAttivita.mostraMessaggio(e.getMessage());
+        }catch(RisorsaNonTrovataException r) {
+        	finestraVisualizzaAttivita.mostraMessaggio("Alcune o tutte Attività non trovate.");
         }
     }
     
@@ -186,50 +172,26 @@ public class Controller {
         try {
             service.registraRaccolta(codAttivita, quantita);
             caricaAttivitaColtivatore();
-        } catch (RisorsaNonTrovataException e) {
-            finestraVisualizzaAttivita.mostraMessaggio("Attività non trovata");
         } catch (ErroreDatabaseException e) {
             finestraVisualizzaAttivita.mostraMessaggio(e.getMessage());
         }
     }
     
     public void caricaProgetti() {
-        finestraVisualizzaProgetti.svuotaTabella(); 
         try {
             ArrayList<ProgettoDTO> lista = service.caricaProgettiProprietario(getUtenteLoggato().getIdUtente());
-            for (ProgettoDTO p : lista) {
-                Object[] riga = {
-                    p.getCodProgetto(),
-                    p.getNomeProgetto(),
-                    p.getLottoImpegnato(),
-                    p.getStagioneDiRiferimento(),
-                    p.getDataInizio(),
-                    p.getDurata(),
-                    p.getStatoEsecuzione()
-                };
-                finestraVisualizzaProgetti.aggiungiRigaTabella(riga);
-            }
+            finestraVisualizzaProgetti.mostraProgetti(lista);
         } catch (ErroreDatabaseException e) {
             finestraVisualizzaProgetti.mostraMessaggio(e.getMessage());
+        }catch(RisorsaNonTrovataException r) {
+        	finestraVisualizzaProgetti.mostraMessaggio("Alcuni o tutti progetti non trovati.");
         }
     }
     
     public void caricaColture() {
-        finestraVisualizzaColture.svuotaTabella();
         try {
             ArrayList<ColturaDTO> lista = service.caricaColture();
-            for (ColturaDTO c : lista) {
-                Object[] riga = {
-                    c.getCodColtura(),
-                    c.getNome(),
-                    c.getSpecie(),
-                    c.getFamiglia(),
-                    c.getTempoMaturazione(),
-                    c.getDestinazioneUso(),
-                    c.getPeriodoIdeale()
-                };
-                finestraVisualizzaColture.aggiungiRigaTabella(riga);
-            }
+           finestraVisualizzaColture.mostraColture(lista);
         }catch(RisorsaNonTrovataException e) {
         	finestraVisualizzaColture.mostraMessaggio("Nessuna coltura trovata.");
         }catch (ErroreDatabaseException e) {
@@ -267,6 +229,8 @@ public class Controller {
             finestraCreaProgetto.setElencoColtivatori(listaColtivatori);
         } catch (ErroreDatabaseException e) {
             finestraCreaProgetto.mostraMessaggio(e.getMessage());
+        }catch(UtenteNonTrovatoException r) {
+        	finestraCreaProgetto.mostraMessaggio("Alcuni o tutti coltivatori non trovati.");
         }
     }
     
@@ -278,6 +242,8 @@ public class Controller {
             finestraCreaProgetto.pianificaAttivita(lista, coltura);
         } catch (ErroreDatabaseException e) {
             finestraCreaProgetto.mostraMessaggio(e.getMessage());
+        } catch(UtenteNonTrovatoException u) {
+        	finestraCreaProgetto.mostraMessaggio("Alcuni o tutti coltivatori non trovati");
         }
     }
     	
@@ -288,59 +254,36 @@ public class Controller {
             finestraCreaNotifica.setElencoColtivatori(lista);
         } catch (ErroreDatabaseException e) {
             finestraCreaNotifica.mostraMessaggio(e.getMessage());
+        } catch(UtenteNonTrovatoException u) {
+        	finestraCreaNotifica.mostraMessaggio("Alcuni o tutti coltivatori non trovati.");
         }
     }
     
     public void caricaNotificheInviate() {
-        finestraVisualizzaNotifiche.svuotaTabella();
         try {
             ArrayList<NotificaDTO> lista = service.caricaNotificheInviate(getUtenteLoggato().getIdUtente());        
-            finestraVisualizzaNotifiche.onOffAggiungi(true);
-            for (NotificaDTO n : lista) {
-
-                Object[] riga = {
-                    n.getTipo(),
-                    n.getDescrizioneVeloce(),
-                    n.getDataScadenza(),
-                    n.getGravità(),                
-                    n.getEstensione(),
-                    n.getCodNotifica(),
-                    n.getDescrizione()
-                };
-                finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
-            }
+            finestraVisualizzaNotifiche.mostraNotificheInviate(lista, true);
         } catch (ErroreDatabaseException e) {
             finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
+        } catch(RisorsaNonTrovataException r) {
+        	finestraVisualizzaNotifiche.mostraMessaggio("Alcune o tutte notifiche non trovate.");
         }
     }
     
     public void caricaNotificheRicevute() {
-        finestraVisualizzaNotifiche.svuotaTabella();
         try {
             ArrayList<NotificaDTO> lista = service.caricaNotificheRicevute(getUtenteLoggato().getIdUtente());
-            finestraVisualizzaNotifiche.onOffAggiungi(false);
-            for (NotificaDTO n : lista) {
-                Object[] riga = {
-                    n.getTipo(),
-                    n.getDescrizioneVeloce(),
-                    n.getDataScadenza(),
-                    n.getGravità(),
-                    n.getEstensione(),
-                    n.getCodNotifica(),
-                    n.getDescrizione()
-                };
-                finestraVisualizzaNotifiche.aggiungiRigaTabella(riga);
-            }
+            finestraVisualizzaNotifiche.mostraNotificheRicevute(lista, false);
         } catch (ErroreDatabaseException e) {
             finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
+        } catch(RisorsaNonTrovataException r) {
+        	finestraVisualizzaNotifiche.mostraMessaggio("Alcune o tutte notifiche non trovate");
         }
     }
     
     public void caricaDatiReport(int codProgetto) {
-
         try {
-            ArrayList<DatiReportDTO> dati =
-                service.caricaDatiReport(codProgetto);
+            ArrayList<DatiReportDTO> dati =service.caricaDatiReport(codProgetto);
             if (getUtenteLoggato().getRuolo() == TipoRuolo.PROPRIETARIO) {
                 finestraReport = finestraProprietario.getFinReport();
             } else {
@@ -350,6 +293,8 @@ public class Controller {
             mostraPanelInterno("report");
         } catch (ErroreDatabaseException e) {
             finestraReport.mostraMessaggio(e.getMessage());
+        }catch(RisorsaNonTrovataException r) {
+        	finestraReport.mostraMessaggio("Alcuni o tutti dati report non trovati.");
         }
     }
     
@@ -357,8 +302,6 @@ public class Controller {
         try {
             service.eliminaLotto(codLotto);  	            
                 caricaLotti();    	                
-        } catch (RisorsaNonTrovataException e) {
-            finestraVisualizzaLotti.mostraMessaggio("Lotto non trovato nel database.");
         } catch(ErroreDatabaseException e) {
         	finestraVisualizzaLotti.mostraMessaggio(e.getMessage());
         }
@@ -368,8 +311,6 @@ public class Controller {
 	    try {
 	        service.eliminaProgetto(codProgetto);
 	        caricaProgetti();
-	    } catch (RisorsaNonTrovataException e) {
-	        finestraVisualizzaProgetti.mostraMessaggio("Progetto non trovato.");
 	    } catch(ErroreDatabaseException e) {
 	    	finestraVisualizzaProgetti.mostraMessaggio(e.getMessage());
 	    }
@@ -384,9 +325,6 @@ public class Controller {
                 service.eliminaNotificaRicevuta(codNotifica, getUtenteLoggato().getIdUtente());
                 caricaNotificheRicevute();
             }
-
-        } catch (RisorsaNonTrovataException e) {
-            finestraVisualizzaNotifiche.mostraMessaggio("Notifica non trovata.");
         } catch(ErroreDatabaseException e) {
         	finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
         }
@@ -478,7 +416,9 @@ public class Controller {
     		}catch(ValidazioneException v) {
     			finestraIscrizioneProprietario.gestisciErrori(v.getErrori());
     			finestraIscrizioneLotto.gestisciErrori(v.getErrori());
-    		}	
+    		}catch(ErroreDatabaseException ed) {
+    			finestraIscrizioneProprietario.mostraMessaggio(ed.getMessage());
+    		}
     }
     
     public ArrayList<String> validaPrimaParteProgetto() {
@@ -506,11 +446,13 @@ public class Controller {
 	     service.validaSovrapposizioneProgetti(dataInizioProgetto, durataInt,lottoSelezionato.getCodLotto());		 
     	}catch(ValidazioneException v) {
     		errori.addAll(v.getErrori());
-    	}			
+    	}catch(ErroreDatabaseException e) {
+    		finestraCreaLotto.mostraMessaggio(e.getMessage());
+    	}
 	     return errori;
     }
     
-    public ArrayList<String> validaCreazioneAttivitaProgetto(String nomeColtura, InputSeminaDTO inputSDTO, InputRaccoltaDTO inputRDTO) { 	
+    public ArrayList<String> validaCreazioneAttivitaProgetto(String nomeColtura, InputSeminaDTO inputSDTO, InputRaccoltaDTO inputRDTO){ 	
     	ArrayList<String> errori= new ArrayList<String>();   	
     	String durata= finestraCreaProgetto.getCmpDurata();
     	String dataInizioP= finestraCreaProgetto.getCmpDataInizio();  
@@ -553,6 +495,8 @@ public class Controller {
     		finestraCreaProgetto.mostraMessaggio("coltura non trovata");
     	}catch(ValidazioneException v) {
     		return v.getErrori();
+    	}catch(ErroreDatabaseException er) {
+    		finestraCreaProgetto.mostraMessaggio(er.getMessage());
     	}
     	return errori;
     }
@@ -572,7 +516,7 @@ public class Controller {
     	            	return errori;
     	            }
     	            AttivitaImminenteDTO attDTO = new AttivitaImminenteDTO(oggi,getUtenteLoggato().getIdUtente(),dto.getDescrizioneVeloce(),dto.getDescrizione(),scadenza, dto.getDestinatari());
-    	            service.salvaAttivitaImminente(attDTO);
+    	            service.registraAttivitaImminente(attDTO);
     	        } else {
     	            if(dto.getEstensione()!= null && !dto.getEstensione().trim().isEmpty()) {  	            	
     	            		estensioneInt = parseInt(dto.getEstensione(), "errore formato estensione", errori);
@@ -583,12 +527,14 @@ public class Controller {
     	            	estensioneInt=0;
     	            }
     	            AnomaliaDTO anomDTO = new AnomaliaDTO(oggi, getUtenteLoggato().getIdUtente(), dto.getDescrizioneVeloce(), dto.getDescrizione(), livelloEnum, estensioneInt,dto.getDestinatari());
-    	            service.salvaAnomalia(anomDTO);	        
+    	            service.registraAnomalia(anomDTO);	        
     	        }
          }catch(UtenteNonTrovatoException u) {
     		 finestraCreaNotifica.mostraMessaggio("Alcuni o tutti utenti non trovati");
     	 }catch(ValidazioneException v) {
     		 return v.getErrori();
+    	 }catch(ErroreDatabaseException er) {
+    		 finestraCreaNotifica.mostraMessaggio(er.getMessage());
     	 }
          return errori;
     }
@@ -612,15 +558,18 @@ public class Controller {
     			service.validaDateAttivitaIrrigazione(dataI, dataF);
     			IrrigazioneDTO iDTO= new IrrigazioneDTO(dataI,dataF,0,0,irrigazioneEnum);		
     			service.validaAttivitaIrrigazione(inputIDTO.getColtivatoreIrrigazione(), iDTO, dataI, durata, lottoSelezionato, attivitaTemporanee);
+    			ProgettoDTO pDTO= new ProgettoDTO(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,0,0);
+        		service.registraProgetto(pDTO, utenteLoggato, lottoSelezionato, attivitaTemporanee, listaSeminaColtura);
     			
     	}catch(UtenteNonTrovatoException e) {
-    		finestraCreaProgetto.mostraMessaggio("coltivatore non trovato");
+    		finestraCreaProgetto.mostraMessaggio("Coltivatore non trovato");
     	}catch(ValidazioneException v) {
     		return v.getErrori();
+    	}catch(ErroreDatabaseException er) {
+    		finestraCreaProgetto.mostraMessaggio(er.getMessage());
+    	} catch(RisorsaNonTrovataException r) {
+    		finestraCreaProgetto.mostraMessaggio("Tutte o alcune attività non trovate.");
     	}
-    	ProgettoDTO pDTO= new ProgettoDTO(finestraCreaProgetto.getCmpNome(),periodoEnum,durata,dataP,0,0);
-    		service.salvaProgetto(pDTO, utenteLoggato, lottoSelezionato, attivitaTemporanee, listaSeminaColtura);
-    		
 		return errori;
     }
     
