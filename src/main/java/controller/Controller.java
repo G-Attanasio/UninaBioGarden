@@ -47,9 +47,7 @@ public class Controller {
         this.cardPanel= frame.getCardPanel();
         this.finestraLogin= frame.getCardPanel().getFinestraLogin();
         this.attivitaTemporanee= new ArrayList<Attivita>();
-        new ArrayList<Attivita>();
         this.listaSeminaColtura= new ArrayList<SeminaColtura>();
-        new ArrayList<ProgettoStagionale>();
         this.finestraIscrizioneColtivatore= frame.getCardPanel().getFinestraIscrizioneColtivatore();
         this.finestraIscrizioneProprietario= frame.getCardPanel().getFinestraIscrizioneProprietario();
         this.finestraIscrizioneLotto= frame.getCardPanel().getFinestraIscriviLotto();
@@ -150,8 +148,6 @@ public class Controller {
         try {
             ArrayList<AttivitaDTO> lista = service.caricaAttivitaAssegnate(utenteLoggato.getIdUtente());
             finestraAttivitaAssegnate.mostraAttivita(lista);
-        } catch (RisorsaNonTrovataException e) {
-            finestraAttivitaAssegnate.mostraMessaggio("Nessuna attività trovata");
         } catch (ErroreDatabaseException e) {
             finestraAttivitaAssegnate.mostraMessaggio(e.getMessage());
         }
@@ -163,8 +159,6 @@ public class Controller {
             finestraVisualizzaAttivita.mostraAttivita(lista);
         }catch (ErroreDatabaseException e) {
             finestraVisualizzaAttivita.mostraMessaggio(e.getMessage());
-        }catch(RisorsaNonTrovataException r) {
-        	finestraVisualizzaAttivita.mostraMessaggio("Alcune o tutte Attività non trovate.");
         }
     }
     
@@ -183,8 +177,6 @@ public class Controller {
             finestraVisualizzaProgetti.mostraProgetti(lista);
         } catch (ErroreDatabaseException e) {
             finestraVisualizzaProgetti.mostraMessaggio(e.getMessage());
-        }catch(RisorsaNonTrovataException r) {
-        	finestraVisualizzaProgetti.mostraMessaggio("Alcuni o tutti progetti non trovati.");
         }
     }
     
@@ -265,8 +257,6 @@ public class Controller {
             finestraVisualizzaNotifiche.mostraNotificheInviate(lista, true);
         } catch (ErroreDatabaseException e) {
             finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
-        } catch(RisorsaNonTrovataException r) {
-        	finestraVisualizzaNotifiche.mostraMessaggio("Alcune o tutte notifiche non trovate.");
         }
     }
     
@@ -276,8 +266,6 @@ public class Controller {
             finestraVisualizzaNotifiche.mostraNotificheRicevute(lista, false);
         } catch (ErroreDatabaseException e) {
             finestraVisualizzaNotifiche.mostraMessaggio(e.getMessage());
-        } catch(RisorsaNonTrovataException r) {
-        	finestraVisualizzaNotifiche.mostraMessaggio("Alcune o tutte notifiche non trovate");
         }
     }
     

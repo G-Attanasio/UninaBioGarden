@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 
@@ -24,7 +25,7 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 	private JButton aggiungi;
 	private JScrollPane scroll;
 	private JTable tabella;
-	private String[] titoli= {"Tipo","Titolo","Data Scadenza","Livello gravità","Estensione","Codice","Descrizione"};
+	private String[] titoli= {"Tipo","Titolo","Data Scadenza","Livello gravità","Data invio","Estensione","Codice","Descrizione"};
 	private DefaultTableModel modello;
 	private boolean inviata;
 	
@@ -48,12 +49,18 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		    }
 		};
 		tabella= new JTable(modello);
+		tabella.setFont(new Font("Arial",Font.ITALIC,14));
+		tabella.setRowHeight(20);
+		tabella.getTableHeader().setFont(new Font("Arial",Font.BOLD,12));
 		tabella.getColumnModel().getColumn(5).setMinWidth(0);
 		tabella.getColumnModel().getColumn(5).setMaxWidth(0);
 		tabella.getColumnModel().getColumn(5).setPreferredWidth(0);
 		tabella.getColumnModel().getColumn(6).setMinWidth(0);
 		tabella.getColumnModel().getColumn(6).setMaxWidth(0);
 		tabella.getColumnModel().getColumn(6).setPreferredWidth(0);		
+		tabella.getColumnModel().getColumn(7).setMinWidth(0);
+		tabella.getColumnModel().getColumn(7).setMaxWidth(0);
+		tabella.getColumnModel().getColumn(7).setPreferredWidth(0);		
 		tabella.getTableHeader().setReorderingAllowed(false);
 		scroll= new JScrollPane(tabella);
 		add(scroll,BorderLayout.CENTER);
@@ -85,24 +92,43 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		});
 		
 		tabella.addMouseListener(new MouseAdapter() {
-			 @Override
-			    public void mouseClicked(java.awt.event.MouseEvent e) {
-			        if (e.getClickCount() == 2) { 
-			            int riga = tabella.getSelectedRow();
-			            if (riga != -1) {
-			            	String titolo = tabella.getValueAt(riga, 1).toString();		               
-			                Object desc = tabella.getValueAt(riga, 6);
-			                String descrizione;
-			                if(desc != null) {
-			                	descrizione=desc.toString(); 
-			                }else {
-			                	descrizione="Nessun dettaglio presente.";
-			                }
-			                mostraMessaggioNotifica(titolo,descrizione);
-			            }
-			        }
-			    }
-			
+		    @Override
+		    public void mouseClicked(java.awt.event.MouseEvent e) {
+		        if (e.getClickCount() == 2) {
+		            int riga = tabella.getSelectedRow();
+		            if (riga != -1) {	                
+		            	String tipo = String.valueOf(modello.getValueAt(riga, 0));
+		            	String titolo = String.valueOf(modello.getValueAt(riga, 1));
+		            	String scadenza = String.valueOf(modello.getValueAt(riga, 2));
+		            	String gravita = String.valueOf(modello.getValueAt(riga, 3));
+		            	String estensione = String.valueOf(modello.getValueAt(riga, 5));
+		            	String descrizione = String.valueOf(modello.getValueAt(riga, 7));
+		                StringBuilder sb = new StringBuilder();
+		                sb.append("Tipo: ").append(tipo).append("\n");
+		                sb.append("------------------\n");
+		                sb.append("Titolo: ").append(titolo).append("\n");
+		                sb.append("------------------\n");
+		                sb.append("Descrizione: ").append(descrizione).append("\n");
+		                sb.append("------------------\n");
+		                if (tipo.equals("Anomalia")) {
+		                    sb.append("Gravità: ").append(gravita).append("\n");
+		                    sb.append("------------------\n");
+		                    sb.append("Estensione: ").append(estensione).append("\n");
+		                } else {
+		                    sb.append("Scadenza: ").append(scadenza).append("\n");
+		                }
+		                javax.swing.JTextArea textArea = new javax.swing.JTextArea(sb.toString());
+		                textArea.setColumns(40); 
+		                textArea.setRows(15);
+		                textArea.setLineWrap(true); 
+		                textArea.setWrapStyleWord(true); 
+		                textArea.setEditable(false); 
+		                textArea.setOpaque(true); 
+		                textArea.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
+		                JOptionPane.showMessageDialog(null, new javax.swing.JScrollPane(textArea), "Dettagli Notifica", JOptionPane.INFORMATION_MESSAGE);
+		            }
+		        }
+		    }
 		});
 		
 	}
@@ -110,6 +136,13 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 	public void onOffAggiungi(boolean scelta) {
 		aggiungi.setVisible(scelta);
 		inviata=scelta;
+		
+		if (scelta) {
+	        tabella.getColumnModel().getColumn(4).setHeaderValue("Data Invio");
+	    } else {
+	        tabella.getColumnModel().getColumn(4).setHeaderValue("Data Ricevuta");
+	    }
+	    tabella.getTableHeader().repaint();
 	}
 	
 	public void mostraMessaggioNotifica(String titolo, String messaggio) {
@@ -127,9 +160,10 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 	        Object[] riga = {
 	            n.getTipo(),
 	            n.getDescrizioneVeloce(),
-	            n.getDataScadenza(),
+	            n.getScadenza(),
 	            n.getGravità(),
-	            n.getEstensione(),
+	            n.getDataInvio(),
+	            n.getEstens(),
 	            n.getCodNotifica(),
 	            n.getDescrizione()
 	        };
@@ -144,9 +178,10 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 	        Object[] riga = {
 	            n.getTipo(),
 	            n.getDescrizioneVeloce(),
-	            n.getDataScadenza(),
+	            n.getScadenza(),
 	            n.getGravità(),
-	            n.getEstensione(),
+	            n.getDataInvio(),
+	            n.getEstens(),
 	            n.getCodNotifica(),
 	            n.getDescrizione()
 	        };

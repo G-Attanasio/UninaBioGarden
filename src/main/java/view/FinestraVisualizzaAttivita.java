@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -41,6 +42,9 @@ public class FinestraVisualizzaAttivita extends JPanel {
 		    }
 		};
 		tabella= new JTable(modello);
+		tabella.setFont(new Font("Arial",Font.ITALIC,14));
+		tabella.setRowHeight(20);
+		tabella.getTableHeader().setFont(new Font("Arial",Font.BOLD,12));
 		tabella.getColumnModel().getColumn(0).setMinWidth(0);
 		tabella.getColumnModel().getColumn(0).setMaxWidth(0);
 		tabella.getColumnModel().getColumn(0).setPreferredWidth(0);

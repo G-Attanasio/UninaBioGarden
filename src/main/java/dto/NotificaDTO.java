@@ -14,9 +14,9 @@ public class NotificaDTO {
     private String tipo;
     private String descrizioneVeloce;
     private String descrizione;
-    private LocalDate dataScadenza;
+    private String scadenza;
     private String gravità;
-    private int estensione;
+    private String estens;
 	
 	
 	public NotificaDTO(LocalDate dataInvio, int idCreatore, ArrayList<String> destinatari) {
@@ -76,14 +76,6 @@ public class NotificaDTO {
 		this.descrizione = descrizione;
 	}
 
-	public LocalDate getDataScadenza() {
-		return dataScadenza;
-	}
-
-	public void setDataScadenza(LocalDate dataScadenza) {
-		this.dataScadenza = dataScadenza;
-	}
-
 	public String getGravità() {
 		return gravità;
 	}
@@ -92,11 +84,19 @@ public class NotificaDTO {
 		this.gravità = gravità;
 	}
 
-	public int getEstensione() {
-		return estensione;
+	public String getScadenza() {
+		return scadenza;
 	}
 
-	public void setEstensione(int estensione) {
-		this.estensione = estensione;
+	public void setScadenza(String scadenza) {
+		this.scadenza = scadenza;
+	}
+
+	public String getEstens() {
+		return estens;
+	}
+
+	public void setEstens(String estens) {
+		this.estens = estens;
 	}
 }

@@ -29,11 +29,12 @@ public class FinestraSceltaRuolo extends JPanel {
 	
 	public FinestraSceltaRuolo(Controller controller) {
 		this.controller=controller;
-		Font fontGrande= new Font("Arial",Font.PLAIN,20);
+		Font fontGrande= new Font("Arial",Font.BOLD,17);
 		Dimension grandezza= new Dimension(180,30);
 		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 		this.setOpaque(false);
 		indietro= new JButton("Indietro");
+		indietro= creaBottoneArrotondato("Indietro");
 		indietro.setAlignmentX(CENTER_ALIGNMENT);
 		indietro.setFont(fontGrande);
 		indietro.setMinimumSize(grandezza);
@@ -45,6 +46,7 @@ public class FinestraSceltaRuolo extends JPanel {
 		sceltaRuolo.setMinimumSize(new Dimension(250,32));
 		sceltaRuolo.setFont(new Font("Arial",Font.PLAIN,17));
 		conferma= new JButton("Conferma");
+		conferma= creaBottoneArrotondato("Conferma");
 		conferma.setAlignmentX(CENTER_ALIGNMENT);
 		conferma.setFont(fontGrande);
 		conferma.setPreferredSize(grandezza);
@@ -84,5 +86,27 @@ public class FinestraSceltaRuolo extends JPanel {
 	public String getSceltaRuolo() {
 		return sceltaRuolo.getSelectedItem().toString();
 	}
+	
+	 public JButton creaBottoneArrotondato(String testo) {
+		    JButton bottone = new JButton(testo) {
+		        private static final long serialVersionUID = 1L;
+		        @Override
+		        protected void paintComponent(Graphics g) {
+		            Graphics2D gr = (Graphics2D) g.create();
+		            gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		            gr.setColor(new Color(34, 139, 34));
+		            gr.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);	            
+		            gr.dispose();
+		            super.paintComponent(g);
+		        }
+		    };
+		    bottone.setContentAreaFilled(false); 
+		    bottone.setBorderPainted(false);    
+		    bottone.setFocusPainted(false);     
+		    bottone.setForeground(Color.WHITE);  
+		    bottone.setFont(new Font("SansSerif", Font.BOLD, 15));
+		    bottone.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+		    return bottone;
+		}
 	
 }

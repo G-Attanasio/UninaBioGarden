@@ -1,6 +1,6 @@
 package service;
 
-import java.sql.SQLException;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -227,11 +227,15 @@ public class Service {
 	
 	public void registraAttivitaImminente(AttivitaImminenteDTO attDTO) throws UtenteNonTrovatoException, ErroreDatabaseException {
 		ArrayList<String> errori= new ArrayList<String>();
+		LocalDate oggi= LocalDate.now();
 		if(!Notifica.isNotificaLunghezzaValida(attDTO.getTipoAttivitaImminente())) {
    		 	errori.add("errore descrizione veloce");
    	    }
    	    if(!Notifica.isDescrizioneLunghezzaValida(attDTO.getDescrizione())) {
    		    errori.add("errore descrizione");
+   	    }
+   	    if(attDTO.getDataScadenza().isBefore(LocalDate.now())) {
+   	    	errori.add("errore data scadenza");
    	    }
    	    if(!errori.isEmpty()) {
    	    	throw new ValidazioneException(errori);
@@ -301,11 +305,8 @@ public class Service {
 	      attivitaDAO.aggiornaQuantitaReale(codAttivita, quantita);	    
 	}
 	
-	public ArrayList<AttivitaDTO> caricaAttivitaAssegnate(int idUtente) throws RisorsaNonTrovataException, ErroreDatabaseException {
+	public ArrayList<AttivitaDTO> caricaAttivitaAssegnate(int idUtente) throws ErroreDatabaseException {
 	        ArrayList<Attivita> tutte = attivitaDAO.prelevaAttivitaAssegnateDaProprietario(idUtente);
-	        if(tutte==null || tutte.isEmpty()) {
-	        	throw new RisorsaNonTrovataException();
-	        }
 	        ArrayList<AttivitaDTO> lista = new ArrayList<>();
 	        for (Attivita a : tutte) {
 	            AttivitaDTO attDTO = new AttivitaDTO(
@@ -333,15 +334,9 @@ public class Service {
 	        return lista;    
 	}
 	
-	public ArrayList<AttivitaDTO> caricaAttivitaColtivatore(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {
+	public ArrayList<AttivitaDTO> caricaAttivitaColtivatore(int idUtente) throws ErroreDatabaseException {
 	        ArrayList<Attivita> tutte = attivitaDAO.prelevaAttivitaColtivatore(idUtente);
 	        ArrayList<SeminaColtura> dettagli = attivitaDAO.prelevaDettagliColturePerColtivatore(idUtente);
-	        if(tutte==null || tutte.isEmpty()) {
-	        	throw new RisorsaNonTrovataException();
-	        }
-	        if(dettagli==null || dettagli.isEmpty()) {
-	        	throw new RisorsaNonTrovataException();
-	        }
 	        ArrayList<AttivitaDTO> lista = new ArrayList<>();
 	        for (Attivita a : tutte) {
 	            AttivitaDTO attDTO = new AttivitaDTO(
@@ -379,11 +374,8 @@ public class Service {
 	        return lista;
 	}
 	
-	public ArrayList<ProgettoDTO> caricaProgettiProprietario(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {	        
+	public ArrayList<ProgettoDTO> caricaProgettiProprietario(int idUtente) throws ErroreDatabaseException {	        
 	        ArrayList<ProgettoStagionale> progetti = progettoDAO.prelevaProgettiPerProprietario(idUtente);
-	        if(progetti == null || progetti.isEmpty()) {
-	        	throw new RisorsaNonTrovataException();
-	        }
 	        ArrayList<ProgettoDTO> lista = new ArrayList<>();
 	        for (ProgettoStagionale p : progetti) {
 	            ProgettoDTO dto = new ProgettoDTO(
@@ -445,11 +437,8 @@ public class Service {
 	        return usernames;    
 	}
 	
-	public ArrayList<NotificaDTO> caricaNotificheInviate(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {	    
+	public ArrayList<NotificaDTO> caricaNotificheInviate(int idUtente) throws ErroreDatabaseException {	    
 	        ArrayList<Notifica> notifiche =  notificaDAO.prelevaNotificheInviate(idUtente);
-	        if(notifiche==null || notifiche.isEmpty()) {
-	        	throw new RisorsaNonTrovataException();
-	        }
 	        ArrayList<NotificaDTO> lista = new ArrayList<>();	              
 	        for (Notifica n : notifiche) {
 	        	 ArrayList<String> usernamesDestinatari = new ArrayList<>();	
@@ -466,8 +455,8 @@ public class Service {
 	            		 dto.setTipo("Imminente");
 	            		 dto.setDescrizioneVeloce(ai.getTipoAttivitaImminente());
 	            		 dto.setDescrizione(ai.getDescrizione());
-	            		 dto.setDataScadenza(ai.getDataScadenza());	            		 
-	            		 dto.setGravità("---");
+	            		 dto.setScadenza(ai.getDataScadenza().toString());	            		 
+	            		 dto.setGravità("-------");
 	            		 
 	            }
 	            else if (n instanceof Anomalia an) {
@@ -475,18 +464,16 @@ public class Service {
 	                dto.setDescrizioneVeloce(an.getTipoAnomalia());
 	                dto.setDescrizione(an.getDescrizione());
 	                dto.setGravità(an.getGravita().toString());
-	                dto.setEstensione(an.getEstensione());
+	                dto.setEstens(an.getEstensione()+" MQ");
+	                dto.setScadenza("-------");
 	            }
 	            lista.add(dto);
 	        }
 	        return lista;
 	}
 	
-	public ArrayList<NotificaDTO> caricaNotificheRicevute(int idUtente) throws ErroreDatabaseException, RisorsaNonTrovataException {
+	public ArrayList<NotificaDTO> caricaNotificheRicevute(int idUtente) throws ErroreDatabaseException {
 	        ArrayList<Notifica> notifiche =notificaDAO.prelevaNotificheRicevute(idUtente);
-	        if(notifiche == null || notifiche.isEmpty()) {
-	        	throw new RisorsaNonTrovataException();
-	        }
 	        ArrayList<NotificaDTO> lista = new ArrayList<>();
 	        for (Notifica n : notifiche) {
 	        	ArrayList<String> usernamesDestinatari = new ArrayList<>();	
@@ -503,8 +490,8 @@ public class Service {
 	                dto.setTipo("Imminente");
 	                dto.setDescrizioneVeloce(ai.getTipoAttivitaImminente());
 	                dto.setDescrizione(ai.getDescrizione());
-	                dto.setDataScadenza(ai.getDataScadenza());
-	                dto.setGravità("---");
+	                dto.setScadenza(ai.getDataScadenza().toString());
+	                dto.setGravità("-------");
 	                
 	            }
 	            else if (n instanceof Anomalia an) {
@@ -512,7 +499,8 @@ public class Service {
 	                dto.setDescrizioneVeloce(an.getTipoAnomalia());
 	                dto.setDescrizione(an.getDescrizione());
 	                dto.setGravità(an.getGravita().toString());
-	                dto.setEstensione(an.getEstensione());
+	                dto.setEstens(an.getEstensione()+ " MQ");
+	                dto.setScadenza("-------");
 	            }
 	            lista.add(dto);
 	        }
@@ -558,19 +546,7 @@ public class Service {
     
     public boolean durataAttivitaProgetto(Attivita attivita,LocalDate dataInizioProgetto,int durataProgetto) {
     	LocalDate dataFineProgetto = dataInizioProgetto.plusDays(durataProgetto);     
-        if (attivita.getDataFine().isAfter(dataFineProgetto)) {
-            return false;
-        }
-        if(attivita.getDataFine().isBefore(dataInizioProgetto)){
-        	return false;
-        }
-        if(attivita.getDataInizio().isAfter(dataFineProgetto)) {
-        	return false;
-        }
-        if (attivita.getDataInizio().isBefore(dataInizioProgetto)) {
-            return false;
-        }
-        return true;
+    	return !attivita.getDataInizio().isBefore(dataInizioProgetto) && !attivita.getDataFine().isAfter(dataFineProgetto);
     }
     
     public boolean isAttivitaNonSovrapposta(String username,Attivita attivita, ArrayList<Attivita> listaAttivita) throws ErroreDatabaseException {	

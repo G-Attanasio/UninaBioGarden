@@ -48,8 +48,10 @@ public class FinestraLogin extends JPanel {
 		JPanel pnlUsername= new JPanel();
 		JPanel pnlPassword= new JPanel();
 		JButton btnAccedi= new JButton("Accedi");
+		btnAccedi=creaBottoneArrotondato("Accedi");
 		btnAccedi.setMaximumSize(grandezza);
 		JButton btnIndietro= new JButton("Indietro");
+		btnIndietro=creaBottoneArrotondato("Indietro");
 		btnIndietro.setMaximumSize(grandezza);
 		
 		inserisciUsername.setFont(fontGrande);
@@ -142,6 +144,28 @@ public class FinestraLogin extends JPanel {
 	        g2d.fillRect(0, 0, w, h);	        
 	        super.paintComponent(g); 
 	    }
+	 
+	 public JButton creaBottoneArrotondato(String testo) {
+		    JButton bottone = new JButton(testo) {
+		        private static final long serialVersionUID = 1L;
+		        @Override
+		        protected void paintComponent(Graphics g) {
+		            Graphics2D gr = (Graphics2D) g.create();
+		            gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		            gr.setColor(new Color(34, 139, 34));
+		            gr.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);	            
+		            gr.dispose();
+		            super.paintComponent(g);
+		        }
+		    };
+		    bottone.setContentAreaFilled(false); 
+		    bottone.setBorderPainted(false);    
+		    bottone.setFocusPainted(false);     
+		    bottone.setForeground(Color.WHITE);  
+		    bottone.setFont(new Font("SansSerif", Font.BOLD, 15));
+		    bottone.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+		    return bottone;
+		}
 	
 	public String getUsername() {
 		String s= inserisciUsername.getText().trim();

@@ -299,6 +299,9 @@ public class FinestraCreaNotifica extends JPanel {
 	            case "errore formato data":
 	                messaggioErrore(cmpDataScadenza,"Inserire una data nel formato YYYY-MM-DD");
 	                break;
+	            case "errore data scadenza":
+	            	messaggioErrore(cmpDataScadenza, "Data inserita non valida.");
+	            	break;
 	            case "errore formato estensione":
 	                messaggioErrore(cmpEstensione,"Inserire un numero intero.");
 	                break;

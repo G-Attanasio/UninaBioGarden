@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -49,7 +50,10 @@ public class FinestraVisualizzaLotti extends JPanel {
 		    }
 		};
 		tabella= new JTable(modello);
+		tabella.setFont(new Font("Arial",Font.ITALIC,14));
+		tabella.setRowHeight(20);
 		tabella.getTableHeader().setReorderingAllowed(false);
+		tabella.getTableHeader().setFont(new Font("Arial",Font.BOLD,12));
 		scroll= new JScrollPane(tabella);
 		add(scroll,BorderLayout.CENTER);
 		
