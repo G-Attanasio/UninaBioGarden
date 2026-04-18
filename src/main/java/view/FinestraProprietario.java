@@ -90,8 +90,8 @@ public class FinestraProprietario extends JPanel {
 		        g2d.fillRect(0, 0, w, h);
 		    }
 		};
-		JLabel lblTitolo = new JLabel("U.B.G.-Dashboard");
-		lblTitolo.setFont(new Font("SansSerif", Font.BOLD, 80));
+		JLabel lblTitolo = new JLabel("U.B.G. Dashboard proprietario");
+		lblTitolo.setFont(new Font("SansSerif", Font.BOLD, 70));
 		lblTitolo.setForeground(new Color(140, 140, 140)); 
 		pnlNord.add(lblTitolo);
 		pnlOvest.setOpaque(false);

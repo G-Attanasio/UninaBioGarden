@@ -81,7 +81,7 @@ public class FinestraColtivatore extends JPanel {
 		        g2d.fillRect(0, 0, w, h);
 		    }
 		};
-		JLabel lblTitolo = new JLabel("U.B.G.-Dashboard");
+		JLabel lblTitolo = new JLabel("U.B.G. Dashboard coltivatore");
 		lblTitolo.setFont(new Font("SansSerif", Font.BOLD, 80));
 		lblTitolo.setForeground(new Color(140, 140, 140)); 
 		pnlNord.add(lblTitolo);

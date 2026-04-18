@@ -355,7 +355,8 @@ public class AttivitaDAO {
     	    try (Connection conn = DBConnection.getConnection();
     	         PreparedStatement ps = conn.prepareStatement(sql)) {  	        
     	        ps.setDouble(1, kg);
-    	        ps.setInt(2, codAttivita);  	        
+    	        ps.setInt(2, codAttivita);  
+    	        ps.executeUpdate();
     	    }catch(SQLException e) {
     	    	e.printStackTrace();
     	    	throw new ErroreDatabaseException();

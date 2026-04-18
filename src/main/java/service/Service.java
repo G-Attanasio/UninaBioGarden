@@ -33,7 +33,7 @@ public class Service {
 		this.reportDAO= new ReportDAO();
 	}
 	
-	public Utente effettuaLogin(String username, String password) throws UtenteNonTrovatoException, ErroreDatabaseException {
+	public Utente effettuaLogin(String username, String password) throws UtenteNonTrovatoException, ErroreDatabaseException {		
         	progettoDAO.sincronizzaSistema();
         	Utente u = utenteDAO.prelevaPerLogin(username, password);   
         	return u;
@@ -53,8 +53,8 @@ public class Service {
 	    return u;
 	}
 	
-	public Utente registraProprietario(UtenteDTO uDto,LottoDTO lDto,ArrayList<String> erroriParse) throws EmailUsernameGiàEsistentiException, ErroreDatabaseException {
-		ArrayList<String> errori= new ArrayList<String>(erroriParse);
+	public Utente registraProprietario(UtenteDTO uDto,LottoDTO lDto) throws EmailUsernameGiàEsistentiException, ErroreDatabaseException {
+		ArrayList<String> errori= new ArrayList<String>();
 		validaUtente(uDto, errori);	
 		Utente u= new Utente( uDto.getNome(), uDto.getCognome(), uDto.getUsername(), 
 		        uDto.getPassword(), uDto.getEmail(), uDto.getDataNascita(), uDto.getRuolo()
@@ -156,7 +156,7 @@ public class Service {
 		}
 	}
 	
-	public void validaAttivitaSeminaRaccolta(String nomeColtura, String coltS, String coltR, SeminaDTO sDTO, RaccoltaDTO rDTO,double quantitaSemi, ArrayList<Attivita> attivitaTemporanee,ArrayList<SeminaColtura> listaSeminaColtura,int durataProgetto, LocalDate dataInizioProgetto, LottoColtivabile lotto)throws UtenteNonTrovatoException,RisorsaNonTrovataException, ErroreDatabaseException {
+	public void validaAttivitaSeminaRaccolta(String nomeColtura, String coltS, String coltR, SeminaDTO sDTO, RaccoltaDTO rDTO,double quantitaSemi, ArrayList<Attivita> attTemp,ArrayList<SeminaColtura> listaSC,int durataP, LocalDate inizioP, LottoColtivabile lotto)throws UtenteNonTrovatoException,RisorsaNonTrovataException, ErroreDatabaseException {
 		ArrayList<String> errori= new ArrayList<String>();	
 			Coltura coltura= colturaDAO.prelevaColturaDaNome(nomeColtura);
 			Utente coltivatoreS= utenteDAO.prelevaDaUsername(coltS);
@@ -170,19 +170,19 @@ public class Service {
 			if(!SeminaColtura.isQuantitaSemiValida(quantitaSemi)) {
 				errori.add("errore <1");
 			}
-			if(!isAttivitaNonSovrapposta(coltS, semina, attivitaTemporanee)) {
+			if(!isAttivitaNonSovrapposta(coltS, semina, attTemp)) {
 				errori.add("colt semina sovr attivita");
 			}
-			if(!isAttivitaNonSovrapposta(coltR, raccolta, attivitaTemporanee)) {
+			if(!isAttivitaNonSovrapposta(coltR, raccolta, attTemp)) {
 				errori.add("colt raccolta sovr attivita");
 			}
-			if(!durataAttivitaProgetto(semina, dataInizioProgetto, durataProgetto)) {
+			if(!durataAttivitaProgetto(semina, inizioP, durataP)) {
 				errori.add("errore semina sovr progetto");
 			}
-			if(!durataAttivitaProgetto(raccolta, dataInizioProgetto, durataProgetto)) {
+			if(!durataAttivitaProgetto(raccolta, inizioP, durataP)) {
 				errori.add("errore raccolta sovr progetto");
 			}
-			if(!coerenzaSeminaDurata(semina.getDataFine(), dataInizioProgetto, coltura.getTempoMaturazione(), durataProgetto)) {
+			if(!coerenzaSeminaDurata(semina.getDataFine(), inizioP, coltura.getTempoMaturazione(), durataP)) {
 				errori.add("errore coerenzaSeminaDurata");
 			}
 			if(!dataInizioRaccoltaValida(semina, raccolta)) {
@@ -194,9 +194,9 @@ public class Service {
 			if(!errori.isEmpty()) {
 	    		 throw new ValidazioneException(errori);
 	    	}
-			attivitaTemporanee.add(semina);
-			attivitaTemporanee.add(raccolta);
-			listaSeminaColtura.add(seminaColtura);
+			attTemp.add(semina);
+			attTemp.add(raccolta);
+			listaSC.add(seminaColtura);
 	}
 	
 	public void validaAttivitaIrrigazione(String coltI, IrrigazioneDTO iDTO, LocalDate dataInizioP, int durataP, LottoColtivabile lottoSelezionato, ArrayList<Attivita> attivitaTemporanee )throws UtenteNonTrovatoException, ErroreDatabaseException, RisorsaNonTrovataException {

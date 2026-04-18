@@ -384,7 +384,7 @@ public class Controller {
     	}   		
     	LottoDTO lc= new LottoDTO(tessituraEnum,dimensioniInt, phDouble, morfologiaEnum, altitudineInt, lDTO.getLocalita(), lDTO.getComune(), lDTO.getProvincia(),uDTO.getIdUtente()); 	
     		try {
-    			Utente u = service.registraProprietario(uDTO, lc,errori);
+    			Utente u = service.registraProprietario(uDTO, lc);
     			if(u!=null) {
     			setUtenteLoggato(u);
     			finestraIscrizioneProprietario.pulisciCampi();
@@ -495,6 +495,9 @@ public class Controller {
     	 if (dto.getDestinatari().isEmpty()) {
     	      errori.add("errore destinatari vuoti");
     	 } 
+    	 if (!errori.isEmpty()) {
+    		    return errori;
+    		}
     	 LocalDate oggi = LocalDate.now();
     	 Integer estensioneInt;
     	 try {
@@ -616,27 +619,27 @@ public class Controller {
 		Controller.utenteLoggato = utenteLoggato;
 	}
 	
-	public Integer parseInt(String value, String errore, ArrayList<String> errori) {
+	public Integer parseInt(String valore, String errore, ArrayList<String> errori) {
 	    try {
-	        return Integer.parseInt(value.trim());
+	        return Integer.parseInt(valore.trim());
 	    } catch (NumberFormatException e) {
 	        errori.add(errore);
 	        return null;
 	    }
 	}
 	
-	public Double parseDouble(String value, String errore, ArrayList<String> errori) {
+	public Double parseDouble(String valore, String errore, ArrayList<String> errori) {
 	    try {
-	        return Double.parseDouble(value.replace(",", "."));
+	        return Double.parseDouble(valore.replace(",", "."));
 	    } catch (NumberFormatException e) {
 	        errori.add(errore);
 	        return null;
 	    }
 	}
 	
-	public LocalDate parseDate(String value, String errore, ArrayList<String> errori) {
+	public LocalDate parseDate(String valore, String errore, ArrayList<String> errori) {
 	    try {
-	        return LocalDate.parse(value);
+	        return LocalDate.parse(valore);
 	    } catch (DateTimeParseException e) {
 	        errori.add(errore);
 	        return null;

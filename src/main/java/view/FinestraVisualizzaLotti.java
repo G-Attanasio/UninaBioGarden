@@ -112,10 +112,10 @@ public class FinestraVisualizzaLotti extends JPanel {
 	        Object[] riga = {
 	            lc.getCodLotto(),
 	            lc.getTessitura().toString().replace("_", " "),
-	            lc.getDimensioni(),
+	            lc.getDimensioni()+" MQ",
 	            lc.getPh(),
 	            lc.getMorfologia(),
-	            lc.getAltitudine(),
+	            lc.getAltitudine()+" metri",
 	            lc.getLocalita(),
 	            lc.getComune(),
 	            lc.getProvincia()

@@ -98,8 +98,8 @@ public class FinestraProprietarioColtivatore extends JPanel{
 		    }
 		};
 		
-		JLabel lblTitolo = new JLabel("U.B.G.-Dashboard");
-		lblTitolo.setFont(new Font("SansSerif", Font.BOLD, 80));
+		JLabel lblTitolo = new JLabel("U.B.G. Dashboard proprietario-coltivatore");
+		lblTitolo.setFont(new Font("SansSerif", Font.BOLD, 65));
 		lblTitolo.setForeground(new Color(140, 140, 140)); 
 		pnlNord.add(lblTitolo);
 		leMieAttivita= new JButton("Le mie Attività");

@@ -13,7 +13,7 @@ public class MainFrame extends JFrame {
 	
 	public MainFrame(Controller controller) {
 		setTitle("UninaBioGarden");
-		setSize(1350,800);
+		setSize(1400,800);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLocationRelativeTo(null);
 	    setVisible(true);

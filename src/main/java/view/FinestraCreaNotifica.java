@@ -217,6 +217,7 @@ public class FinestraCreaNotifica extends JPanel {
 		});
 		
 		invia.addActionListener(e->{
+			System.out.println("CLICK");
 			ArrayList<String> errori=controller.creaNotifica(getInputNotificaDTO());
 			if(!errori.isEmpty()) {
 				gestisciErrori(errori);

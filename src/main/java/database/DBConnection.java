@@ -25,11 +25,9 @@ public class DBConnection {
                     String pass = props.getProperty("db.password");                   
                     Class.forName("org.postgresql.Driver");
                     conn = DriverManager.getConnection(url, user, pass);
-                    System.out.println("DATABASE: Connessione stabilita con successo.");
                 }
             }
         } catch (IOException | SQLException | ClassNotFoundException e) {
-            System.err.println("ERRORE CONNESSIONE: " + e.getMessage());
             e.printStackTrace();
         }
         return conn;
