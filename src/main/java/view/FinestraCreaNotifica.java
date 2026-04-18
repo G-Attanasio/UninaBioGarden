@@ -52,6 +52,7 @@ public class FinestraCreaNotifica extends JPanel {
 	private JList<String> listaScelti;
 	private JScrollPane scrollScelti;
 	private JButton rimuovi;
+	private JButton rimuoviTutti;
 	
 	public FinestraCreaNotifica(Controller controller) {
 		this.controller=controller;
@@ -128,7 +129,7 @@ public class FinestraCreaNotifica extends JPanel {
 		listaDestinatari.setPreferredSize(riga);
 		aggiungiDestinatario= new JButton("Aggiungi destinatario");
 		aggiungiDestinatario.setPreferredSize(grandezza);
-		aggiungiTutti= new JButton("Aggiungi tutti come destinatario");
+		aggiungiTutti= new JButton("Aggiungi tutti");
 		aggiungiTutti.setPreferredSize(grandezza);
 		modelloScelti = new DefaultListModel<>();
 		listaScelti = new JList<>(modelloScelti);
@@ -136,12 +137,14 @@ public class FinestraCreaNotifica extends JPanel {
 		scrollScelti.setPreferredSize(new Dimension(150, 80));
 		rimuovi= new JButton("Rimuovi");
 		rimuovi.setPreferredSize(riga);
+		rimuoviTutti= new JButton("Rimuovi tutti");
 		pnlDestinatari.add(sceltaDestinatari);
 		pnlDestinatari.add(listaDestinatari);
 		pnlDestinatari.add(aggiungiDestinatario);
 		pnlDestinatari.add(aggiungiTutti);
 		pnlDestinatari.add(scrollScelti);
 		pnlDestinatari.add(rimuovi);
+		pnlDestinatari.add(rimuoviTutti);
 		
 		
 		JPanel pnlBottoni= new JPanel(new FlowLayout(FlowLayout.CENTER,80,10));
@@ -207,6 +210,10 @@ public class FinestraCreaNotifica extends JPanel {
 		    } else {
 		        JOptionPane.showMessageDialog(this, "Seleziona un nome dalla lista per rimuoverlo.", "", JOptionPane.INFORMATION_MESSAGE);
 		    }
+		});
+		
+		rimuoviTutti.addActionListener(e->{
+			svuotaDestinatariScelti();
 		});
 		
 		invia.addActionListener(e->{
@@ -326,6 +333,10 @@ public class FinestraCreaNotifica extends JPanel {
 	
 	public void mostraMessaggio(String testo) {
 		JOptionPane.showMessageDialog(this, testo);
+	}
+
+	public void svuotaDestinatariScelti() {
+	    modelloScelti.clear();
 	}
 
 	public Controller getController() {

@@ -1,8 +1,14 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -31,6 +37,7 @@ public class FinestraVisualizzaAttivita extends JPanel {
 		setLayout(new BorderLayout());
 		JPanel pnlBottoni= new JPanel(new FlowLayout());
 		registraRaccolta= new JButton("Registra raccolta");
+		registraRaccolta=creaBottonePersonale("Registra raccolta", new Color(135, 206, 250), new Color(70, 130, 180));
 		pnlBottoni.add(registraRaccolta);
 		add(pnlBottoni,BorderLayout.SOUTH);
 		modello= new DefaultTableModel(titoli, 0){
@@ -122,6 +129,33 @@ public class FinestraVisualizzaAttivita extends JPanel {
 			return tabella;
 		}
 		
-		
+		public static JButton creaBottonePersonale(String testo, Color coloreAlto, Color coloreBasso) {
+		    JButton bottone = new JButton(testo) {
+		        private static final long serialVersionUID = 1L;
+		        @Override
+		        protected void paintComponent(Graphics g) {
+		            Graphics2D g2 = (Graphics2D) g.create();
+		            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		            GradientPaint gp = new GradientPaint(0, 0, coloreAlto, 0, getHeight(), coloreBasso);
+		            g2.setPaint(gp);           
+		            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+		            g2.setColor(coloreBasso.darker());
+		            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+		            g2.dispose();
+		            super.paintComponent(g);
+		        }
+		    };
+
+			Dimension grandezza= new Dimension(200,30);
+			bottone.setPreferredSize(grandezza);
+		    bottone.setContentAreaFilled(false);
+		    bottone.setBorderPainted(false);
+		    bottone.setFocusPainted(false);
+		    bottone.setForeground(Color.WHITE);
+		    bottone.setFont(new Font("Arial",Font.PLAIN,17));
+		    
+		    return bottone;
+		}
 	}
 

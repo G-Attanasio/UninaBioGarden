@@ -1,8 +1,14 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -31,8 +37,11 @@ public class FinestraVisualizzaProgetti extends JPanel {
 		this.controller=controller;
 		setLayout(new BorderLayout());
 		JPanel pnlSud= new JPanel ( new FlowLayout(FlowLayout.LEFT));
-		cancella= new JButton("Cancella progetto");	
+		cancella= new JButton("Cancella");	
+		cancella=creaBottonePersonale("Cancella",  new Color(220, 50, 50),new Color(150, 20, 20));
 		report= new JButton("Visualizza report raccolte");
+		report= creaBottonePersonale("Visualizza report raccolte", new Color(135, 206, 250), new Color(70, 130, 180));
+		report.setPreferredSize(new Dimension(220,30));
 		pnlSud.add(cancella);		
 		pnlSud.add(report);
 		add(pnlSud,BorderLayout.SOUTH);		
@@ -109,7 +118,7 @@ public class FinestraVisualizzaProgetti extends JPanel {
 	            p.getLottoImpegnato(),
 	            p.getStagioneDiRiferimento(),
 	            p.getDataInizio(),
-	            p.getDurata(),
+	            p.getDurata()+" Giorni",
 	            p.getStatoEsecuzione()
 	        };
 	        aggiungiRigaTabella(riga);
@@ -137,6 +146,35 @@ public class FinestraVisualizzaProgetti extends JPanel {
 
 	public DefaultTableModel getModello() { 
 	    return modello;
+	}
+	
+	public static JButton creaBottonePersonale(String testo, Color coloreAlto, Color coloreBasso) {
+	    JButton bottone = new JButton(testo) {
+	        private static final long serialVersionUID = 1L;
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            Graphics2D g2 = (Graphics2D) g.create();
+	            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	            GradientPaint gp = new GradientPaint(0, 0, coloreAlto, 0, getHeight(), coloreBasso);
+	            g2.setPaint(gp);           
+	            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+	            g2.setColor(coloreBasso.darker());
+	            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+	            g2.dispose();
+	            super.paintComponent(g);
+	        }
+	    };
+
+		Dimension grandezza= new Dimension(150,30);
+		bottone.setPreferredSize(grandezza);
+	    bottone.setContentAreaFilled(false);
+	    bottone.setBorderPainted(false);
+	    bottone.setFocusPainted(false);
+	    bottone.setForeground(Color.WHITE);
+	    bottone.setFont(new Font("Arial",Font.PLAIN,17));
+	    
+	    return bottone;
 	}
 	
 }

@@ -1,12 +1,19 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,11 +41,16 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		this.controller=controller;
 		setLayout(new BorderLayout());
 		JPanel pnlSud= new JPanel ( new FlowLayout(FlowLayout.LEFT));
-		cancella= new JButton("Cancella notifica");
+		cancella= new JButton("Cancella");
+		cancella=creaBottonePersonale("Cancella",  new Color(220, 50, 50),new Color(150, 20, 20));
 		aggiungi= new JButton("Crea notifica");
-		
+		aggiungi= creaBottonePersonale("Crea Notifica", new Color(135, 206, 250), new Color(70, 130, 180));
+		JLabel aiuto= new JLabel("\"Doppio click su notifiche per visualizzare dettagli\"");
+		aiuto.setForeground(new Color(150,150,150));
+		aiuto.setFont(new Font("Arial",Font.PLAIN,17));
 		pnlSud.add(cancella);
 		pnlSud.add(aggiungi);
+		pnlSud.add(aiuto);
 		add(pnlSud,BorderLayout.SOUTH);
 		
 		modello= new DefaultTableModel(titoli, 0){
@@ -69,7 +81,7 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 		    
 		    int riga = tabella.getSelectedRow();
 		    if (riga != -1) {
-		    	int codNotifica = Integer.parseInt(tabella.getValueAt(riga, 5).toString());
+		    	int codNotifica = Integer.parseInt(tabella.getValueAt(riga, 6).toString());
 		        int scelta = JOptionPane.showConfirmDialog(
 		            this, 
 		            "Sei sicuro di voler eliminare questa notifica?", 
@@ -223,6 +235,35 @@ public class FinestraVisualizzaNotifiche extends JPanel {
 
 	public void setInviata(boolean inviata) {
 		this.inviata = inviata;
+	}
+	
+	public static JButton creaBottonePersonale(String testo, Color coloreAlto, Color coloreBasso) {
+	    JButton bottone = new JButton(testo) {
+	        private static final long serialVersionUID = 1L;
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            Graphics2D g2 = (Graphics2D) g.create();
+	            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	            GradientPaint gp = new GradientPaint(0, 0, coloreAlto, 0, getHeight(), coloreBasso);
+	            g2.setPaint(gp);           
+	            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+	            g2.setColor(coloreBasso.darker());
+	            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+	            g2.dispose();
+	            super.paintComponent(g);
+	        }
+	    };
+
+		Dimension grandezza= new Dimension(150,30);
+		bottone.setPreferredSize(grandezza);
+	    bottone.setContentAreaFilled(false);
+	    bottone.setBorderPainted(false);
+	    bottone.setFocusPainted(false);
+	    bottone.setForeground(Color.WHITE);
+	    bottone.setFont(new Font("Arial",Font.PLAIN,17));
+	    
+	    return bottone;
 	}
 	
 }

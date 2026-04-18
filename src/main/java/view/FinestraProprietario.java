@@ -3,6 +3,7 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -28,7 +29,6 @@ public class FinestraProprietario extends JPanel {
 	private JButton visualizzaLotti;
 	private JButton visualizzaProgetti;
 	private JButton visualizzaColture;
-	private JButton visualizzaReport;
 	private JButton creaNotifiche;
 	private JButton esci;
 	private CardLayout layoutInterno;
@@ -48,7 +48,7 @@ public class FinestraProprietario extends JPanel {
 		this.setController(controller);
 	
 		Font fontGrande= new Font("Segoe UI",Font.PLAIN,20);
-		Dimension grandezza= new Dimension(220,27);
+		Dimension grandezza= new Dimension(220,32);
 		finCreaProgetto= new FinestraCreaProgetto(controller);
 		finAttivitaAssegnate= new FinestraAttivitaAssegnate(controller);		
 		finVisualizzaLotti= new FinestraVisualizzaLotti(controller);
@@ -64,12 +64,9 @@ public class FinestraProprietario extends JPanel {
 			protected void paintComponent(Graphics g) {
 			    Graphics2D g2d = (Graphics2D) g;
 			    int h = getHeight();
-			    int w = getWidth();
-			    
-			   
+			    int w = getWidth();		   
 			    Color a = new Color(235, 235, 210);
-			    Color b = new Color(230, 220, 190);
-			    
+			    Color b = new Color(230, 220, 190);		    
 			    GradientPaint gp = new GradientPaint(0, 0, a, 0, h, b);
 			    g2d.setPaint(gp);
 			    g2d.fillRect(0, 0, w, h);
@@ -99,32 +96,22 @@ public class FinestraProprietario extends JPanel {
 		pnlNord.add(lblTitolo);
 		pnlOvest.setOpaque(false);
 		attivitaAssegnate= new JButton("Attività assegnate");
-		attivitaAssegnate.setAlignmentX(CENTER_ALIGNMENT);
-		attivitaAssegnate.setPreferredSize(grandezza);
+		attivitaAssegnate=creaBottonePersonale("Attività assegnate");		
 		attivitaAssegnate.setFont(fontGrande);
-		visualizzaLotti= new JButton("I miei lotti");
-		visualizzaLotti.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaLotti.setPreferredSize(grandezza);
+		visualizzaLotti= new JButton("I miei Lotti");
+		visualizzaLotti= creaBottonePersonale("I miei Lotti");		
 		visualizzaLotti.setFont(fontGrande);
-		visualizzaProgetti= new JButton("I miei progetti");
-		visualizzaProgetti.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaProgetti.setPreferredSize(grandezza);
+		visualizzaProgetti= new JButton("I miei Progetti");
+		visualizzaProgetti= creaBottonePersonale("I miei Progetti");
 		visualizzaProgetti.setFont(fontGrande);
 		visualizzaColture= new JButton("Lista colture");
-		visualizzaColture.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaColture.setPreferredSize(grandezza);
+		visualizzaColture= creaBottonePersonale("Lista colture");	
 		visualizzaColture.setFont(fontGrande);
-		visualizzaReport= new JButton("Report raccolte");
-		visualizzaReport.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaReport.setPreferredSize(grandezza);
-		visualizzaReport.setFont(fontGrande);
-		creaNotifiche= new JButton("Visualizza notifiche");
-		creaNotifiche.setAlignmentX(CENTER_ALIGNMENT);
-		creaNotifiche.setPreferredSize(grandezza);
+		creaNotifiche= new JButton("Invia Notifica");
+		creaNotifiche= creaBottonePersonale("Invia notifica");	
 		creaNotifiche.setFont(fontGrande);
 		esci= new JButton("Esci");
-		esci.setAlignmentX(CENTER_ALIGNMENT);
-		esci.setPreferredSize(grandezza);
+		esci= creaBottonePersonale("Esci");
 		esci.setFont(fontGrande);
 		pnlOvest.setBackground(new Color(200,230,200));
 		pnlOvest.setLayout(new BoxLayout(pnlOvest,BoxLayout.Y_AXIS));
@@ -245,5 +232,42 @@ public class FinestraProprietario extends JPanel {
 		return finVisualizzaNotifiche;
 	}
 	
+	public static JButton creaBottonePersonale(String testo) {
+	    JButton bottone = new JButton(testo) {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            Graphics2D g2 = (Graphics2D) g.create();
+	            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	            Color bianco = new Color(255, 255, 255); 
+	            Color grigioMetallo = new Color(200, 205, 200);                
+	            GradientPaint gp = new GradientPaint(0, 0, bianco,0, getHeight(), grigioMetallo);
+	            
+	            if (getModel().isRollover()) {
+	                Color biancoMorbido = new Color(245, 255, 245); 
+	                Color grigioChiaroHover = new Color(215, 220, 215);
+	                gp = new GradientPaint(0, 0, biancoMorbido, 0, getHeight(), grigioChiaroHover);
+	            } 
+	            int round = getHeight(); 
+	            g2.setPaint(gp);
+	            g2.fillRoundRect(0, 0, getWidth(), getHeight(), round, round);
+	            g2.setColor(new Color(150, 160, 150)); 
+	            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, round, round);
+	            g2.dispose();
+	            super.paintComponent(g);
+	        }
+	    };
+	    Dimension d = new Dimension(200, 32); 
+	    bottone.setPreferredSize(d);
+	    bottone.setMinimumSize(d);
+	    bottone.setMaximumSize(d);
+	    bottone.setContentAreaFilled(false);
+	    bottone.setBorderPainted(false);
+	    bottone.setFocusPainted(false);
+	    bottone.setForeground(new Color(20, 20, 20));
+	    bottone.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	    bottone.setAlignmentX(CENTER_ALIGNMENT);
+	    return bottone;
+	}
+
 	
 }

@@ -128,11 +128,11 @@ public class FinestraIscriviLotto extends JPanel {
 		JPanel pnlBottoni= new JPanel(new FlowLayout());
 		pnlBottoni.setPreferredSize(new Dimension(100,100));
 		salva= new JButton("Salva");
-		salva.setPreferredSize(riga);
-		salva.setFont(fontGrande);
+		salva=creaBottoneArrotondato("Salva");
+		salva.setPreferredSize(grandezza);
 		indietro= new JButton("Indietro");
-		indietro.setPreferredSize(riga);
-		indietro.setFont(fontGrande);
+		indietro= creaBottoneArrotondato("Indietro");
+		indietro.setPreferredSize(grandezza);
 		pnlBottoni.add(salva);
 		pnlBottoni.add(Box.createRigidArea(new Dimension(50,0)));
 		pnlBottoni.add(indietro);
@@ -327,16 +327,6 @@ public class FinestraIscriviLotto extends JPanel {
 	}
 	
 	public InputLottoDTO getInputLottoDTO() {
-
-	    String tessitura = tipoTessitura.getSelectedItem().toString();
-	    String dimensioni = cmpDimensioni.getText();
-	    String ph = cmpPh.getText().replace(",", ".");
-	    String morfologia = tipoMorfologia.getSelectedItem().toString();
-	    String altitudine = cmpAltitudine.getText();
-	    String localita = cmpLocalità.getText();
-	    String comune = cmpComune.getText();
-	    String provincia = cmpProvincia.getText().toUpperCase();
-
 	    return new InputLottoDTO(getTipoTessitura().replace(" ","_"),getDimensioni(),getPh().replace(",","."),getTipoMorfologia(),getAltitudine(),getLocalità(),getComune(),getProvincia().toUpperCase());
 	}
 	
@@ -353,4 +343,26 @@ public class FinestraIscriviLotto extends JPanel {
         g2d.fillRect(0, 0, w, h);	        
         super.paintComponent(g); 
     }
+	
+	public JButton creaBottoneArrotondato(String testo) {
+	    JButton bottone = new JButton(testo) {
+	        private static final long serialVersionUID = 1L;
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            Graphics2D gr = (Graphics2D) g.create();
+	            gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	            gr.setColor(new Color(34, 139, 34));
+	            gr.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);	            
+	            gr.dispose();
+	            super.paintComponent(g);
+	        }
+	    };
+	    bottone.setContentAreaFilled(false); 
+	    bottone.setBorderPainted(false);    
+	    bottone.setFocusPainted(false);     
+	    bottone.setForeground(Color.WHITE);  
+	    bottone.setFont(new Font("SansSerif", Font.BOLD, 15));
+	    bottone.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+	    return bottone;
+	}
 }

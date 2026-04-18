@@ -3,6 +3,7 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -85,16 +86,13 @@ public class FinestraColtivatore extends JPanel {
 		lblTitolo.setForeground(new Color(140, 140, 140)); 
 		pnlNord.add(lblTitolo);
 		visualizzaAttivita= new JButton("Le mie Attività");
-		visualizzaAttivita.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaAttivita.setPreferredSize(grandezza);
+		visualizzaAttivita= creaBottonePersonale("Le mie Attività");
 		visualizzaAttivita.setFont(fontGrande);
-		visualizzaNotifiche= new JButton("Visualizza Notifiche");
-		visualizzaNotifiche.setAlignmentX(CENTER_ALIGNMENT);
-		visualizzaNotifiche.setPreferredSize(grandezza);
+		visualizzaNotifiche= new JButton("Notifiche ricevute");
+		visualizzaNotifiche= creaBottonePersonale("Notifiche ricevute");
 		visualizzaNotifiche.setFont(fontGrande);
 		esci= new JButton("Esci");
-		esci.setAlignmentX(CENTER_ALIGNMENT);
-		esci.setPreferredSize(grandezza);
+		esci=creaBottonePersonale("Esci");
 		esci.setFont(fontGrande);
 		pnlOvest.setBackground(new Color(200,230,200));
 		pnlOvest.setLayout(new BoxLayout(pnlOvest,BoxLayout.Y_AXIS));
@@ -149,9 +147,40 @@ public class FinestraColtivatore extends JPanel {
 		return finVisualizzaNotifiche;
 	}
 
-
-
-	
-	
-	
+	public static JButton creaBottonePersonale(String testo) {
+	    JButton bottone = new JButton(testo) {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            Graphics2D g2 = (Graphics2D) g.create();
+	            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	            Color bianco = new Color(255, 255, 255); 
+	            Color grigioMetallo = new Color(200, 205, 200);                
+	            GradientPaint gp = new GradientPaint(0, 0, bianco,0, getHeight(), grigioMetallo);
+	            
+	            if (getModel().isRollover()) {
+	                Color biancoMorbido = new Color(245, 255, 245); 
+	                Color grigioChiaroHover = new Color(215, 220, 215);
+	                gp = new GradientPaint(0, 0, biancoMorbido, 0, getHeight(), grigioChiaroHover);
+	            } 
+	            int round = getHeight(); 
+	            g2.setPaint(gp);
+	            g2.fillRoundRect(0, 0, getWidth(), getHeight(), round, round);
+	            g2.setColor(new Color(150, 160, 150)); 
+	            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, round, round);
+	            g2.dispose();
+	            super.paintComponent(g);
+	        }
+	    };
+	    Dimension d = new Dimension(200, 32); 
+	    bottone.setPreferredSize(d);
+	    bottone.setMinimumSize(d);
+	    bottone.setMaximumSize(d);
+	    bottone.setContentAreaFilled(false);
+	    bottone.setBorderPainted(false);
+	    bottone.setFocusPainted(false);
+	    bottone.setForeground(new Color(20, 20, 20)); 
+	    bottone.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	    bottone.setAlignmentX(CENTER_ALIGNMENT);
+	    return bottone;
+	}
 }

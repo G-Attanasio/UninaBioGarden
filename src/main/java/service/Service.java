@@ -227,7 +227,6 @@ public class Service {
 	
 	public void registraAttivitaImminente(AttivitaImminenteDTO attDTO) throws UtenteNonTrovatoException, ErroreDatabaseException {
 		ArrayList<String> errori= new ArrayList<String>();
-		LocalDate oggi= LocalDate.now();
 		if(!Notifica.isNotificaLunghezzaValida(attDTO.getTipoAttivitaImminente())) {
    		 	errori.add("errore descrizione veloce");
    	    }
